@@ -2,64 +2,86 @@
 
 namespace App\Http\Controllers\Finance;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller; 
 use Illuminate\Http\Request;
+use App\Models\Budget;
+use App\Models\Department;
 
 class BudgetController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of budgets.
      */
     public function index()
     {
-        return view('finance.budgets.index');
+        $budgets = Budget::with('department')->latest()->get();
+        return view('finance.budgets.index', compact('budgets'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new budget.
      */
     public function create()
     {
-        //
+        $departments = Department::all();
+        return view('finance.budgets.create', compact('departments'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created budget in storage.
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'allocated'     => 'required|numeric|min:0',
+            'spent'         => 'required|numeric|min:0',
+            'balance'       => 'required|numeric|min:0',
+            'status'        => 'required|in:pending,approved,rejected',
+        ]);
+
+        Budget::create($validated);
+
+        return redirect()->route('finance.budgets.index')
+                         ->with('success', 'Budget added successfully.');
     }
 
     /**
-     * Display the specified resource.
+     * Show the form for editing the specified budget.
      */
-    public function show(string $id)
+    public function edit(Budget $budget)
     {
-        //
+        $departments = Department::all();
+        return view('finance.budgets.edit', compact('budget', 'departments'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update the specified budget in storage.
      */
-    public function edit(string $id)
+    public function update(Request $request, Budget $budget)
     {
-        //
+        $validated = $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'allocated'     => 'required|numeric|min:0',
+            'spent'         => 'required|numeric|min:0',
+            'balance'       => 'required|numeric|min:0',
+            'status'        => 'required|in:pending,approved,rejected',
+        ]);
+
+        $budget->update($validated);
+
+        return redirect()->route('finance.budgets.index')
+                         ->with('success', 'Budget updated successfully.');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Remove the specified budget from storage.
      */
-    public function update(Request $request, string $id)
+    public function destroy(Budget $budget)
     {
-        //
-    }
+        $budget->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('finance.budgets.index')
+                         ->with('success', 'Budget deleted successfully.');
     }
 }

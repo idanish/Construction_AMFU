@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\DB;
+
+
 class SettingsController extends Controller
 {
    public function index() {
@@ -45,45 +48,37 @@ class SettingsController extends Controller
 }  
 
 //restore function
+
 public function restoreBackup(Request $request)
 {
     $request->validate([
         'backup_file' => 'required|file|mimes:sql,txt',
     ]);
 
-    $file = $request->file('backup_file');
-    $path = $file->getRealPath();
+    // File ko storage me save karo
+    $storedPath = $request->file('backup_file')->store('backups');
+    $path = storage_path('app/' . $storedPath);
 
-    $dbHost = env('DB_HOST', '127.0.0.1');
-    $dbPort = env('DB_PORT', '3306');
-    $dbUser = env('DB_USERNAME', 'root');
-    $dbPass = env('DB_PASSWORD', '');
-    $dbName = env('DB_DATABASE', 'amfuS');
+    try {
+        // File ka content read karo
+        $sql = file_get_contents($path);
 
-    // XAMPP MySQL path (apne system ka check kar lena)
-    $mysqlPath = "C:/xampp/mysql/bin/mysql.exe";
+        // Queries ko run karo
+        DB::unprepared($sql);
 
-    $command = "\"$mysqlPath\" -h$dbHost -P$dbPort -u$dbUser " . 
-               ($dbPass ? "-p$dbPass " : "") . 
-               "$dbName < \"$path\"";
-
-    $output = null;
-    $returnVar = null;
-    exec($command, $output, $returnVar);
-
-    if ($returnVar === 0) {
-        return back()->with('success', 'Database restore successfully.');
-    } else {
-        return back()->with('error', 'Failed to restore database.');
+        return back()->with('success', '✅ Database restored successfully!');
+    } catch (\Exception $e) {
+        return back()->with('error', '❌ Restore failed: ' . $e->getMessage());
     }
 }
+
 
 //logo function
 
  public function showLogoForm()
     {
-        $setting = Setting::first(); // database se setting fetch
-        return view('settings.logo', compact('setting')); // pass variable to blade
+        $setting = Setting::first();
+        return view('settings.logo', compact('setting'));
     }
 
     public function updateLogo(Request $request)
@@ -97,7 +92,7 @@ public function restoreBackup(Request $request)
         $setting = Setting::first();
         if (!$setting) {
             $setting = new Setting();
-            // $setting->site_name = "My Website"; // default
+            
         }
 
         $setting->logo = $path;
