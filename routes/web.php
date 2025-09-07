@@ -47,7 +47,7 @@ Route::get('/admin/user-management', [App\Http\Controllers\UserManagementControl
 // Assign Role to User - Protected route for Admin only
 Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementController::class, 'assignRole'])
     ->name('users.assignRole');
-    
+
 // Admin Register Form
 Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('admin.register');
 
@@ -82,7 +82,8 @@ Route::prefix('settings')->name('settings.')->group(function () {
 
     // Logo
     // GET: form show karne ke liye
-Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
+    
+    Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
 
 // POST: logo update karne ke liye
 Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
