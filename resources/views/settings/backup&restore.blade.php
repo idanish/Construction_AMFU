@@ -48,7 +48,7 @@
             {{-- Restore Section --}}
             <div>
                 <h5 class="fw-bold text-success"><i class="bi bi-arrow-repeat me-2"></i>Restore Backup</h5>
-                <p class="text-muted">Upload a backup file (.zip) to restore your system data.</p>
+                <p class="text-muted">Upload a backup file (.SQL) to restore your system data.</p>
                 <form action="{{ route('settings.backup.restore') }}" method="Post" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
