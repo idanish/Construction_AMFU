@@ -24,7 +24,6 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
             animation: fadeIn 0.8s ease-in-out;
             background: rgba(255, 255, 255, 0.95);
-            /* semi-transparent white */
         }
 
         .card-header {
@@ -44,16 +43,6 @@
 
         .btn-primary:hover {
             background-color: #357abd;
-        }
-
-        .btn-success {
-            background: #28a745;
-            border: none;
-            transition: 0.3s ease;
-        }
-
-        .btn-success:hover {
-            background: #218838;
         }
 
         .form-label {
@@ -82,7 +71,6 @@
                     <div class="card-body">
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-
                             <div class="mb-3">
                                 <label for="email" class="form-label">{{ __('Email Address') }}</label>
                                 <input id="email" type="email"
@@ -108,16 +96,9 @@
                                 <label class="form-check-label" for="remember">{{ __('Remember Me') }}</label>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center">
-                                <button type="submit" class="btn btn-primary px-4">{{ __('Login') }}</button>
-
-                                
-                                @if (Route::has('register'))
-                                    <a class="btn btn-success px-4" href="{{ route('register') }}">
-                                        {{ __('Register') }}
-                                    </a>
-                                @endif
-
+                            {{-- Full width login button --}}
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">{{ __('Login') }}</button>
                             </div>
 
                             @if (Route::has('password.request'))
