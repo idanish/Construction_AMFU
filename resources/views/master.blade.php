@@ -67,7 +67,34 @@
                     <!-- Finance Menu -->
                     <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
 
-                    <!-- Budgets -->
+
+
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Pages</span>
+                    </li>
+                    <li class="menu-item">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                            <div data-i18n="Account Settings">Management</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                                <a href="{{ route('admin.register') }}" class="menu-link">
+                                    <div data-i18n="Notifications">Register</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('admin.user-management') }}" class="menu-link">
+                                    <div data-i18n="User-Management">User-Management</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Finance</span>
+                    </li>
+
                     <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>

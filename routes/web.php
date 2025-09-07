@@ -27,8 +27,9 @@ Route::get('/form',[ViewController::class,'form']);
 Auth::routes();
 
 // Admin Dashboard
-Route::get('/admin/dashboard', [App\Http\Controllers\Auth\LoginController::class, 'dashboard'])
-    ->name('admin.dashboard');
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard'); 
+})->name('admin.dashboard');
 // PM Dashboard
 Route::get('/pm/dashboard', [App\Http\Controllers\ViewController::class, 'pmDashboard'])
     ->name('pm.dashboard');
@@ -49,6 +50,11 @@ Route::get('/admin/user-management', [App\Http\Controllers\UserManagementControl
 Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementController::class, 'assignRole'])
     ->name('users.assignRole');
 
+// Admin Register Form
+Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('admin.register');
+
+// Admin Register Store
+// Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
 
 //pending approval route
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
@@ -78,7 +84,8 @@ Route::prefix('settings')->name('settings.')->group(function () {
 
     // Logo
     // GET: form show karne ke liye
-Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
+    
+    Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
 
 // POST: logo update karne ke liye
 Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
