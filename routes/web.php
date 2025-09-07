@@ -129,4 +129,8 @@ Route::prefix('finance/procurements')->group(function () {
 });
 
 
+// Checklist
 
+Route::get('/checklist', function () {
+    return view('checklist');
+})->name('checklist');
