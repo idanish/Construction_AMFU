@@ -84,6 +84,11 @@
                                 </a>
                             </li>
                             <li class="menu-item">
+                                <a href="{{ route('roles.create') }}" class="menu-link">
+                                    <div data-i18n="Notifications">Role-create</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
                                 <a href="{{ route('admin.user-management') }}" class="menu-link">
                                     <div data-i18n="User-Management">User-Management</div>
                                 </a>

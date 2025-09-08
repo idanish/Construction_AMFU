@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -12,27 +12,32 @@ class AdminController extends Controller
     // Show Register Form
     public function showRegisterForm()
     {
-        return view('admin.register'); // resources/views/admin/register.blade.php
+        $roles = Role::all();
+        return view('admin.register',compact('roles')); // resources/views/admin/register.blade.php
     }
 
-    // Handle Register
+    // Handle Register Logic
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role_id'  => 'required|exists:roles,id'
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        // Default Role Assign
-        $user->assignRole('Admin');
+        // Default role Admin assign
+        // $user->assignRole('Admin');
 
-        return redirect()->route('Admin.admin-dashboard')->with('success', 'Admin Registered Successfully!');
+        $role = Role::findById($request->role_id);
+        $user->assignRole($role);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Admin registered successfully!');
     }
 }

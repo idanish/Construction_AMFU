@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request; // <-- ye correct import
+use Spatie\Permission\Models\Role; // Spatie Role model
 
 class RegisterController extends Controller
 {
@@ -40,12 +41,9 @@ class RegisterController extends Controller
         ]);
     }
 
-    protected function create(array $data)
-    {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
-    }
+    public function create()
+{
+    $roles = Role::all(); // Sare roles le aao
+    return view('admin.users.create', compact('roles'));
 }
+    }
