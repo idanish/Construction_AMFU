@@ -195,3 +195,33 @@ Route::prefix('services')->name('services.')->group(function () {
     // Delete service request
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
 });
+
+// 🔹 Audit Report Routes
+Route::get('/reports/audit', [ReportController::class, 'auditReport'])
+    ->name('reports.audit');
+
+Route::post('/reports/audit', [ReportController::class, 'auditReportGenerate'])
+    ->name('reports.audit.generate');
+
+Route::get('/reports/audit/export/{type}', [ReportController::class, 'auditReportExport'])
+    ->name('reports.audit.export');
+
+Route::prefix('reports')->group(function () {
+    Route::get('/request', function () {
+        return view('reports.request-report');
+    })->name('reports.request-report');
+
+    Route::get('/finance', function () {
+        return view('reports.finance-report');
+    })->name('reports.finance-report');
+
+    Route::get('/audit', function () {
+        return view('reports.audit-report');
+    })->name('reports.audit-report');
+});
+
+
+// Request Report Routes
+Route::post('/reports/request', [DepartmentController::class, 'generateRequestReport'])
+    ->name('reports.request');
+
