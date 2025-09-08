@@ -22,29 +22,44 @@ class BudgetController extends Controller
      * Show the form for creating a new budget.
      */
     public function create()
-    {
-        $departments = Department::all();
-        return view('finance.budgets.create', compact('departments'));
-    }
+{
+    $departments = \App\Models\Department::all();
+    return view('finance.budgets.create', compact('departments'));
+}
+
 
     /**
      * Store a newly created budget in storage.
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'allocated'     => 'required|numeric|min:0',
-            'spent'         => 'required|numeric|min:0',
-            'balance'       => 'required|numeric|min:0',
-            'status'        => 'required|in:pending,approved,rejected',
-        ]);
+{
+    // Validation
+    $request->validate([
+        'department_id' => 'required|exists:departments,id',
+        'allocated' => 'required|numeric|min:0',
+        'spent' => 'required|numeric|min:0',
+        'balance' => 'required|numeric|min:0',
+    ]);
 
-        Budget::create($validated);
-
-        return redirect()->route('finance.budgets.index')
-                         ->with('success', 'Budget added successfully.');
+    // Default status
+    $status = 'Pending';
+    if(auth()->check() && auth()->user()->role === 'admin') {
+        $status = $request->input('status', 'Pending');
     }
+
+    // Insert into DB
+    \App\Models\Budget::create([
+        'department_id' => $request->department_id,
+        'allocated' => $request->allocated,
+        'spent' => $request->spent,
+        'balance' => $request->balance,
+        'status' => $status,
+    ]);
+
+    return redirect()->route('finance.budgets.index')
+                     ->with('success', 'Budget added successfully!');
+}
+
 
     /**
      * Show the form for editing the specified budget.
