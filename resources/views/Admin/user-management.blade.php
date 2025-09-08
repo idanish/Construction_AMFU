@@ -6,13 +6,6 @@
         <!-- Heading -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-700">👥 User Management</h1>
-            <form method="GET" action="{{ route('admin.user-management') }}" class="flex items-center gap-2">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name..."
-                    class="border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                    🔍 Search
-                </button>
-            </form>
         </div>
 
         <!-- Table -->
@@ -24,7 +17,7 @@
                         <th class="px-4 py-3 border">Name</th>
                         <th class="px-4 py-3 border">Email</th>
                         <th class="px-4 py-3 border">Role</th>
-                        <th class="px-4 py-3 border text-center">Action</th>
+                        <th class="px-4 py-3 border text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,24 +30,25 @@
                                 {{ $user->roles->pluck('name')->implode(', ') ?? 'No Role' }}
                             </td>
                             <td class="border px-4 py-2 text-center">
-                                <form action="{{ route('users.assignRole', $user->id) }}" method="POST"
-                                    class="flex items-center justify-center gap-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <select name="role"
-                                        class="border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-300">
-                                        @foreach ($roles as $role)
-                                            <option value="{{ $role->name }}"
-                                                {{ $user->roles->contains('name', $role->name) ? 'selected' : '' }}>
-                                                {{ $role->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <button type="submit"
-                                        class="bg-green-600 text-dark px-3 py-1 rounded hover:bg-green-700 transition">
-                                        ✅ Assign
-                                    </button>
-                                </form>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <!-- Edit -->
+                                    <a href="{{ route('users.edit', $user->id) }}"
+                                        class="text-blue-600 hover:underline text-center">
+                                        Edit
+                                    </a>
+
+                                    <!-- Delete -->
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this user?');"
+                                        class="text-center">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="text-red-600 hover:underline bg-transparent border-0 cursor-pointer">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

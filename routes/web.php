@@ -10,10 +10,11 @@ use App\Http\Controllers\Finance\BudgetController;
 use App\Http\Controllers\Finance\InvoiceController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ProcurementController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\ServiceRequestController;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\ServiceRequestController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -55,7 +56,7 @@ Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementCont
 Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('admin.register');
 
 // Admin Register Store
-// Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
+Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
 
 //pending approval route
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
@@ -66,6 +67,14 @@ Route::middleware(['role:Admin'])->group(function () {
     Route::get('/Admin/user', [UserManagementController::class, 'index'])->name('Admin.user');
     Route::post('/admin/users/{id}/assign-role', [UserManagementController::class, 'assignRole'])->name('admin.users.assignRole');
 });
+
+// Admin Role Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
+    Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
+});
+
+
 
 // Settings - Backup & Restore
 Route::prefix('settings')->name('settings.')->group(function () {
@@ -141,8 +150,13 @@ Route::prefix('finance')->name('finance.')->group(function () {
         Route::delete('/{procurement}', [ProcurementController::class, 'destroy'])->name('destroy');
     });
 
-});
+})
+;
+// User Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::resource('users', UserManagementController::class);
 
+});
 
 // Department CRUD routes
 Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
