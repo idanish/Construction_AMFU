@@ -157,6 +157,37 @@
                             </li>
                         </ul>
                     </li>
+
+                    <!-- services -->
+                      <li class="menu-item">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-briefcase"></i>
+                            <div data-i18n="Procurements">Services</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                                <a href="{{ route('services.index') }}" class="menu-link"><div data-i18n="All Procurements">All Services</div></a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('services.create') }}" class="menu-link"><div data-i18n="Add Procurements">Add Services</div></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Department -->
+                      <li class="menu-item">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-building"></i>
+                            <div data-i18n="Procurements">Departments</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                                <a href="{{ route('departments.index') }}" class="menu-link"><div data-i18n="All Procurements">All Departments</div></a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('departments.create') }}" class="menu-link"><div data-i18n="Add Procurements">Add Department</div></a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </aside>
             <!-- / Sidebar Menu -->

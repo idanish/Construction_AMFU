@@ -9,13 +9,8 @@ class Budget extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'department_id',
-        'allocated',
-        'spent',
-        'balance',
-        'status', // new column
-    ];
+    protected $fillable = ['department_id', 'allocated', 'spent', 'balance', 'status'];
+
 
     public function department()
     {
