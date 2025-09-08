@@ -9,14 +9,12 @@ class Invoice extends Model
 {
     use HasFactory;
 
+    // Agar fillable chahiye
     protected $fillable = ['request_id', 'invoice_no', 'amount', 'status'];
 
-    public function request() {
-        return $this->belongsTo(Request::class);
-    }
-
-    public function payments() {
-        return $this->hasMany(Payment::class);
+    // Relationship define karo
+    public function serviceRequest()
+    {
+        return $this->belongsTo(ServiceRequest::class, 'request_id');
     }
 }
-
