@@ -56,4 +56,20 @@ class DepartmentController extends Controller
         return redirect()->route('departments.index')
                          ->with('success', 'Department deleted successfully.');
     }
+    public function requestReport()
+{
+    $departments = \App\Models\Department::all();
+    return view('reports.request-report', compact('departments'));
+}
+
+public function generateRequestReport(Request $request)
+{
+    $departmentId = $request->department_id;
+    $fromDate = $request->from_date;
+    $toDate   = $request->to_date;
+
+    // yahan apni report logic lagao
+    return back()->with('success', 'Report generated!');
+}
+
 }
