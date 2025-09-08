@@ -29,22 +29,31 @@ Route::get('/form',[ViewController::class,'form']);
 Auth::routes();
 
 // Admin Dashboard
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard'); 
-})->name('admin.dashboard');
-// PM Dashboard
-Route::get('/pm/dashboard', [App\Http\Controllers\ViewController::class, 'pmDashboard'])
-    ->name('pm.dashboard');
-// FCO Dashboard
-Route::get('/fco/dashboard', [App\Http\Controllers\ViewController::class, 'fcoDashboard'])
-    ->name('fco.dashboard');
-// PMO Dashboard
-Route::get('/pmo/dashboard', [App\Http\Controllers\ViewController::class, 'pmoDashboard'])
-    ->name('pmo.dashboard');
-// CSO Dashboard
-Route::get('/cso/dashboard', [App\Http\Controllers\ViewController::class, 'csoDashboard'])
-    ->name('cso.dashboard');    
-    
+// ======= Protected Dashboards =======
+Route::middleware(['auth'])->group(function () {
+
+    // Admin Dashboard
+    Route::get('/admin/dashboard', function () {
+        return view('admin.dashboard'); 
+    })->name('admin.dashboard');
+
+    // PM Dashboard
+    Route::get('/pm/dashboard', [App\Http\Controllers\ViewController::class, 'pmDashboard'])
+        ->name('pm.dashboard');
+
+    // FCO Dashboard
+    Route::get('/fco/dashboard', [App\Http\Controllers\ViewController::class, 'fcoDashboard'])
+        ->name('fco.dashboard');
+
+    // PMO Dashboard
+    Route::get('/pmo/dashboard', [App\Http\Controllers\ViewController::class, 'pmoDashboard'])
+        ->name('pmo.dashboard');
+
+    // CSO Dashboard
+    Route::get('/cso/dashboard', [App\Http\Controllers\ViewController::class, 'csoDashboard'])
+        ->name('cso.dashboard');  
+});
+
 // User Management - Protected route for Admin only
 Route::get('/admin/user-management', [App\Http\Controllers\UserManagementController::class, 'index'])
         ->name('admin.user-management');
@@ -186,5 +195,3 @@ Route::prefix('services')->name('services.')->group(function () {
     // Delete service request
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
 });
-
-
