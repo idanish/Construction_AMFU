@@ -12,10 +12,9 @@ use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ProcurementController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\Admin\RoleController;
-
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\ServiceRequestController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -119,13 +118,17 @@ Route::prefix('finance')->name('finance.')->group(function () {
 
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {
-        Route::get('/', [InvoiceController::class, 'index'])->name('index');
-        Route::get('/create', [InvoiceController::class, 'create'])->name('create');
-        Route::post('/store', [InvoiceController::class, 'store'])->name('store');
-        Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
-        Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
-        Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
-    });
+    Route::get('/', [InvoiceController::class, 'index'])->name('index');
+    Route::get('/create', [InvoiceController::class, 'create'])->name('create');
+    Route::post('/store', [InvoiceController::class, 'store'])->name('store');
+
+    // EDIT route should come before {invoice} catch-all routes
+    Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
+    Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
+
+    Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+});
+
 
     // Payments
     Route::prefix('payments')->name('payments.')->group(function () {
@@ -163,5 +166,25 @@ Route::get('/departments/{department}/edit', [DepartmentController::class, 'edit
 Route::put('/departments/{department}', [DepartmentController::class, 'update'])->name('departments.update');
 Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
+// Service Route
+
+Route::prefix('services')->name('services.')->group(function () {
+    // List all service requests
+    Route::get('/', [ServiceRequestController::class, 'index'])->name('index');           // views/services/index.blade.php
+
+    // Create service request form
+    Route::get('/create', [ServiceRequestController::class, 'create'])->name('create');   // views/services/create.blade.php
+    Route::post('/store', [ServiceRequestController::class, 'store'])->name('store');     // store action
+
+    // Edit service request form
+    Route::get('/{serviceRequest}/edit', [ServiceRequestController::class, 'edit'])->name('edit'); // views/services/edit.blade.php
+    Route::put('/{serviceRequest}/update', [ServiceRequestController::class, 'update'])->name('update'); // update action
+
+    // Show service request details
+    Route::get('/{serviceRequest}/show', [ServiceRequestController::class, 'show'])->name('show'); // views/services/show.blade.php
+
+    // Delete service request
+    Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
+});
 
 
