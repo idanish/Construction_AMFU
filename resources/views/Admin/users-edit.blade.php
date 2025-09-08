@@ -1,6 +1,5 @@
-{{-- resources/views/admin/edit-user.blade.php --}}
-
-@extends('layouts.app')
+@extends('../master')
+@section('title', 'Edit User')
 
 @section('content')
     <div class="container">
