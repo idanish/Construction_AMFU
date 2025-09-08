@@ -10,9 +10,11 @@ use App\Http\Controllers\Finance\BudgetController;
 use App\Http\Controllers\Finance\InvoiceController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ProcurementController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\DepartmentController;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\ServiceRequestController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -54,7 +56,7 @@ Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementCont
 Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('admin.register');
 
 // Admin Register Store
-// Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
+Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
 
 //pending approval route
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
@@ -65,6 +67,14 @@ Route::middleware(['role:Admin'])->group(function () {
     Route::get('/Admin/user', [UserManagementController::class, 'index'])->name('Admin.user');
     Route::post('/admin/users/{id}/assign-role', [UserManagementController::class, 'assignRole'])->name('admin.users.assignRole');
 });
+
+// Admin Role Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
+    Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
+});
+
+
 
 // Settings - Backup & Restore
 Route::prefix('settings')->name('settings.')->group(function () {
@@ -108,13 +118,17 @@ Route::prefix('finance')->name('finance.')->group(function () {
 
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {
-        Route::get('/', [InvoiceController::class, 'index'])->name('index');
-        Route::get('/create', [InvoiceController::class, 'create'])->name('create');
-        Route::post('/store', [InvoiceController::class, 'store'])->name('store');
-        Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
-        Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
-        Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
-    });
+    Route::get('/', [InvoiceController::class, 'index'])->name('index');
+    Route::get('/create', [InvoiceController::class, 'create'])->name('create');
+    Route::post('/store', [InvoiceController::class, 'store'])->name('store');
+
+    // EDIT route should come before {invoice} catch-all routes
+    Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
+    Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
+
+    Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+});
+
 
     // Payments
     Route::prefix('payments')->name('payments.')->group(function () {
@@ -136,8 +150,13 @@ Route::prefix('finance')->name('finance.')->group(function () {
         Route::delete('/{procurement}', [ProcurementController::class, 'destroy'])->name('destroy');
     });
 
-});
+})
+;
+// User Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::resource('users', UserManagementController::class);
 
+});
 
 // Department CRUD routes
 Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
@@ -147,5 +166,25 @@ Route::get('/departments/{department}/edit', [DepartmentController::class, 'edit
 Route::put('/departments/{department}', [DepartmentController::class, 'update'])->name('departments.update');
 Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
+// Service Route
+
+Route::prefix('services')->name('services.')->group(function () {
+    // List all service requests
+    Route::get('/', [ServiceRequestController::class, 'index'])->name('index');           // views/services/index.blade.php
+
+    // Create service request form
+    Route::get('/create', [ServiceRequestController::class, 'create'])->name('create');   // views/services/create.blade.php
+    Route::post('/store', [ServiceRequestController::class, 'store'])->name('store');     // store action
+
+    // Edit service request form
+    Route::get('/{serviceRequest}/edit', [ServiceRequestController::class, 'edit'])->name('edit'); // views/services/edit.blade.php
+    Route::put('/{serviceRequest}/update', [ServiceRequestController::class, 'update'])->name('update'); // update action
+
+    // Show service request details
+    Route::get('/{serviceRequest}/show', [ServiceRequestController::class, 'show'])->name('show'); // views/services/show.blade.php
+
+    // Delete service request
+    Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
+});
 
 
