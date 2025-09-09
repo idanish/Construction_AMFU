@@ -20,29 +20,10 @@ class ViewController extends Controller
     {   
         return view('form');
     }
+
     // Admin Dashboard
     public function adminDashboard()
-    {
-        return view('admin.admin-dashboard');
-    }
-    // pmo dashboard
-    public function pmoDashboard()
-    {
-        return view('pmo.pmo-dashboard');      
-}
-    // fco dashboard
-    public function fcoDashboard()
-    {
-        return view('fco.fco-dashboard');      
-}
-    // cso dashboard
-    public function csoDashboard()
-    {
-        return view('cso.cso-dashboard');      
-}
-    // pm dashboard
-    public function pmDashboard()
-    {
-        return view('pm.pm-dashboard');      
-}
+{
+    return view('admin.dashboard');
+}    
 }
