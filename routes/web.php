@@ -15,6 +15,9 @@ use App\Http\Controllers\DepartmentController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProfileController;
+
 
 Route::get('/', function () {
     return view('auth.login');
@@ -28,31 +31,18 @@ Route::get('/users',[ViewController::class,'users']);
 Route::get('/form',[ViewController::class,'form']);
 Auth::routes();
 
-// Admin Dashboard
-// ======= Protected Dashboards =======
+// Protected Dashboards
 Route::middleware(['auth'])->group(function () {
-
-    // Admin Dashboard
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard'); 
-    })->name('admin.dashboard');
-
-    // PM Dashboard
-    Route::get('/pm/dashboard', [App\Http\Controllers\ViewController::class, 'pmDashboard'])
-        ->name('pm.dashboard');
-
-    // FCO Dashboard
-    Route::get('/fco/dashboard', [App\Http\Controllers\ViewController::class, 'fcoDashboard'])
-        ->name('fco.dashboard');
-
-    // PMO Dashboard
-    Route::get('/pmo/dashboard', [App\Http\Controllers\ViewController::class, 'pmoDashboard'])
-        ->name('pmo.dashboard');
-
-    // CSO Dashboard
-    Route::get('/cso/dashboard', [App\Http\Controllers\ViewController::class, 'csoDashboard'])
-        ->name('cso.dashboard');  
+    Route::get('/dashboard', [App\Http\Controllers\ViewController::class, 'adminDashboard'])
+        ->name('admin.dashboard');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/settings', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.settings');
+    Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});
+
+
 
 // User Management - Protected route for Admin only
 Route::get('/admin/user-management', [App\Http\Controllers\UserManagementController::class, 'index'])

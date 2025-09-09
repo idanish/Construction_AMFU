@@ -38,5 +38,14 @@ class RolesAndPermissionsSeeder extends Seeder
         $pmo->syncPermissions(['approve request', 'reject request', 'view reports']);
         $cso->syncPermissions(['approve request', 'reject request', 'view reports']);
         $admin->syncPermissions(Permission::all());
+
+        $pm   = Role::firstOrCreate(['name' => 'PM', 'guard_name' => 'web']);
+        $fco  = Role::firstOrCreate(['name' => 'FCO', 'guard_name' => 'web']);
+        $pmo  = Role::firstOrCreate(['name' => 'PMO', 'guard_name' => 'web']);
+        $cso  = Role::firstOrCreate(['name' => 'CSO', 'guard_name' => 'web']);
+        $admin = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
     }
+
+
+
 }
