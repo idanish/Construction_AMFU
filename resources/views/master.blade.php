@@ -50,7 +50,9 @@
                                 <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" width="120">
                             @endif
                         </span>
-                        <span class="app-brand-text demo menu-text fw-bolder ms-2">Construction</span>
+                        <span class="app-brand-text demo menu-text fw-bolder ms-2">
+                            {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }}
+                        </span>
                     </a>
                     <a href="javascript:void(0);"
                         class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
