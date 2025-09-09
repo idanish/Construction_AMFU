@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ViewController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HomeControlle;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\SettingsController;
@@ -10,9 +10,13 @@ use App\Http\Controllers\Finance\BudgetController;
 use App\Http\Controllers\Finance\InvoiceController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ProcurementController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\ServiceRequestController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProfileController;
 
 
 Route::get('/', function () {
@@ -27,23 +31,19 @@ Route::get('/users',[ViewController::class,'users']);
 Route::get('/form',[ViewController::class,'form']);
 Auth::routes();
 
-// Admin Dashboard
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard'); 
-})->name('admin.dashboard');
-// PM Dashboard
-Route::get('/pm/dashboard', [App\Http\Controllers\ViewController::class, 'pmDashboard'])
-    ->name('pm.dashboard');
-// FCO Dashboard
-Route::get('/fco/dashboard', [App\Http\Controllers\ViewController::class, 'fcoDashboard'])
-    ->name('fco.dashboard');
-// PMO Dashboard
-Route::get('/pmo/dashboard', [App\Http\Controllers\ViewController::class, 'pmoDashboard'])
-    ->name('pmo.dashboard');
-// CSO Dashboard
-Route::get('/cso/dashboard', [App\Http\Controllers\ViewController::class, 'csoDashboard'])
-    ->name('cso.dashboard');    
-    
+// Protected Dashboards
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\ViewController::class, 'adminDashboard'])
+        ->name('admin.dashboard');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/settings', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.settings');
+    Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});
+
+
+
 // User Management - Protected route for Admin only
 Route::get('/admin/user-management', [App\Http\Controllers\UserManagementController::class, 'index'])
         ->name('admin.user-management');
@@ -55,7 +55,7 @@ Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementCont
 Route::get('/admin/register', [AdminController::class, 'showRegisterForm'])->name('admin.register');
 
 // Admin Register Store
-// Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
+Route::post('/admin/register', [AdminController::class, 'register'])->name('admin.register.store');
 
 //pending approval route
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
@@ -66,6 +66,14 @@ Route::middleware(['role:Admin'])->group(function () {
     Route::get('/Admin/user', [UserManagementController::class, 'index'])->name('Admin.user');
     Route::post('/admin/users/{id}/assign-role', [UserManagementController::class, 'assignRole'])->name('admin.users.assignRole');
 });
+
+// Admin Role Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
+    Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
+});
+
+
 
 // Settings - Backup & Restore
 Route::prefix('settings')->name('settings.')->group(function () {
@@ -146,8 +154,13 @@ Route::prefix('finance')->name('finance.')->group(function () {
         Route::delete('/{procurement}', [ProcurementController::class, 'destroy'])->name('destroy');
     });
 
-});
+})
+;
+// User Management Routes
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    Route::resource('users', UserManagementController::class);
 
+});
 
 // Department CRUD routes
 Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
@@ -178,4 +191,32 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
 });
 
+// 🔹 Audit Report Routes
+Route::get('/reports/audit', [ReportController::class, 'auditReport'])
+    ->name('reports.audit');
+
+Route::post('/reports/audit', [ReportController::class, 'auditReportGenerate'])
+    ->name('reports.audit.generate');
+
+Route::get('/reports/audit/export/{type}', [ReportController::class, 'auditReportExport'])
+    ->name('reports.audit.export');
+
+Route::prefix('reports')->group(function () {
+    Route::get('/request', function () {
+        return view('reports.request-report');
+    })->name('reports.request-report');
+
+    Route::get('/finance', function () {
+        return view('reports.finance-report');
+    })->name('reports.finance-report');
+
+    Route::get('/audit', function () {
+        return view('reports.audit-report');
+    })->name('reports.audit-report');
+});
+
+
+// Request Report Routes
+Route::post('/reports/request', [DepartmentController::class, 'generateRequestReport'])
+    ->name('reports.request');
 

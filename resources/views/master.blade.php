@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="{{ asset('assets') }}/" data-template="vertical-menu-template-free">
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default"
+    data-assets-path="{{ asset('assets') }}/" data-template="vertical-menu-template-free">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <title>@yield('title', 'Dashboard - Finance Module')</title>
     <meta name="description" content="" />
 
@@ -13,14 +15,16 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
 
     <!-- Icons -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/fonts/boxicons.css') }}" />
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/css/theme-default.css') }}"
+        class="template-customizer-theme-css" />
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
 
     <!-- Vendors CSS -->
@@ -42,13 +46,18 @@
                 <div class="app-brand demo">
                     <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
                         <span class="app-brand-logo demo">
-                            @if(isset($setting) && $setting->logo)
+                            @if (isset($setting) && $setting->logo)
                                 <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" width="120">
                             @endif
                         </span>
+
                         <span class="app-brand-text demo menu-text fw-bolder ms-2">Construction Company</span>
+                        <span class="app-brand-text demo menu-text fw-bolder ms-2">
+                            {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }}
+                        </span>
                     </a>
-                    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                    <a href="javascript:void(0);"
+                        class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
                         <i class="bx bx-chevron-left bx-sm align-middle"></i>
                     </a>
                 </div>
@@ -64,162 +73,272 @@
                         </a>
                     </li>
 
-                    <!-- Finance Menu -->
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
-
-
-
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">Pages</span>
-                    </li>
+                    <!-- Reports - sab roles dekh sakte hain -->
+                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
                     <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                            <div data-i18n="Account Settings">Management</div>
+                            <i class="menu-icon tf-icons bx bx-file"></i>
+                            <div data-i18n="Reports">Reports</div>
                         </a>
                         <ul class="menu-sub">
                             <li class="menu-item">
-                                <a href="{{ route('admin.register') }}" class="menu-link">
-                                    <div data-i18n="Notifications">Register</div>
+                                <a href="{{ route('reports.request-report') }}" class="menu-link">
+                                    <div data-i18n="Request Reports">Request Reports</div>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="{{ route('admin.user-management') }}" class="menu-link">
-                                    <div data-i18n="User-Management">User-Management</div>
+                                <a href="{{ route('reports.finance-report') }}" class="menu-link">
+                                    <div data-i18n="Finance Reports">Finance Reports</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('reports.audit-report') }}" class="menu-link">
+                                    <div data-i18n="Audit Reports">Audit Reports</div>
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">Finance</span>
-                    </li>
+                    <!-- Pages (Admin only) -->
+                    @role('Admin')
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Pages</span></li>
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                                <div data-i18n="Management">Management</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.register') }}" class="menu-link">
+                                        <div data-i18n="Register">Register</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('roles.create') }}" class="menu-link">
+                                        <div data-i18n="Role-create">Role-create</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.user-management') }}" class="menu-link">
+                                        <div data-i18n="User-Management">User-Management</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endrole
 
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
-                            <div data-i18n="Budgets">Budgets</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('finance.budgets.index') }}" class="menu-link"><div data-i18n="All Budgets">All Budgets</div></a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('finance.budgets.create') }}" class="menu-link"><div data-i18n="Add Budgets">Add Budget</div></a>
-                            </li>
-                        </ul>
-                    </li>
+                    <!-- Finance (FCO + Admin) -->
+                    @role(['FCO', 'Admin'])
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
 
-                    <!-- Invoices -->
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-receipt"></i>
-                            <div data-i18n="Invoices">Invoices</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('finance.invoices.index') }}" class="menu-link"><div data-i18n="All Invoices">All Invoices</div></a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('finance.invoices.create') }}" class="menu-link"><div data-i18n="Add Invoices">Add Invoice</div></a>
-                            </li>
-                        </ul>
-                    </li>
+                        <!-- Budgets -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+                                <div data-i18n="Budgets">Budgets</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.budgets.index') }}" class="menu-link">
+                                        <div data-i18n="All Budgets">All Budgets</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.budgets.create') }}" class="menu-link">
+                                        <div data-i18n="Add Budgets">Add Budget</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
 
-                    <!-- Payments -->
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-credit-card"></i>
-                            <div data-i18n="Payments">Payments</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('finance.payments.index') }}" class="menu-link"><div data-i18n="All Payments">All Payments</div></a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('finance.payments.create') }}" class="menu-link"><div data-i18n="Add Payments">Add Payment</div></a>
-                            </li>
-                        </ul>
-                    </li>
+                        <!-- Invoices -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                                <div data-i18n="Invoices">Invoices</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.invoices.index') }}" class="menu-link">
+                                        <div data-i18n="All Invoices">All Invoices</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.invoices.create') }}" class="menu-link">
+                                        <div data-i18n="Add Invoices">Add Invoice</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
 
-                    <!-- Procurements -->
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-cart"></i>
-                            <div data-i18n="Procurements">Procurements</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('finance.procurements.index') }}" class="menu-link"><div data-i18n="All Procurements">All Procurements</div></a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('finance.procurements.create') }}" class="menu-link"><div data-i18n="Add Procurements">Add Procurement</div></a>
-                            </li>
-                        </ul>
-                    </li>
+                        <!-- Payments -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-credit-card"></i>
+                                <div data-i18n="Payments">Payments</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.payments.index') }}" class="menu-link">
+                                        <div data-i18n="All Payments">All Payments</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.payments.create') }}" class="menu-link">
+                                        <div data-i18n="Add Payments">Add Payment</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
 
-                    <!-- services -->
-                      <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-briefcase"></i>
-                            <div data-i18n="Procurements">Services</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('services.index') }}" class="menu-link"><div data-i18n="All Procurements">All Services</div></a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('services.create') }}" class="menu-link"><div data-i18n="Add Procurements">Add Services</div></a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!-- Department -->
-                      <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-building"></i>
-                            <div data-i18n="Procurements">Departments</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('departments.index') }}" class="menu-link"><div data-i18n="All Procurements">All Departments</div></a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('departments.create') }}" class="menu-link"><div data-i18n="Add Procurements">Add Department</div></a>
-                            </li>
-                        </ul>
-                    </li>
+                        <!-- Procurements -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-cart"></i>
+                                <div data-i18n="Procurements">Procurements</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.procurements.index') }}" class="menu-link">
+                                        <div data-i18n="All Procurements">All Procurements</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('finance.procurements.create') }}" class="menu-link">
+                                        <div data-i18n="Add Procurements">Add Procurement</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endrole
+
+                    <!-- Services (Admin only) -->
+                    @role('Admin')
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-briefcase"></i>
+                                <div data-i18n="Services">Services</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('services.index') }}" class="menu-link">
+                                        <div data-i18n="All Services">All Services</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('services.create') }}" class="menu-link">
+                                        <div data-i18n="Add Services">Add Services</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Departments (Admin only) -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-building"></i>
+                                <div data-i18n="Departments">Departments</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('departments.index') }}" class="menu-link">
+                                        <div data-i18n="All Departments">All Departments</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('departments.create') }}" class="menu-link">
+                                        <div data-i18n="Add Department">Add Department</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Permissions (Admin only) -->
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Permissions</span>
+                        </li>
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-lock-alt"></i>
+                                <div data-i18n="Permissions">Permissions</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Settings">Settings</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Add Permission">Add Permission</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endrole
                 </ul>
+
+
+
             </aside>
+
+
+
             <!-- / Sidebar Menu -->
 
             <!-- Layout container -->
             <div class="layout-page">
                 <!-- Navbar -->
-                <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
-                    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-                        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                            <i class="bx bx-menu bx-sm"></i>
-                        </a>
-                    </div>
+                <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+                    id="layout-navbar">
 
-                    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-                        <!-- Search -->
-                        <div class="navbar-nav align-items-center">
-                            <div class="nav-item d-flex align-items-center">
-                                <i class="bx bx-search fs-4 lh-0"></i>
-                                <input type="text" class="form-control border-0 shadow-none" placeholder="Search..." aria-label="Search..." />
-                            </div>
+                    <div class="d-flex align-items-center w-100 justify-content-between">
+
+                        <!-- Left Side: Welcome -->
+                        <div class="d-flex flex-column">
+                            <h6 class="mb-0">
+                                Welcome, <span class="fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
+                            </h6>
+                            <small class="text-muted">
+                                {{ Auth::user()->roles->pluck('name')->implode(', ') ?? 'No Role' }}
+                            </small>
                         </div>
 
-                        <ul class="navbar-nav flex-row align-items-center ms-auto">
-                            <!-- User -->
-                            <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                                    <div class="avatar avatar-online">
-                                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="w-px-40 h-auto rounded-circle" />
+                        <!-- Right Side: Search + Profile -->
+                        <div class="d-flex align-items-center">
+                            <!-- Search bar -->
+                            <div class="me-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bx bx-search fs-5 lh-0 me-1"></i>
+                                    <input type="text" class="form-control form-control-sm border-0 shadow-none"
+                                        placeholder="Search..." aria-label="Search..." style="width: 160px;" />
+                                </div>
+                            </div>
+
+                            <!-- User Dropdown -->
+                            <div class="nav-item navbar-dropdown dropdown-user dropdown">
+                                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
+                                    data-bs-toggle="dropdown">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-online">
+                                            <img src="{{ asset('assets/img/avatars/1.png') }}" alt
+                                                class="w-px-40 h-auto rounded-circle" />
+                                        </div>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
+                                    <!-- Profile Settings -->
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('profile.settings') }}">
+                                            <i class="bx bx-cog me-2"></i>
+                                            <span class="align-middle">Profile Settings</span>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+                                    <!-- Logout -->
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}">
                                             @csrf
@@ -230,19 +349,23 @@
                                         </form>
                                     </li>
                                 </ul>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </nav>
+
+
+
+
                 <!-- / Navbar -->
 
                 <!-- Main Content -->
                 <div class="container mt-4">
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
 
-                    @if(session('error'))
+                    @if (session('error'))
                         <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
 
@@ -252,10 +375,7 @@
                 <!-- Footer -->
                 <footer class="content-footer footer bg-footer-theme">
                     <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
-                        <div class="mb-2 mb-md-0">
-                            © <script>document.write(new Date().getFullYear());</script>, made with ❤️ by
-                            <a href="#" target="_blank" class="footer-link fw-bolder">Finance Module</a>
-                        </div>
+
                     </div>
                 </footer>
             </div>
@@ -279,4 +399,5 @@
     <!-- Main JS -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
 </body>
+
 </html>
