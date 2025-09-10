@@ -145,14 +145,16 @@ Route::prefix('finance')->name('finance.')->group(function () {
 
 
     // Procurements
-    Route::prefix('procurements')->name('procurements.')->group(function () {
-        Route::get('/', [ProcurementController::class, 'index'])->name('index');         // route('finance.procurements.index')
-        Route::get('/create', [ProcurementController::class, 'create'])->name('create'); // route('finance.procurements.create')
-        Route::post('/store', [ProcurementController::class, 'store'])->name('store');
-        Route::get('/{procurement}/edit', [ProcurementController::class, 'edit'])->name('edit');
-        Route::put('/{procurement}', [ProcurementController::class, 'update'])->name('update');
-        Route::delete('/{procurement}', [ProcurementController::class, 'destroy'])->name('destroy');
-    });
+Route::prefix('procurements')->name('procurements.')->group(function () {
+    Route::get('/', [ProcurementController::class, 'index'])->name('index');         
+    Route::get('/create', [ProcurementController::class, 'create'])->name('create'); 
+    Route::post('/store', [ProcurementController::class, 'store'])->name('store');
+    Route::get('/{procurement}', [ProcurementController::class, 'show'])->name('show'); // <-- Show detail page
+    Route::get('/{procurement}/edit', [ProcurementController::class, 'edit'])->name('edit');
+    Route::put('/{procurement}', [ProcurementController::class, 'update'])->name('update');
+    Route::delete('/{procurement}', [ProcurementController::class, 'destroy'])->name('destroy');
+});
+
 
 })
 ;
