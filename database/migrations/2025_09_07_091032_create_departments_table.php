@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps(); // created_at and updated_at
+            $table->unsignedBigInteger('transaction_no')->default(0);
         });
     }
 

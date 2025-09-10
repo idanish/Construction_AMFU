@@ -312,6 +312,69 @@
                                 </div>
                             </div>
 
+                            {{-- Notification Dropdown --}}
+                            <div class="nav-item dropdown me-3">
+                                @php
+                                    $user = auth()->user();
+                                    $role = $user->roles->pluck('name')->first();
+
+                                    $notifications = \App\Models\Notification::where(function ($q) use ($user, $role) {
+                                        $q->where('user_id', $user->id)->orWhere(function ($q2) use ($role) {
+                                            $q2->whereNotNull('role')->where('role', $role);
+                                        });
+                                    })
+                                        ->latest()
+                                        ->take(5)
+                                        ->get();
+
+                                    $unreadCount = \App\Models\Notification::where(function ($q) use ($user, $role) {
+                                        $q->where('user_id', $user->id)->orWhere(function ($q2) use ($role) {
+                                            $q2->whereNotNull('role')->where('role', $role);
+                                        });
+                                    })
+                                        ->where('is_read', false)
+                                        ->count();
+                                @endphp
+
+                                <button class="btn btn-sm position-relative" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="bx bx-bell fs-4"></i>
+                                    @if ($unreadCount > 0)
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {{ $unreadCount }}
+                                        </span>
+                                    @endif
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end" style="width: 320px;">
+                                    @forelse($notifications as $notification)
+                                        <li
+                                            class="px-3 py-2 border-bottom @if (!$notification->is_read) bg-light @endif">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <div>{{ $notification->message }}</div>
+                                                    <small
+                                                        class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                                </div>
+                                                <form method="POST"
+                                                    action="{{ route('notifications.read', $notification->id) }}">
+                                                    @csrf
+                                                    <button class="btn btn-link btn-sm p-0">Read</button>
+                                                </form>
+                                            </div>
+                                        </li>
+                                    @empty
+                                        <li class="px-3 py-2">No notifications</li>
+                                    @endforelse
+                                    <li><a class="dropdown-item text-center"
+                                            href="{{ route('notifications.index') }}">Show All</a></li>
+                                </ul>
+                            </div>
+
+
+
+
                             <!-- User Dropdown -->
                             <div class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"

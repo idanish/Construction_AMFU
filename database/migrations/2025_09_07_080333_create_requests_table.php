@@ -18,6 +18,8 @@ return new class extends Migration
         $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
         $table->unsignedBigInteger('requested_by'); // jisne create kiya
         $table->unsignedBigInteger('approved_by')->nullable(); // admin
+        $table->unsignedBigInteger('transaction_no')->default(0);
+
         $table->timestamps();
     });
 }

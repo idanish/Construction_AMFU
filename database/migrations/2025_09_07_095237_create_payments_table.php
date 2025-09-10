@@ -17,7 +17,7 @@ return new class extends Migration
         $table->date('payment_date');
         $table->decimal('amount', 10, 2);
         $table->timestamps();
-
+        $table->unsignedBigInteger('transaction_no')->default(0);
         $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
     });
 }
