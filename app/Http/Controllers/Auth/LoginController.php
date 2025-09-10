@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
@@ -15,6 +16,14 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+
+      Notification::create([
+        'user_id' => $user->id,
+        'role'    => $user->roles->pluck('name')->first(), // role automatically uth jayega
+        'type'    => 'login',
+        'message' => "You logged in",
+        'is_read' => false,
+    ]);
         // Agar user ke pass role hi nahi hai
         if ($user->roles->isEmpty()) {
             return redirect()->route('no.role'); // Pending approval page

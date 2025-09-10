@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 
 
 Route::get('/', function () {
@@ -40,6 +41,18 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/settings', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.settings');
     Route::post('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});
+
+
+
+
+// Notification Routes
+Route::middleware('auth')->prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/toggle/{id}', [NotificationController::class, 'toggleRead'])->name('notifications.toggle');
+    Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
 });
 
 

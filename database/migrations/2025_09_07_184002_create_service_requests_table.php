@@ -16,6 +16,7 @@ return new class extends Migration
         $table->string('title');              // request ka naam
         $table->text('description')->nullable(); // details
         $table->enum('status', ['pending','approved','rejected'])->default('pending');
+        $table->unsignedBigInteger('transaction_no')->default(0);
         $table->timestamps();
     });
 }

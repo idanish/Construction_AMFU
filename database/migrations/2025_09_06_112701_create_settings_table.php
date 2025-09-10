@@ -15,6 +15,7 @@ return new class extends Migration
              $table->id();
              $table->string('site_name')->nullable();
              $table->string('logo')->nullable();
+             $table->unsignedBigInteger('transaction_no')->default(0);
              $table->timestamps();
         });
     }

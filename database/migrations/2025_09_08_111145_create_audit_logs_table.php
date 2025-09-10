@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('action'); // Login, Create, Update, Delete
             $table->text('description')->nullable();
+            $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
         });
     }
