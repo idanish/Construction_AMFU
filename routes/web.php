@@ -153,10 +153,6 @@ Route::prefix('finance')->name('finance.')->group(function () {
         Route::delete('/{payment}', [PaymentController::class, 'destroy'])->name('destroy');
     });
 
-
-
-
-
     // Procurements
 Route::prefix('procurements')->name('procurements.')->group(function () {
     Route::get('/', [ProcurementController::class, 'index'])->name('index');         

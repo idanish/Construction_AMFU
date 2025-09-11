@@ -15,15 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->unsignedBigInteger('department_id')->nullable(); // <-- yaha add kiya
+            $table->unsignedBigInteger('department_name')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('transaction_no')->default(0); 
+            $table->unsignedBigInteger('transaction_no')->default(0);
+            $table->boolean('status')->default(false);
             $table->rememberToken();
             $table->timestamps();
-
-            // Optional: foreign key link
-            $table->foreign('department_id')->references('id')->on('departments')->onDelete('set null');
+ 
 });
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -49,5 +48,8 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
 };

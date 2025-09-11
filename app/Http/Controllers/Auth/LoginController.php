@@ -29,8 +29,8 @@ class LoginController extends Controller
             return redirect()->route('no.role'); // Pending approval page
         }
 
-        // Ab chahe koi bhi role ho → sabko admin.dashboard par bhej do
-        return redirect()->route('admin.dashboard');
+        $user->update(['status' => true]); // user active ho gaya
+        return redirect()->route('admin.dashboard'); // ya role-based dashboard
     }
 
     /**
@@ -38,10 +38,15 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $this->guard()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $user = auth()->user();
+    if ($user) {
+        $user->update(['status' => false]); // user inactive ho gaya
+    }
 
-        return redirect('/login')->with('success', 'Logged out successfully!');
+    $this->guard()->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/login')->with('success', 'Logged out successfully!');
     }
 }

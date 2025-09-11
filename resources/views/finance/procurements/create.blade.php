@@ -22,6 +22,7 @@
                         {{ $dept->name }}
                     </option>
                 @endforeach
+                
             </select>
             @error('department_id') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
