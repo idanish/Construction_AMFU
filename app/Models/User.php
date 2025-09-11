@@ -25,6 +25,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'department_id',
+        'status', // add this
         'transaction_no',
     ];
 

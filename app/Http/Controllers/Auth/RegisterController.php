@@ -14,24 +14,28 @@ use Spatie\Permission\Models\Role;
 class RegisterController extends Controller
 {
     use RegistersUsers {
-        register as traitRegister; // original method alias
+        register as traitRegister; // original RegistersUsers method alias
     }
 
-    protected $redirectTo = '/login'; // redirect after register
+    protected $redirectTo = '/login'; // redirect after successful registration
 
-    // Show register form
+    /**
+     * Show registration form
+     */
     public function showRegistrationForm()
     {
-        $roles = Role::all();          // Fetch roles
-        $departments = Department::all(); // Fetch departments
+        $roles = Role::all();               // Fetch all roles
+        $departments = Department::all();   // Fetch all departments
 
         return view('admin.register', compact('roles', 'departments'));
     }
 
-    // Handle form submit
+    /**
+     * Handle registration form submit
+     */
     public function register(Request $request)
     {
-        // Validate
+        // Validate inputs
         $request->validate([
             'name'          => 'required|string|max:255',
             'email'         => 'required|string|email|max:255|unique:users',
@@ -46,16 +50,17 @@ class RegisterController extends Controller
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
             'department_id' => $request->department_id,
+            'status'        => 1, // optional: active by default
         ]);
 
         // Assign role
         $role = Role::findById($request->role_id);
         $user->assignRole($role);
 
-        // Flash message
+        // Flash success message
         $request->session()->flash('success', 'User registered successfully!');
 
-        // Redirect to login
+        // Redirect to login page
         return redirect()->route('login');
     }
 }
