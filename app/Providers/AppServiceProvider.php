@@ -3,6 +3,11 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\User;
+use App\Models\Department;
+use App\Models\Budget;
+use App\Observers\BaseObserver;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Department::observe(BaseObserver::class);
+        Budget::observe(BaseObserver::class);
+        User::observe(UserObserver::class);
     }
 }

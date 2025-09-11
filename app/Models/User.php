@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\BaseModel;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 
-class User extends Authenticatable
+class User extends Authenticatable   
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -24,6 +25,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'department_id',
+        'status', // add this
+        'transaction_no',
     ];
 
     /**

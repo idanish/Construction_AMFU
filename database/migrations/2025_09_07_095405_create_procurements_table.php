@@ -14,11 +14,11 @@ return new class extends Migration
     Schema::create('procurements', function (Blueprint $table) {
         $table->id();
         $table->string('title');
-        $table->unsignedBigInteger('department_id');
+        $table->unsignedBigInteger('department_id')->nullable();
         $table->text('description')->nullable();
         $table->string('attachment')->nullable();
         $table->timestamps();
-
+        $table->unsignedBigInteger('transaction_no')->default(0);
         $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
     });
 }

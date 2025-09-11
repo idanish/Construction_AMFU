@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
-             $table->id();
-             $table->string('site_name')->nullable();
-             $table->string('logo')->nullable();
-             $table->unsignedBigInteger('transaction_no')->default(0);
-             $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            //
         });
     }
 
@@ -25,7 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('settings');
-        
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

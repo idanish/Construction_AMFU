@@ -18,5 +18,9 @@
         "sass": "^1.56.1",
         "tailwindcss": "^4.1.13",
         "vite": "^7.0.4"
+    },
+    "dependencies": {
+        "laravel-echo": "^2.2.0",
+        "pusher-js": "^8.4.0"
     }
 }

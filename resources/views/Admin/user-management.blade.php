@@ -17,6 +17,8 @@
                         <th class="px-4 py-3 border">Name</th>
                         <th class="px-4 py-3 border">Email</th>
                         <th class="px-4 py-3 border">Role</th>
+                        <th class="px-4 py-3 border">Department</th>
+                        <th class="px-4 py-3 border">Status</th>
                         <th class="px-4 py-3 border text-center">Actions</th>
                     </tr>
                 </thead>
@@ -28,6 +30,16 @@
                             <td class="border px-4 py-2">{{ $user->email }}</td>
                             <td class="border px-4 py-2 text-blue-600">
                                 {{ $user->roles->pluck('name')->implode(', ') ?? 'No Role' }}
+                            </td>
+                            <td class="border px-4 py-2">
+                                {{ $user->department ? $user->department->name : '-' }}
+                            </td>
+                            <td class="border px-4 py-2">
+                                @if ($user->status)
+                                    <span class="text-green-600 font-semibold">Active</span>
+                                @else
+                                    <span class="text-red-600 font-semibold">Inactive</span>
+                                @endif
                             </td>
                             <td class="border px-4 py-2 text-center">
                                 <div class="grid grid-cols-2 gap-4">
@@ -53,7 +65,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-gray-500 py-4">No users found.</td>
+                            <td colspan="7" class="text-center text-gray-500 py-4">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>

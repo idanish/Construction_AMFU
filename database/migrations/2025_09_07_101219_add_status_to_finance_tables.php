@@ -6,53 +6,65 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-public function up()
-{
-    // Invoices
-    Schema::table('invoices', function (Blueprint $table) {
-        if (!Schema::hasColumn('invoices', 'status')) {
-            $table->enum('status', ['paid', 'unpaid'])->default('unpaid')->after('amount');
-        }
-    });
+    public function up()
+    {
+        // Invoices
+        Schema::table('invoices', function (Blueprint $table) {
+            if (!Schema::hasColumn('invoices', 'status')) {
+                $table->enum('status', ['paid', 'unpaid'])->default('unpaid')->after('amount');
+            }
+            if (!Schema::hasColumn('invoices', 'transaction_no')) {
+                $table->unsignedBigInteger('transaction_no')->default(0)->after('status');
+            }
+        });
 
-    // Payments
-    Schema::table('payments', function (Blueprint $table) {
-        if (!Schema::hasColumn('payments', 'status')) {
-            $table->enum('status', ['completed', 'pending'])->default('pending')->after('amount');
-        }
-    });
+        // Payments
+        Schema::table('payments', function (Blueprint $table) {
+            if (!Schema::hasColumn('payments', 'status')) {
+                $table->enum('status', ['completed', 'pending'])->default('pending')->after('amount');
+            }
+            if (!Schema::hasColumn('payments', 'transaction_no')) {
+                $table->unsignedBigInteger('transaction_no')->default(0)->after('status');
+            }
+        });
 
-    // Budgets
-    Schema::table('budgets', function (Blueprint $table) {
-        if (!Schema::hasColumn('budgets', 'status')) {
-            $table->enum('status', ['approved', 'pending', 'rejected'])->default('pending')->after('balance');
-        }
-    });
+        // Budgets
+        Schema::table('budgets', function (Blueprint $table) {
+            if (!Schema::hasColumn('budgets', 'status')) {
+                $table->enum('status', ['approved', 'pending', 'rejected'])->default('pending')->after('balance');
+            }
+            if (!Schema::hasColumn('budgets', 'transaction_no')) {
+                $table->unsignedBigInteger('transaction_no')->default(0)->after('status');
+            }
+        });
 
-    // Procurements
-    Schema::table('procurements', function (Blueprint $table) {
-        if (!Schema::hasColumn('procurements', 'status')) {
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending')->after('attachment');
-        }
-    });
-}
+        // Procurements
+        Schema::table('procurements', function (Blueprint $table) {
+            if (!Schema::hasColumn('procurements', 'status')) {
+                $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending')->after('attachment');
+            }
+            if (!Schema::hasColumn('procurements', 'transaction_no')) {
+                $table->unsignedBigInteger('transaction_no')->default(0)->after('status');
+            }
+        });
+    }
 
     public function down()
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->dropColumn('status');
+            $table->dropColumn(['status', 'transaction_no']);
         });
 
         Schema::table('payments', function (Blueprint $table) {
-            $table->dropColumn('status');
+            $table->dropColumn(['status', 'transaction_no']);
         });
 
         Schema::table('budgets', function (Blueprint $table) {
-            $table->dropColumn('status');
+            $table->dropColumn(['status', 'transaction_no']);
         });
 
         Schema::table('procurements', function (Blueprint $table) {
-            $table->dropColumn('status');
+            $table->dropColumn(['status', 'transaction_no']);
         });
     }
 };

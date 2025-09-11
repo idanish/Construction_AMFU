@@ -1,49 +1,66 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Department;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request; // <-- ye correct import
-use Spatie\Permission\Models\Role; // Spatie Role model
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
     use RegistersUsers {
-        register as traitRegister; // original method alias
+        register as traitRegister; // original RegistersUsers method alias
     }
 
-    protected $redirectTo = '/login'; // login page
+    protected $redirectTo = '/login'; // redirect after successful registration
 
+    /**
+     * Show registration form
+     */
+    public function showRegistrationForm()
+    {
+        $roles = Role::all();               // Fetch all roles
+        $departments = Department::all();   // Fetch all departments
+
+        return view('admin.register', compact('roles', 'departments'));
+    }
+
+    /**
+     * Handle registration form submit
+     */
     public function register(Request $request)
     {
-        // validate input
-        $this->validator($request->all())->validate();
+        // Validate inputs
+        $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users',
+            'password'      => 'required|string|min:8|confirmed',
+            'role_id'       => 'required|exists:roles,id',
+            'department_id' => 'required|exists:departments,id',
+        ]);
 
-        // create user WITHOUT logging in
-        $user = $this->create($request->all());
+        // Create user
+        $user = User::create([
+            'name'          => $request->name,
+            'email'         => $request->email,
+            'password'      => Hash::make($request->password),
+            'department_id' => $request->department_id,
+            'status'        => 1, // optional: active by default
+        ]);
 
-        // optional: flash message
-        $request->session()->flash('success', 'Account created! Please login to continue.');
+        // Assign role
+        $role = Role::findById($request->role_id);
+        $user->assignRole($role);
 
-        // redirect to login page
+        // Flash success message
+        $request->session()->flash('success', 'User registered successfully!');
+
+        // Redirect to login page
         return redirect()->route('login');
     }
-
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-    }
-
-    public function create()
-{
-    $roles = Role::all(); // Sare roles le aao
-    return view('admin.users.create', compact('roles'));
 }
-    }

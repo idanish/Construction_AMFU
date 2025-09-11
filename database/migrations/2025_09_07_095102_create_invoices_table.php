@@ -17,7 +17,7 @@ return new class extends Migration
         $table->string('invoice_no');
         $table->decimal('amount', 10, 2);
         $table->timestamps();
-
+        $table->unsignedBigInteger('transaction_no')->default(0);
         $table->foreign('request_id')->references('id')->on('requests')->onDelete('cascade');
     });
 }

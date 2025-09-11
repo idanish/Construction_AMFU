@@ -22,30 +22,24 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web'
+            ]);
         }
 
-        // Roles for workflow
-        $pm   = Role::firstOrCreate(['name' => 'PM']);
-        $fco  = Role::firstOrCreate(['name' => 'FCO']);
-        $pmo  = Role::firstOrCreate(['name' => 'PMO']);
-        $cso  = Role::firstOrCreate(['name' => 'CSO']);
-        $admin = Role::firstOrCreate(['name' => 'Admin']);
+        // ✅ Roles with guard_name=web
+        $pm    = Role::firstOrCreate(['name' => 'PM', 'guard_name' => 'web']);
+        $fco   = Role::firstOrCreate(['name' => 'FCO', 'guard_name' => 'web']);
+        $pmo   = Role::firstOrCreate(['name' => 'PMO', 'guard_name' => 'web']);
+        $cso   = Role::firstOrCreate(['name' => 'CSO', 'guard_name' => 'web']);
+        $admin = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
 
-        // Assign permissions
+        // ✅ Assign permissions
         $pm->syncPermissions(['create request', 'view reports']);
         $fco->syncPermissions(['approve request', 'reject request', 'view reports']);
         $pmo->syncPermissions(['approve request', 'reject request', 'view reports']);
         $cso->syncPermissions(['approve request', 'reject request', 'view reports']);
         $admin->syncPermissions(Permission::all());
-
-        $pm   = Role::firstOrCreate(['name' => 'PM', 'guard_name' => 'web']);
-        $fco  = Role::firstOrCreate(['name' => 'FCO', 'guard_name' => 'web']);
-        $pmo  = Role::firstOrCreate(['name' => 'PMO', 'guard_name' => 'web']);
-        $cso  = Role::firstOrCreate(['name' => 'CSO', 'guard_name' => 'web']);
-        $admin = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
     }
-
-
-
 }
