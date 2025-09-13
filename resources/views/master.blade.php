@@ -124,12 +124,29 @@
                             </ul>
                         </li>
                     @endrole
+                        {{-- Request Page for use (PM) --}}
 
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-receipt"></i>
+                                <div data-i18n="Requests">Request</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('requests.index') }}" class="menu-link">
+                                        <div data-i18n="Request">Request</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        
+                       
                     <!-- Finance (FCO + Admin) -->
                     @role(['FCO', 'Admin'])
                         <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
 
-                        <!-- Budgets -->
+                        <!--    gets -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>

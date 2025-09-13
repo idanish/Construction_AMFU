@@ -15,6 +15,8 @@ use App\Http\Controllers\DepartmentController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\RequestController;
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
@@ -189,7 +191,7 @@ Route::delete('/departments/{department}', [DepartmentController::class, 'destro
 
 Route::prefix('services')->name('services.')->group(function () {
     // List all service requests
-    Route::get('/', [ServiceRequestController::class, 'index'])->name('index');           // views/services/index.blade.php
+    Route::get('/services', [ServiceRequestController::class, 'index'])->name('index');           // views/services/index.blade.php
 
     // Create service request form
     Route::get('/create', [ServiceRequestController::class, 'create'])->name('create');   // views/services/create.blade.php
@@ -204,6 +206,8 @@ Route::prefix('services')->name('services.')->group(function () {
 
     // Delete service request
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
+
+ 
 });
 
 // 🔹 Audit Report Routes
@@ -234,4 +238,45 @@ Route::prefix('reports')->group(function () {
 // Request Report Routes
 Route::post('/reports/request', [DepartmentController::class, 'generateRequestReport'])
     ->name('reports.request');
+
+
+
+    //Rehan Request Route
+
+
+Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
+    Route::get('/', [RequestController::class, 'index'])->name('index');
+    Route::get('/create', [RequestController::class, 'create'])->name('create');
+    Route::post('/', [RequestController::class, 'store'])->name('store');
+    Route::get('/{id}', [RequestController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [RequestController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [RequestController::class, 'update'])->name('update');
+    Route::delete('/{id}', [RequestController::class, 'destroy'])->name('destroy');
+
+    // workflow
+    Route::post('/{id}/approve', [RequestController::class, 'approve'])->name('approve');
+    Route::post('/{id}/reject', [RequestController::class, 'reject'])->name('reject');
+
+      Route::resource('requests', RequestController::class);
+
+
+
+});
+
+
+
+// ================= Approvals =================
+
+Route::prefix('approvals')->name('approvals.')->group(function () {
+    // Sare approvals show karna
+    Route::get('/', [ApprovalController::class, 'index'])->name('index');
+
+    // Approval create form (agar chahiye)
+    Route::get('/create', [ApprovalController::class, 'create'])->name('create');
+
+    // Store new approval
+    Route::post('/store', [ApprovalController::class, 'store'])->name('store');
+});
+
+
 
