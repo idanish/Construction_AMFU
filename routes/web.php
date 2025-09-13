@@ -20,8 +20,9 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
-
-
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\PermissionController;
 
 
 Route::get('/clear-cache', function () {
@@ -90,6 +91,17 @@ Route::post('/admin/register', [AdminController::class, 'register'])->name('admi
 
 //pending approval route
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
+
+
+
+// Permissions page ko show karne ke liye route
+Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+
+// Permissions update karne ke liye route
+Route::post('/permissions/{user}', [PermissionController::class, 'update'])->name('permissions.update');
+
+
+
 
 
 // Protected routes for users with roles
@@ -292,3 +304,17 @@ Route::prefix('approvals')->name('approvals.')->group(function () {
 
 
 
+// ====== AUDIT MODULES ======
+
+// Audit Log
+Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
+    Route::get('/', [AuditLogController::class, 'index'])->name('index');
+    Route::get('/export', [AuditLogController::class, 'export'])->name('export');
+    Route::get('/export-full', [AuditLogController::class, 'exportFull'])->name('exportFull');
+});
+
+
+// ====== SEARCH MODULES ======
+
+// Search ke liye route banayein
+Route::get('/search-results', [SearchController::class, 'index'])->name('search.results');

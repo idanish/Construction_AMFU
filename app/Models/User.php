@@ -9,26 +9,23 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+// Activity Logs Files
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
+
 
 class User extends Authenticatable   
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
-    // ... baaki code
+    use HasFactory, Notifiable, HasRoles, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'department_id',
-        'status', // add this
-        'transaction_no',
-    ];
+    protected $fillable = ['name', 'email', 'password', 'department_id', 'status', 'transaction_no'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -56,5 +53,27 @@ class User extends Authenticatable
 {
     return $this->belongsTo(Role::class);
 }
+
+    // Activity Log Start Here
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('User')
+            ->logOnly(['name', 'email', 'password', 'department_id', 'status', 'transaction_no'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "User record has been {$eventName}";
+    }
+
+    // Activity Log End Here
+
+
+
+
 
 }
