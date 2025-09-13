@@ -49,6 +49,7 @@
                                         Edit
                                     </a>
 
+
                                     <!-- Delete -->
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you sure you want to delete this user?');"
@@ -60,6 +61,11 @@
                                             Delete
                                         </button>
                                     </form>
+
+                                    <a href="{{ route('users.edit-permissions', $user) }}"
+                                        class="text-green-600 hover:underline text-center">
+                                        Assign Permissions
+                                    </a>
                                 </div>
                             </td>
                         </tr>

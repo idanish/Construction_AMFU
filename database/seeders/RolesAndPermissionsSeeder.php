@@ -14,11 +14,68 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Workflow Permissions
         $permissions = [
-            'create request',
-            'approve request',
-            'reject request',
-            'view reports',
-            'manage users', // Admin only
+            // Users
+            'view-users',
+            'create-users',
+            'edit-users',
+            'delete-users',
+            
+            // Roles & Permissions
+            'view-roles',
+            'create-roles',
+            'edit-roles',
+            'delete-roles',
+            'manage-permissions', // Permission management ke liye
+            
+            // Departments
+            'view-departments',
+            'create-departments',
+            'edit-departments',
+            'delete-departments',
+            
+            // Settings & Profile
+            'update-profile-settings',
+            'manage-site-settings',
+            'manage-backup',
+            
+            // Reports & Logs
+            'view-request-reports',
+            'export-request-reports', // Jese 'create' report
+            'view-finance-reports',
+            'export-finance-reports',
+            'view-audit-reports',
+            'export-audit-reports',
+            'view-activity-logs',
+            
+            // Finance
+            'view-invoices',
+            'create-invoices',
+            'edit-invoices',
+            'delete-invoices',
+            'view-budgets',
+            'create-budgets',
+            'edit-budgets',
+            'delete-budgets',
+            'view-payments',
+            'create-payments',
+            'edit-payments',
+            'delete-payments',
+            
+            // Requests & Services
+            'view-requests',
+            'create-requests',
+            'edit-requests',
+            'delete-requests',
+            'view-services',
+            'create-services',
+            'edit-services',
+            'delete-services',
+            
+            // Procurements
+            'view-procurements',
+            'create-procurements',
+            'edit-procurements',
+            'delete-procurements',
         ];
 
         foreach ($permissions as $permission) {

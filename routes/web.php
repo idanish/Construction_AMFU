@@ -20,6 +20,23 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\PermissionController;
+
+
+Route::get('/clear-cache', function () {
+    try {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        return 'cache cleared successfully';
+    } catch (\Exception $e){
+        return 'Error Clearing cache: ' . $e->getMessage();
+    }
+});
+
 
 
 Route::get('/', function () {
@@ -76,6 +93,20 @@ Route::post('/admin/register', [AdminController::class, 'register'])->name('admi
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
 
 
+
+// Permissions page
+Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+Route::post('/permissions/{user}', [PermissionController::class, 'update'])->name('permissions.update');
+
+// Users ki permissions ka page dikhane ke liye naya route
+Route::get('/users/{user}/permissions', [PermissionController::class, 'editPermissions'])->name('users.edit-permissions');
+
+// Permissions ko update karne ke liye naya route
+Route::post('/users/{user}/permissions', [PermissionController::class, 'updatePermissions'])->name('users.update-permissions');
+
+
+
+
 // Protected routes for users with roles
 Route::middleware(['role:Admin'])->group(function () {
     Route::get('/Admin/user', [UserManagementController::class, 'index'])->name('Admin.user');
@@ -87,7 +118,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
 });
-
 
 
 // Settings - Backup & Restore
@@ -206,7 +236,7 @@ Route::prefix('services')->name('services.')->group(function () {
  
 });
 
-// 🔹 Audit Report Routes
+//  Audit Report Routes
 Route::get('/reports/audit', [ReportController::class, 'auditReport'])
     ->name('reports.audit');
 
@@ -237,8 +267,8 @@ Route::post('/reports/request', [DepartmentController::class, 'generateRequestRe
 
 
 
-    //Rehan Request Route
 
+    //Rehan Request Route
 
 Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
     Route::get('/', [RequestController::class, 'index'])->name('index');
@@ -276,3 +306,30 @@ Route::prefix('approvals')->name('approvals.')->group(function () {
 
 
 
+// ====== AUDIT MODULES ======
+
+// Audit Log
+Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
+    Route::get('/', [AuditLogController::class, 'index'])->name('index');
+    Route::get('/export', [AuditLogController::class, 'export'])->name('export');
+    Route::get('/export-full', [AuditLogController::class, 'exportFull'])->name('exportFull');
+});
+
+
+// ====== SEARCH MODULES ======
+
+// Search ke liye route banayein
+Route::get('/search-results', [SearchController::class, 'index'])->name('search.results');
+
+
+
+// ====== REPORT MODULES ======
+
+// Reports Routes
+Route::prefix('reports')->group(function () {
+    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
+    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
+    Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
+    Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
+});
