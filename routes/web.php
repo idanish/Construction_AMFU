@@ -94,12 +94,15 @@ Route::get('/no-role', function () {return view('no-role');})->name('no.role');
 
 
 
-// Permissions page ko show karne ke liye route
+// Permissions page
 Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
-
-// Permissions update karne ke liye route
 Route::post('/permissions/{user}', [PermissionController::class, 'update'])->name('permissions.update');
 
+// Users ki permissions ka page dikhane ke liye naya route
+Route::get('/users/{user}/permissions', [PermissionController::class, 'editPermissions'])->name('users.edit-permissions');
+
+// Permissions ko update karne ke liye naya route
+Route::post('/users/{user}/permissions', [PermissionController::class, 'updatePermissions'])->name('users.update-permissions');
 
 
 
@@ -115,7 +118,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
 });
-
 
 
 // Settings - Backup & Restore
@@ -234,7 +236,7 @@ Route::prefix('services')->name('services.')->group(function () {
  
 });
 
-// 🔹 Audit Report Routes
+//  Audit Report Routes
 Route::get('/reports/audit', [ReportController::class, 'auditReport'])
     ->name('reports.audit');
 
@@ -265,8 +267,8 @@ Route::post('/reports/request', [DepartmentController::class, 'generateRequestRe
 
 
 
-    //Rehan Request Route
 
+    //Rehan Request Route
 
 Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
     Route::get('/', [RequestController::class, 'index'])->name('index');
@@ -318,3 +320,16 @@ Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
 
 // Search ke liye route banayein
 Route::get('/search-results', [SearchController::class, 'index'])->name('search.results');
+
+
+
+// ====== REPORT MODULES ======
+
+// Reports Routes
+Route::prefix('reports')->group(function () {
+    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
+    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
+    Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
+    Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
+});
