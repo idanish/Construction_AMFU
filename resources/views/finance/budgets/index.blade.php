@@ -19,6 +19,7 @@
                 <th>Spent</th>
                 <th>Balance</th>
                 <th>Status</th>
+                <th>Attachment</th> {{-- new column --}}
                 <th>Actions</th>
             </tr>
         </thead>
@@ -32,6 +33,15 @@
                     <td>{{ $budget->balance }}</td>
                     <td>{{ $budget->status }}</td>
                     <td>
+                        @if($budget->attachment)
+                            <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank" class="btn btn-info btn-sm">
+                                View File
+                            </a>
+                        @else
+                            <span class="text-muted">No File</span>
+                        @endif
+                    </td>
+                    <td>
                         <a href="{{ route('finance.budgets.edit', $budget->id) }}" class="btn btn-primary btn-sm">Edit</a>
                         <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure?');">
                             @csrf
@@ -42,7 +52,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center">No budgets found</td>
+                    <td colspan="8" class="text-center">No budgets found</td>
                 </tr>
             @endforelse
         </tbody>

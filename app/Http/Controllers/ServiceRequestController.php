@@ -20,28 +20,28 @@ class ServiceRequestController extends Controller
         return view('services.create', compact('invoices'));
     }
 
-  public function store(Request $request)
+ public function store(Request $request)
 {
-    // ✅ Validation
     $request->validate([
-        'request_no' => 'required|unique:service_requests,request_no',
         'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'status' => 'required|string|in:pending,approved,rejected',
+        'description' => 'required|string',
     ]);
 
-    // ✅ Create new service request safely
-    $serviceRequest = ServiceRequest::create([
-        'request_no'  => $request->request_no,
-        'title'       => $request->title,
+    // Auto generate Request No
+    $lastId = \App\Models\ServiceRequest::max('id') + 1;
+    $requestNo = 'SR-' . str_pad($lastId, 6, '0', STR_PAD_LEFT);
+
+    ServiceRequest::create([
+        'request_no' => $requestNo,
+        'title' => $request->title,
         'description' => $request->description,
-        'status'      => $request->status,
+        'status' => 'pending',
     ]);
 
-    // ✅ Redirect with success message
     return redirect()->route('services.index')
-                     ->with('success', 'Service Request created successfully.');
+        ->with('success', 'Service Request created successfully!');
 }
+
 
 
 
@@ -51,23 +51,27 @@ class ServiceRequestController extends Controller
         return view('services.edit', compact('serviceRequest', 'invoices'));
     }
 
-    public function update(Request $request, ServiceRequest $serviceRequest)
-    {
-        $request->validate([
-            'invoice_id' => 'required|exists:invoices,id',
-            'description' => 'required|string',
-            'status' => 'required|in:Pending,Approved,Rejected',
-        ]);
+public function update(Request $request, ServiceRequest $serviceRequest)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string|max:1000',
+    ]);
 
-        $serviceRequest->update($request->all());
+    // title aur description update karna
+    $serviceRequest->update([
+        'title' => $request->title,
+        'description' => $request->description,
+    ]);
 
-        return redirect()->route('services.index')->with('success', 'Service Request updated successfully.');
-    }
+    return redirect()->route('services.index')
+        ->with('success', 'Service Request updated successfully.');
+}
 
-    public function show(ServiceRequest $serviceRequest)
-    {
-        return view('services.show', compact('serviceRequest'));
-    }
+public function show(ServiceRequest $serviceRequest)
+{
+    return view('services.show', compact('serviceRequest'));
+}
 
     public function destroy(ServiceRequest $serviceRequest)
     {

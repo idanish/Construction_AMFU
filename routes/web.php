@@ -119,14 +119,18 @@ Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('up
 Route::prefix('finance')->name('finance.')->group(function () {
 
     // Budgets
-    Route::prefix('budgets')->name('budgets.')->group(function () {
-        Route::get('/', [BudgetController::class, 'index'])->name('index');         // route('finance.budgets.index')
-        Route::get('/create', [BudgetController::class, 'create'])->name('create'); // route('finance.budgets.create')
-        Route::post('/store', [BudgetController::class, 'store'])->name('store');
-        Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
-        Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
-        Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
-    });
+Route::prefix('budgets')->name('budgets.')->group(function () {
+    Route::get('/', [BudgetController::class, 'index'])->name('index');       
+    Route::get('/create', [BudgetController::class, 'create'])->name('create'); 
+    Route::post('/store', [BudgetController::class, 'store'])->name('store');    
+    Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit'); 
+    Route::put('/{budget}', [BudgetController::class, 'update'])->name('update'); 
+    Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy'); 
+});
+
+
+
+
 
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {

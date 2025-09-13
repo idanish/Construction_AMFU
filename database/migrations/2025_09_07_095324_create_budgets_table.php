@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title'); 
             $table->unsignedBigInteger('department_id');
+            $table->string('attachment')->nullable();
             $table->decimal('allocated', 12, 2);
             $table->decimal('spent', 12, 2)->default(0);
             $table->decimal('balance', 12, 2)->default(0);

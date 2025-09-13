@@ -9,10 +9,12 @@
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>Request ID</th>
                 <th>Invoice No</th>
+                <th>Date</th>
+                <th>Vendor</th>
                 <th>Amount</th>
-                <th>Status</th>
+                <th>Description</th>
+                <th>Attachment</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,10 +22,18 @@
             @forelse($invoices as $invoice)
             <tr>
                 <td>{{ $invoice->id }}</td>
-                <td>{{ $invoice->request_id }}</td>
                 <td>{{ $invoice->invoice_no }}</td>
-                <td>{{ $invoice->amount }}</td>
-                <td>{{ $invoice->status }}</td>
+                <td>{{ $invoice->date->format('d-m-Y') }}</td>
+                <td>{{ $invoice->vendor }}</td>
+                <td>{{ number_format($invoice->amount, 2) }}</td>
+                <td>{{ Str::limit($invoice->description, 50) }}</td>
+                <td>
+                    @if($invoice->attachment)
+                        <a href="{{ asset('storage/'.$invoice->attachment) }}" target="_blank">View</a>
+                    @else
+                        N/A
+                    @endif
+                </td>
                 <td>
                     <a href="{{ route('finance.invoices.edit', $invoice->id) }}" class="btn btn-primary btn-sm">Edit</a>
                     <form action="{{ route('finance.invoices.destroy', $invoice->id) }}" method="POST" style="display:inline-block;">
@@ -35,10 +45,12 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="text-center">No invoices found</td>
+                <td colspan="8" class="text-center">No invoices found</td>
             </tr>
             @endforelse
         </tbody>
     </table>
+
+    
 </div>
 @endsection

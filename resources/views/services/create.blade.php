@@ -2,17 +2,17 @@
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">Add New Service Request</h2>
+    <h2 class="mb-4">Add New Work Order</h2>
 
     <form action="{{ route('services.store') }}" method="POST">
         @csrf
 
         <!-- Request No -->
-        <div class="mb-3">
+        <!-- <div class="mb-3">
             <label for="request_no" class="form-label">Request No</label>
             <input type="text" name="request_no" class="form-control" id="request_no" value="{{ old('request_no') }}">
             @error('request_no') <span class="text-danger">{{ $message }}</span> @enderror
-        </div>
+        </div> -->
         
       <div class="mb-3">
     <label for="title" class="form-label">Title</label>
