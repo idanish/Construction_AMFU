@@ -79,6 +79,9 @@ Route::middleware('auth')->prefix('notifications')->group(function () {
 // User Management - Protected route for Admin only
 Route::get('/admin/user-management', [App\Http\Controllers\UserManagementController::class, 'index'])
         ->name('admin.user-management');
+
+Route::patch('/users/{user}/status', [UserManagementController::class, 'updateStatus'])->name('users.update-status');
+
 // Assign Role to User - Protected route for Admin only
 Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementController::class, 'assignRole'])
     ->name('users.assignRole');
@@ -117,6 +120,16 @@ Route::middleware(['role:Admin'])->group(function () {
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
+        // ✅ Show roles list
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles.show');
+      // ✅ Edit role form
+    Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+
+    // ✅ Update role
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+
+    // ✅ Delete role
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 });
 
 
@@ -326,10 +339,10 @@ Route::get('/search-results', [SearchController::class, 'index'])->name('search.
 // ====== REPORT MODULES ======
 
 // Reports Routes
-Route::prefix('reports')->group(function () {
-    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
-    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
-    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
-    Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
-    Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
-});
+// Route::prefix('reports')->group(function () {
+//     Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+//     Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
+//     Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
+//     Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
+//     Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
+// });

@@ -50,14 +50,6 @@
                         <input type="password" name="password_confirmation" class="form-control">
                     </div>
 
-                    <!-- Role (Readonly, only admin can change in admin panel) -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Role</label>
-                        <input type="text" class="form-control"
-                            value="{{ Auth::user()->roles->pluck('name')->implode(', ') }}" disabled>
-                        <small class="text-muted">Only Admin can change your role</small>
-                    </div>
-
                     <button type="submit" class="btn btn-primary w-100">Update Profile</button>
                 </form>
             </div>

@@ -73,7 +73,7 @@
 
                     <!-- Request (All Users) -->
                     @role(['FCO', 'Admin'])
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Requests</span></li>
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Requests</span></li>
                         <!-- Requests (All Users) -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -93,13 +93,13 @@
                                 </li>
                             </ul>
                         </li>
-                    </li>
+                        </li>
                     @endrole
 
-                       
+
                     <!-- Finance (Admin and Assign Roles) -->
                     @role(['FCO', 'Admin'])
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
 
                         <!-- Budget -->
                         <li class="menu-item">
@@ -180,13 +180,13 @@
                                 </li>
                             </ul>
                         </li>
-                    </li>
+                        </li>
                     @endrole
 
 
                     <!-- Reports (Admin and Assign Roles) -->
                     @role('Admin')
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-file"></i>
@@ -210,12 +210,12 @@
                                 </li>
                             </ul>
                         </li>
-                    </li>
+                        </li>
                     @endrole
 
                     <!-- Management (Admin and Assign Roles) -->
                     @role('Admin')
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Management</span></li>
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Management</span></li>
                         <!-- User Management (Admin Only) -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -236,7 +236,7 @@
 
                             </ul>
                         </li>
-                   
+
                         <!-- Roles (Admin Only) -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -245,18 +245,18 @@
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item">
-                                    <a href="" class="menu-link">
+                                    <a href="{{ route('roles.show') }}" class="menu-link">
                                         <div data-i18n="All-Roles">Roles</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('roles.create') }}" class="menu-link">
-                                    <div data-i18n="Role-create">Create Role</div>
+                                        <div data-i18n="Role-create">Create Role</div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        
+
                         <!-- Permissions (Admin Only) -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -266,7 +266,7 @@
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="" class="menu-link">
-                                    <div data-i18n="Set-Permission">Set Permission</div>
+                                        <div data-i18n="Set-Permission">Set Permission</div>
                                     </a>
                                 </li>
                             </ul>
@@ -311,13 +311,13 @@
                                 </li>
                             </ul>
                         </li>
-                    </li>
+                        </li>
                     @endrole
 
 
                     <!-- Settings (Admin and Assign Roles except Profile-settings) -->
                     @role('Admin')
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Settings</span>
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Settings</span>
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-cog"></i>
@@ -336,10 +336,10 @@
                                         <div data-i18n="audit-logs">Users Logs</div>
                                     </a>
                                 </li>
-                                
+
                             </ul>
                         </li>
-                    </li>
+                        </li>
                     @endrole
                 </ul>
 
@@ -373,7 +373,9 @@
                             <div class="me-3">
                                 <div class="d-flex align-items-center">
                                     <form action="{{ route('search.results') }}" method="GET" class="input-group">
-                                        <input type="text" name="query" placeholder="Search..." class="form-control form-control-sm border-0 shadow-none" aria-label="Search...">
+                                        <input type="text" name="query" placeholder="Search..."
+                                            class="form-control form-control-sm border-0 shadow-none"
+                                            aria-label="Search...">
                                         <button type="submit" class="btn btn-light border-0 shadow-none">
                                             <i class="bx bx-search"></i>
                                         </button>
@@ -450,8 +452,10 @@
                                     data-bs-toggle="dropdown">
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-online">
-                                            <img src="{{ asset('assets/img/avatars/1.png') }}" alt
-                                                class="w-px-40 h-auto rounded-circle" />
+                                            <img src="{{ Auth::user()->profile_picture
+                                                ? asset('storage/' . Auth::user()->profile_picture)
+                                                : asset('assets/img/avatars/1.png') }}"
+                                                alt="User Avatar" class="w-px-40 h-auto rounded-circle" />
                                         </div>
                                     </div>
                                 </a>
@@ -462,7 +466,7 @@
                                     <li>
                                         <a class="dropdown-item" href="{{ route('profile.settings') }}">
                                             <i class="bx bx-user me-2"></i>
-                                             <span class="fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
+                                            <span class="fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
                                         </a>
                                     </li>
 
