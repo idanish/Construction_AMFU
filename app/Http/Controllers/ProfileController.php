@@ -32,11 +32,9 @@ class ProfileController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
 
-        // Profile Picture Upload
         if ($request->hasFile('profile_picture')) {
-            $fileName = time() . '.' . $request->profile_picture->extension();
-            $request->profile_picture->move(public_path('uploads/profile_pictures'), $fileName);
-            $user->profile_picture = $fileName;
+            $path = $request->file('profile_picture')->store('profiles', 'public');
+            $user->profile_picture = $path;
         }
 
         // Update Password (if provided)

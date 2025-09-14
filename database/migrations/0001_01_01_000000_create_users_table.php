@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('department_name')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('profile_picture')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->boolean('status')->default(false);
             $table->rememberToken();
@@ -50,6 +51,7 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('status');
+            $table->dropColumn('profile_picture');
         });
     }
 };
