@@ -249,38 +249,6 @@ Route::prefix('services')->name('services.')->group(function () {
  
 });
 
-//  Audit Report Routes
-Route::get('/reports/audit', [ReportController::class, 'auditReport'])
-    ->name('reports.audit');
-
-Route::post('/reports/audit', [ReportController::class, 'auditReportGenerate'])
-    ->name('reports.audit.generate');
-
-Route::get('/reports/audit/export/{type}', [ReportController::class, 'auditReportExport'])
-    ->name('reports.audit.export');
-
-Route::prefix('reports')->group(function () {
-    Route::get('/request', function () {
-        return view('reports.request-report');
-    })->name('reports.request-report');
-
-    Route::get('/finance', function () {
-        return view('reports.finance-report');
-    })->name('reports.finance-report');
-
-    Route::get('/audit', function () {
-        return view('reports.audit-report');
-    })->name('reports.audit-report');
-});
-
-
-// Request Report Routes
-Route::post('/reports/request', [DepartmentController::class, 'generateRequestReport'])
-    ->name('reports.request');
-
-
-
-
     //Rehan Request Route
 
 Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
@@ -339,10 +307,10 @@ Route::get('/search-results', [SearchController::class, 'index'])->name('search.
 // ====== REPORT MODULES ======
 
 // Reports Routes
-// Route::prefix('reports')->group(function () {
-//     Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
-//     Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
-//     Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
-//     Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
-//     Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
-// });
+Route::prefix('reports')->middleware(['auth'])->group(function () {
+    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
+    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
+    Route::get('/requests', [ReportsController::class, 'requestReport'])->name('reports.requests');
+    Route::get('/workflow', [ReportsController::class, 'workFlowReport'])->name('reports.workflow');
+});
