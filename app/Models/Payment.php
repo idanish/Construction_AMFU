@@ -15,7 +15,10 @@ class Payment extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $fillable = ['invoice_id', 'payment_date', 'amount', 'status'];
+     protected $fillable = [
+    'payment_ref','invoice_id','payment_date','amount','method','status','attachment'
+];
+
 
 
     // Activity Log Start Here

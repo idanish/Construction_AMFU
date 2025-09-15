@@ -4,41 +4,84 @@
 <div class="container py-4">
     <h4 class="mb-4">Add Procurement</h4>
 
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     <form action="{{ route('finance.procurements.store') }}" method="POST" enctype="multipart/form-data">
         @csrf 
 
+        {{-- Item Name / Title --}}
         <div class="mb-3">
-            <label class="form-label">Title</label>
-            <input type="text" name="title" class="form-control" value="{{ old('title') }}">
-            @error('title') <small class="text-danger">{{ $message }}</small> @enderror
+            <label for="item_name" class="form-label">Item Name</label>
+            <input type="text" name="item_name" id="item_name" class="form-control" value="{{ old('item_name') }}" required>
+            @error('item_name') 
+                <small class="text-danger">{{ $message }}</small> 
+            @enderror
         </div>
 
+        {{-- Quantity --}}
         <div class="mb-3">
-            <label class="form-label">Department</label>
-            <select name="department_id" class="form-select">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" name="quantity" id="quantity" class="form-control" value="{{ old('quantity') }}" required>
+            @error('quantity') 
+                <small class="text-danger">{{ $message }}</small> 
+            @enderror
+        </div>
+
+        {{-- Cost Estimate --}}
+        <div class="mb-3">
+            <label for="cost_estimate" class="form-label">Cost Estimate (PKR)</label>
+            <input type="number" name="cost_estimate" id="cost_estimate" class="form-control" step="0.01" value="{{ old('cost_estimate') }}" required>
+            @error('cost_estimate') 
+                <small class="text-danger">{{ $message }}</small> 
+            @enderror
+        </div>
+
+        {{-- Department --}}
+        <div class="mb-3">
+            <label for="department_id" class="form-label">Department</label>
+            <select name="department_id" id="department_id" class="form-select" required>
                 <option value="">-- Select Department --</option>
                 @foreach($departments as $dept)
                     <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
                         {{ $dept->name }}
                     </option>
                 @endforeach
-                
             </select>
-            @error('department_id') <small class="text-danger">{{ $message }}</small> @enderror
+            @error('department_id') 
+                <small class="text-danger">{{ $message }}</small> 
+            @enderror
         </div>
 
+        {{-- Justification / Description --}}
         <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-control">{{ old('description') }}</textarea>
-            @error('description') <small class="text-danger">{{ $message }}</small> @enderror
+            <label for="justification" class="form-label">Justification</label>
+            <textarea name="justification" id="justification" class="form-control" rows="3">{{ old('justification') }}</textarea>
+            @error('justification') 
+                <small class="text-danger">{{ $message }}</small> 
+            @enderror
         </div>
 
+        {{-- Attachment --}}
         <div class="mb-3">
             <label class="form-label">Attachment</label>
-            <input type="file" name="attachment" class="form-control">
-            @error('attachment') <small class="text-danger">{{ $message }}</small> @enderror
+            <div class="upload-box" id="uploadBox">
+                <i class="bi bi-paperclip"></i>
+                <p>Drag & Drop file here or click to upload</p>
+                <input type="file" name="attachment" id="attachmentInput" hidden>
+            </div>
+            <div id="filePreview" class="mt-2"></div>
+            @error('attachment')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
         </div>
 
+        {{-- Status --}}
         <div class="mb-3">
             <label class="form-label">Status</label>
             <select name="status" class="form-select">
@@ -46,11 +89,77 @@
                 <option value="approved" {{ old('status') == 'approved' ? 'selected' : '' }}>Approved</option>
                 <option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
             </select>
-            @error('status') <small class="text-danger">{{ $message }}</small> @enderror
+            @error('status') 
+                <small class="text-danger">{{ $message }}</small> 
+            @enderror
         </div>
 
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary">Back</a>
+        {{-- Buttons --}}
+        <div class="mb-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save Procurement</button>
+            <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary">Back</a>
+        </div>
     </form>
 </div>
+
+{{-- Styles --}}
+<style>
+.upload-box {
+    border: 2px dashed #6c757d;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    transition: background 0.3s;
+}
+.upload-box:hover {
+    background: #e9ecef;
+}
+.upload-box i {
+    font-size: 28px;
+    color: #0d6efd;
+}
+#filePreview {
+    font-size: 14px;
+    color: #198754;
+    font-weight: 500;
+}
+</style>
+
+{{-- Script --}}
+<script>
+const uploadBox = document.getElementById('uploadBox');
+const attachmentInput = document.getElementById('attachmentInput');
+const filePreview = document.getElementById('filePreview');
+
+uploadBox.addEventListener('click', () => attachmentInput.click());
+uploadBox.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadBox.style.background = '#dee2e6';
+});
+uploadBox.addEventListener('dragleave', () => {
+    uploadBox.style.background = '#f8f9fa';
+});
+uploadBox.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length > 0) {
+        attachmentInput.files = e.dataTransfer.files;
+        showFileName(attachmentInput.files[0]);
+    }
+    uploadBox.style.background = '#f8f9fa';
+});
+
+attachmentInput.addEventListener('change', () => {
+    if (attachmentInput.files.length > 0) {
+        showFileName(attachmentInput.files[0]);
+    }
+});
+
+function showFileName(file) {
+    if (file) {
+        filePreview.textContent = "📎 " + file.name + " attached";
+    }
+}
+</script>
 @endsection

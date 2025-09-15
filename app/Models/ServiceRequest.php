@@ -15,10 +15,15 @@ class ServiceRequest extends Model
     use HasFactory, LogsActivity;
 
     // ServiceRequest.php model
- protected $fillable = ['request_no', 'description', 'status', 'transaction_no'];
 
-
-
+ protected $fillable = [
+        'request_no',
+         'title',
+        'description',
+        'status',
+        'transaction_no',
+    ];
+  
     // Activity Log Start Here
 
     public function getActivitylogOptions(): LogOptions
@@ -36,8 +41,6 @@ class ServiceRequest extends Model
     }
 
     // Activity Log End Here
-
-
 
 
     // ek request ke multiple invoices ho sakte hain

@@ -2,101 +2,94 @@
 
 namespace App\Http\Controllers\Finance;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Budget;
 use App\Models\Department;
+use App\Models\Budget;
 
 class BudgetController extends Controller
 {
-    /**
-     * Display a listing of budgets.
-     */
     public function index()
     {
-        $budgets = Budget::with('department')->latest()->get();
+        $budgets = Budget::with('department')->latest()->paginate(10);
         return view('finance.budgets.index', compact('budgets'));
     }
 
-    /**
-     * Show the form for creating a new budget.
-     */
     public function create()
-{
-    $departments = \App\Models\Department::all();
-    return view('finance.budgets.create', compact('departments'));
-}
-
-
-    /**
-     * Store a newly created budget in storage.
-     */
-    public function store(Request $request)
-{
-    // Validation
-    $request->validate([
-        'department_id' => 'required|exists:departments,id',
-        'allocated' => 'required|numeric|min:0',
-        'spent' => 'required|numeric|min:0',
-        'balance' => 'required|numeric|min:0',
-    ]);
-
-    // Default status
-    $status = 'Pending';
-    if(auth()->check() && auth()->user()->role === 'admin') {
-        $status = $request->input('status', 'Pending');
+    {
+        $departments = Department::all();
+        return view('finance.budgets.create', compact('departments'));
     }
 
-    // Insert into DB
-    \App\Models\Budget::create([
-        'department_id' => $request->department_id,
-        'allocated' => $request->allocated,
-        'spent' => $request->spent,
-        'balance' => $request->balance,
-        'status' => $status,
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'department_id' => 'required|integer',
+            'year'          => 'required|integer',
+            'allocated'     => 'required|numeric',
+            'spent'         => 'required|numeric',
+            'notes'         => 'nullable|string',
+            'status'        => 'required|string',
+            'attachment'    => 'nullable|file',
+        ]);
 
-    return redirect()->route('finance.budgets.index')
-                     ->with('success', 'Budget added successfully!');
-}
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('budgets', 'public');
+        }
 
+        Budget::create([
+            'department_id' => $request->department_id,
+            'year'          => $request->year,
+            'allocated'     => $request->allocated,
+            'spent'         => $request->spent,
+            'balance'       => $request->allocated - $request->spent,
+            'notes'         => $request->notes,
+            'status'        => $request->status,
+            'attachment'    => $attachmentPath,
+        ]);
 
-    /**
-     * Show the form for editing the specified budget.
-     */
+        return redirect()->route('finance.budgets.index')
+                         ->with('success', 'Budget created successfully!');
+    }
+
     public function edit(Budget $budget)
     {
         $departments = Department::all();
         return view('finance.budgets.edit', compact('budget', 'departments'));
     }
 
-    /**
-     * Update the specified budget in storage.
-     */
-    public function update(Request $request, Budget $budget)
-    {
-        $validated = $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'allocated'     => 'required|numeric|min:0',
-            'spent'         => 'required|numeric|min:0',
-            'balance'       => 'required|numeric|min:0',
-            'status'        => 'required|in:pending,approved,rejected',
-        ]);
+  public function update(Request $request, $id)
+{
+    $budget = Budget::findOrFail($id);
 
-        $budget->update($validated);
+    $budget->department_id = $request->department_id;
+    $budget->year = $request->year;
+    $budget->allocated = $request->allocated;
+    $budget->spent = $request->spent;
+    $budget->balance = $request->balance;
+    $budget->notes = $request->notes;
+    $budget->status = $request->status;
 
-        return redirect()->route('finance.budgets.index')
-                         ->with('success', 'Budget updated successfully.');
+    if ($request->hasFile('attachment')) {
+        $budget->attachment = $request->file('attachment')->store('budgets', 'public');
     }
 
-    /**
-     * Remove the specified budget from storage.
-     */
+    $budget->save();
+
+    return redirect()->route('finance.budgets.index')->with('success', 'Budget updated successfully!');
+}
+
+
     public function destroy(Budget $budget)
     {
+        if ($budget->attachment && \Storage::disk('public')->exists($budget->attachment)) {
+            \Storage::disk('public')->delete($budget->attachment);
+        }
+
         $budget->delete();
 
         return redirect()->route('finance.budgets.index')
-                         ->with('success', 'Budget deleted successfully.');
+                         ->with('success', 'Budget deleted successfully!');
     }
 }

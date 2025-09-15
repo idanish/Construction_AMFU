@@ -45,7 +45,6 @@ Route::get('/', function () {
 
 Route::get('/index',[ViewController::class,'index']); 
 Route::get('/login',[ViewController::class,'login']);
-Route::get('/ZUHAIB',[ViewController::class,'ZUHAIB']);
 Route::get('/signup',[ViewController::class,'signup']);
 Route::get('/users',[ViewController::class,'users']);
 Route::get('/form',[ViewController::class,'form']);
@@ -164,20 +163,30 @@ Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('up
 Route::prefix('finance')->name('finance.')->group(function () {
 
     // Budgets
-    Route::prefix('budgets')->name('budgets.')->group(function () {
-        Route::get('/', [BudgetController::class, 'index'])->name('index');         // route('finance.budgets.index')
-        Route::get('/create', [BudgetController::class, 'create'])->name('create'); // route('finance.budgets.create')
-        Route::post('/store', [BudgetController::class, 'store'])->name('store');
-        Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
-        Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
-        Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
-    });
+Route::prefix('finance/budgets')->name('budgets.')->group(function () {
+    Route::get('/', [BudgetController::class, 'index'])->name('index');
+    Route::get('/create', [BudgetController::class, 'create'])->name('create');
+    Route::post('/store', [BudgetController::class, 'store'])->name('store');
+    Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
+    Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
+    Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
+});
+
+
+
+
 
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {
     Route::get('/', [InvoiceController::class, 'index'])->name('index');
     Route::get('/create', [InvoiceController::class, 'create'])->name('create');
     Route::post('/store', [InvoiceController::class, 'store'])->name('store');
+    // routes/web.php
+
+Route::get('finance/invoices/pdf', [InvoiceController::class, 'download'])
+    ->name('finance.invoices.pdf');
+
+
 
     // EDIT route should come before {invoice} catch-all routes
     Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');

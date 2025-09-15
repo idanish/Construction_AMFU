@@ -15,7 +15,15 @@ class Procurement extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $fillable = ['title', 'department_id', 'description', 'attachment', 'status'];
+    protected $fillable = [
+        'item_name',
+        'quantity',
+        'cost_estimate',
+        'department_id',
+        'justification',
+        'status',
+        'attachment',
+    ];
 
 
     

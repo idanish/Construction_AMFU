@@ -34,6 +34,14 @@
     <!-- Helpers -->
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('assets/js/config.js') }}"></script>
+
+    <!-- Dropzone CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" integrity="sha512-fZzZkYxjQy9B7M1gYiXlv2gn6w+fV50Vf3+Yv4PDe8UnD1iXxNhYExfL9M5Kj82Y6cH1wQn1yhv7cA5CjGg7FA==" crossorigin="anonymous" />
+
+<!-- SweetAlert2 CSS + JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </head>
 
 <body>
@@ -276,17 +284,18 @@
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-briefcase"></i>
-                                <div data-i18n="Services">Services</div>
+                                <div data-i18n="Services">Work Order</div>
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="{{ route('services.index') }}" class="menu-link">
-                                        <div data-i18n="All-Services">Services</div>
+                                        <div data-i18n="All Services">All Work Order</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('services.create') }}" class="menu-link">
-                                        <div data-i18n="Add-Services">Add Services</div>
+
+                                        <div data-i18n="Add Services">Add Work Order</div>
                                     </a>
                                 </li>
                             </ul>
@@ -546,6 +555,67 @@
 
     <!-- Main JS -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
+
+    <!-- Dropzone JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js" integrity="sha512-SnHkO9cP47yt0J6fH9o7hF3V7jLzRRYxChh9z7nTS+7A17R37Cy6x8G4fXajNwT6SRWKmFFDKRP8+bdj9dErYw==" crossorigin="anonymous"></script>
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session()->has('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session()->has('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '{{ session('error') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+});
+</script>
+
+
+<script>
+    Dropzone.autoDiscover = false;
+
+    let attachmentDropzone = new Dropzone("#attachmentDropzone", {
+        url: "{{ route('finance.invoices.store') }}", // Laravel store route
+        paramName: "attachment", // input name
+        maxFiles: 1, // ek hi file
+        acceptedFiles: ".pdf,.jpg,.jpeg,.png",
+        addRemoveLinks: true,
+        autoProcessQueue: false, // form submit hone par hi process hoga
+    });
+
+    // Jab form submit ho
+    document.getElementById("invoiceForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        if (attachmentDropzone.getQueuedFiles().length > 0) {
+            attachmentDropzone.processQueue(); // pehle file upload kar
+        } else {
+            this.submit(); // agar file nahi to seedha form submit kar
+        }
+    });
+
+    // Jab file successfully upload ho jaye
+    attachmentDropzone.on("success", function(file, response) {
+        document.getElementById("invoiceForm").submit(); // ab form submit kar
+    });
+</script>
+
 </body>
 
 </html>

@@ -39,11 +39,11 @@
             <label class="form-label">Assign Department</label>
             <select name="department_id" class="form-select">
                 <option value="" disabled selected>-- Select Department --</option>
-                {{-- @foreach($departments as $dept)
+                @foreach($departments as $dept)
                     <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
                         {{ $dept->name }}
                     </option>
-                @endforeach --}}
+                @endforeach 
             </select>
         </div>
 
