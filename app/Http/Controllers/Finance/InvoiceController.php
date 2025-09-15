@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -18,31 +22,56 @@ class InvoiceController extends Controller
 
     // create → show add form
     public function create()
-{
-    $requests = ServiceRequest::all(); // dropdown ke liye
-    return view('finance.invoices.create', compact('requests'));
-}
+    {
+        $lastInvoice = Invoice::latest('id')->first();
+        $nextNumber = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $invoice_no = 'INV-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
+        $requests = ServiceRequest::all();
+
+        return view('finance.invoices.create', compact('requests', 'invoice_no'));
+    }
 
     // store → save new invoice
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'request_id' => 'required|exists:service_requests,id',
-        'invoice_no' => 'required|string|max:50|unique:invoices',
-        'amount'     => 'required|numeric|min:0',
-    ]);
+    {
+        $request->validate([
+            'request_id'   => 'required|exists:service_requests,id',
+            'amount'       => 'required|numeric|min:0',
+            'invoice_date' => 'required|date',
+            'notes'        => 'nullable|string|max:65535', // ✅ TEXT support
+            'attachment'   => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+        ]);
 
-    Invoice::create([
-        'request_id' => $validated['request_id'],
-        'invoice_no' => $validated['invoice_no'],
-        'amount'     => $validated['amount'],
-        'status'     => 'unpaid', // default
-    ]);
+        // Auto generate invoice no
+        $lastInvoice = Invoice::latest('id')->first();
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $invoiceNo = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
-    return redirect()->route('finance.invoices.index')->with('success', 'Invoice created successfully.');
-}
+        // Default status, admin can override
+        $status = (Auth::check() && Auth::user()->role === 'admin')
+            ? ($request->status ?? 'Unpaid')
+            : 'Unpaid';
 
+        $data = [
+            'request_id'   => $request->request_id,
+            'invoice_no'   => $invoiceNo,
+            'amount'       => $request->amount,
+            'invoice_date' => Carbon::parse($request->invoice_date)->format('Y-m-d'),
+            'status'       => $status,
+            'notes'        => $request->notes ?? null,
+        ];
+
+        // File upload
+        if ($request->hasFile('attachment')) {
+            $data['attachment'] = $request->file('attachment')->store('invoices', 'public');
+        }
+
+        Invoice::create($data);
+
+        return redirect()->route('finance.invoices.index')
+                         ->with('success', 'Invoice created successfully!');
+    }
 
     // edit → show edit form
     public function edit(Invoice $invoice)
@@ -52,35 +81,68 @@ class InvoiceController extends Controller
     }
 
     // update → save edited data
-  // InvoiceController.php
-public function update(Request $request, Invoice $invoice)
-{
-    $request->validate([
-        'request_id' => 'required|integer',
-        'invoice_no' => 'required|string|max:255',
-        'amount' => 'required|numeric',
-        // status ko validate karna optional, kyunki disabled hai
-    ]);
+    public function update(Request $request, Invoice $invoice)
+    {
+        $request->validate([
+            'request_id'   => 'required|exists:service_requests,id',
+            'amount'       => 'required|numeric|min:0',
+            'invoice_date' => 'required|date',
+            'notes'        => 'nullable|string|max:65535', // ✅ TEXT support
+            'attachment'   => 'nullable',
+        ]);
 
-    $invoice->request_id = $request->request_id;
-    $invoice->invoice_no  = $request->invoice_no;
-    $invoice->amount      = $request->amount;
+        // Only admin can update status
+        $status = (Auth::check() && Auth::user()->role === 'admin')
+            ? ($request->status ?? $invoice->status)
+            : $invoice->status;
 
-    // Status sirf admin ke liye change karenge
-    if(auth()->user()->role == 'admin' && $request->has('status')) {
-        $invoice->status = $request->status;
+        $data = [
+            'request_id'   => $request->request_id,
+            'amount'       => $request->amount,
+            'invoice_date' => Carbon::parse($request->invoice_date)->format('Y-m-d'),
+            'status'       => $status,
+            'notes'        => $request->notes ?? null,
+        ];
+
+        // Attachment update (old file delete optional)
+        if ($request->hasFile('attachment')) {
+            // delete old file if exists
+            if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
+                Storage::disk('public')->delete($invoice->attachment);
+            }
+
+            $data['attachment'] = $request->file('attachment')->store('invoices', 'public');
+        }
+
+        $invoice->update($data);
+
+        return redirect()->route('finance.invoices.index')
+                         ->with('success', 'Invoice updated successfully!');
     }
-
-    $invoice->save();
-
-    return redirect()->route('finance.invoices.index')->with('success', 'Invoice updated successfully!');
-}
-
 
     // destroy → delete invoice
     public function destroy(Invoice $invoice)
     {
+        // delete attachment if exists
+        if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
+            Storage::disk('public')->delete($invoice->attachment);
+        }
+
         $invoice->delete();
-        return redirect()->route('finance.invoices.index')->with('success', 'Invoice deleted successfully.');
+        return redirect()->route('finance.invoices.index')
+                         ->with('success', 'Invoice deleted successfully.');
     }
+
+// app/Http/Controllers/Finance/InvoiceController.php
+public function download($id)
+{
+    $invoice = Invoice::findOrFail($id);
+
+    // pdf view ko load karo
+    $pdf = \PDF::loadView('finance.invoices.pdf', compact('invoice'));
+
+    // file download ke liye
+    return $pdf->download('invoice_' . $invoice->id . '.pdf');
+}
+
 }

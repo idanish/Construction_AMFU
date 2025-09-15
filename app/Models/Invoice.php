@@ -11,7 +11,21 @@ class Invoice extends Model
     use HasFactory, SoftDeletes;
 
     // Agar fillable chahiye
-    protected $fillable = ['request_id', 'invoice_no', 'amount', 'status'];
+    protected $fillable = [
+        'request_id',
+        'invoice_no',
+        'amount',
+        'status',
+        'invoice_date',
+        'notes',
+        'attachment',
+        'transaction_no'
+    ];
+
+    protected $casts = [
+    'invoice_date' => 'date',
+];
+
 
     // Relationship define karo
     public function serviceRequest()

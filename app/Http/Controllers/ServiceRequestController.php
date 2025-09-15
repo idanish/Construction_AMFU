@@ -39,7 +39,7 @@ class ServiceRequestController extends Controller
     ]);
 
     return redirect()->route('services.index')
-        ->with('success', 'Service Request created successfully!');
+        ->with('success', 'Work Order created successfully!');
 }
 
 
@@ -65,7 +65,7 @@ public function update(Request $request, ServiceRequest $serviceRequest)
     ]);
 
     return redirect()->route('services.index')
-        ->with('success', 'Service Request updated successfully.');
+        ->with('success', 'Work Order updated successfully.');
 }
 
 public function show(ServiceRequest $serviceRequest)
@@ -76,6 +76,6 @@ public function show(ServiceRequest $serviceRequest)
     public function destroy(ServiceRequest $serviceRequest)
     {
         $serviceRequest->delete();
-        return redirect()->route('services.index')->with('success', 'Service Request deleted successfully.');
+        return redirect()->route('services.index')->with('success', 'Work Order deleted successfully.');
     }
 }

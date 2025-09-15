@@ -10,7 +10,10 @@ class Payment extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['invoice_id', 'payment_date', 'amount', 'status'];
+     protected $fillable = [
+    'payment_ref','invoice_id','payment_date','amount','method','status','attachment'
+];
+
 
     public function invoice() {
         return $this->belongsTo(Invoice::class);
