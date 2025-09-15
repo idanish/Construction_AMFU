@@ -34,6 +34,39 @@
     <!-- Helpers -->
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('assets/js/config.js') }}"></script>
+
+    <!-- Dropzone JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js" integrity="sha512-SnHkO9cP47yt0J6fH9o7hF3V7jLzRRYxChh9z7nTS+7A17R37Cy6x8G4fXajNwT6SRWKmFFDKRP8+bdj9dErYw==" crossorigin="anonymous"></script>
+
+<script>
+    Dropzone.autoDiscover = false;
+
+    let attachmentDropzone = new Dropzone("#attachmentDropzone", {
+        url: "{{ route('finance.invoices.store') }}", // Laravel store route
+        paramName: "attachment", // input name
+        maxFiles: 1, // ek hi file
+        acceptedFiles: ".pdf,.jpg,.jpeg,.png",
+        addRemoveLinks: true,
+        autoProcessQueue: false, // form submit hone par hi process hoga
+    });
+
+    // Jab form submit ho
+    document.getElementById("invoiceForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        if (attachmentDropzone.getQueuedFiles().length > 0) {
+            attachmentDropzone.processQueue(); // pehle file upload kar
+        } else {
+            this.submit(); // agar file nahi to seedha form submit kar
+        }
+    });
+
+    // Jab file successfully upload ho jaye
+    attachmentDropzone.on("success", function(file, response) {
+        document.getElementById("invoiceForm").submit(); // ab form submit kar
+    });
+</script>
+
 </head>
 
 <body>
@@ -194,17 +227,17 @@
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.request-report') }}" class="menu-link">
+                                    <a href="" class="menu-link">
                                         <div data-i18n="Request-Reports">Request Reports</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.finance-report') }}" class="menu-link">
+                                    <a href="" class="menu-link">
                                         <div data-i18n="Finance-Reports">Finance Reports</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.audit-report') }}" class="menu-link">
+                                    <a href="" class="menu-link">
                                         <div data-i18n="Audit-Reports">Audit Reports</div>
                                     </a>
                                 </li>
@@ -332,7 +365,7 @@
 
                                 <!-- Admin Only -->
                                 <li class="menu-item">
-                                    <a href="{{ route('audit.logs.index') }}" class="menu-link">
+                                    {{-- <a href="{{ route('audit.logs.index') }}" class="menu-link"> --}}
                                         <div data-i18n="audit-logs">Users Logs</div>
                                     </a>
                                 </li>
@@ -372,7 +405,7 @@
                             <!-- Search bar -->
                             <div class="me-3">
                                 <div class="d-flex align-items-center">
-                                    <form action="{{ route('search.results') }}" method="GET" class="input-group">
+                                    <form action="" method="GET" class="input-group">
                                         <input type="text" name="query" placeholder="Search..." class="form-control form-control-sm border-0 shadow-none" aria-label="Search...">
                                         <button type="submit" class="btn btn-light border-0 shadow-none">
                                             <i class="bx bx-search"></i>

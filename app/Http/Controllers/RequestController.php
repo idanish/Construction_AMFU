@@ -4,62 +4,95 @@ namespace App\Http\Controllers;
 
 use App\Models\RequestModel;
 use App\Models\Department;
+use App\Models\RequestAttachment;
+use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RequestController extends Controller
 {
+    // Show all requests
     public function index()
     {
-        $requests = RequestModel::with('department', 'requestor')->latest()->get();
+        $requests = RequestModel::with('department', 'requestor', 'attachments')
+            ->latest()
+            ->get();
+
         return view('requests.index', compact('requests'));
     }
 
+    // Show create form (all users allowed)
     public function create()
     {
         $departments = Department::all();
         return view('requests.create', compact('departments'));
     }
 
+    // Store new request (all users allowed)
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'department_id' => 'required|exists:departments,id',
             'description'   => 'required|string',
             'amount'        => 'required|numeric',
             'comments'      => 'nullable|string',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx'
+            'attachment.*'  => 'nullable|file|max:102400',
         ]);
 
-        $data['requestor_id'] = auth()->id();
-        $data['status'] = 'pending';
+        $requestModel = RequestModel::create([
+            'department_id' => $request->department_id,
+            'description'   => $request->description,
+            'amount'        => $request->amount,
+            'comments'      => $request->comments,
+            'status'        => 'pending',
+            'requestor_id'  => auth()->id(),
+        ]);
 
-        $req = RequestModel::create($data);
+        if ($request->hasFile('attachment')) {
+            foreach ($request->file('attachment') as $file) {
+                $path = $file->store('attachments', 'public');
 
-        // Handle attachments
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $req->addMedia($file)->toMediaCollection('attachments');
+                RequestAttachment::create([
+                    'request_id' => $requestModel->id,
+                    'file_name'  => $file->getClientOriginalName(),
+                    'file_path'  => $path,
+                    'file_type'  => $file->getClientMimeType(),
+                ]);
             }
         }
 
         return redirect()->route('requests.index')->with('success', 'Request created successfully.');
     }
 
+    // Show details
     public function show($id)
     {
-        $requestModel = RequestModel::with('department', 'requestor', 'media')->findOrFail($id);
+        $requestModel = RequestModel::with('department', 'requestor', 'attachments', 'requestor.roles')
+            ->findOrFail($id);
+
         return view('requests.show', compact('requestModel'));
     }
 
+    // Edit (Admin only)
     public function edit($id)
     {
-        $requestModel = RequestModel::findOrFail($id);
+         if (auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized action.');
+        }
+
+        $requestModel = RequestModel::with('attachments')->findOrFail($id);
         $departments = Department::all();
+
         return view('requests.edit', compact('requestModel', 'departments'));
     }
 
+    // Update (Admin only)
     public function update(Request $request, $id)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $req = RequestModel::findOrFail($id);
 
         $data = $request->validate([
@@ -67,53 +100,72 @@ class RequestController extends Controller
             'description'   => 'required|string',
             'amount'        => 'required|numeric',
             'comments'      => 'nullable|string',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx'
+            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:102400',
         ]);
 
         $req->update($data);
 
-        // Handle attachments
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $req->addMedia($file)->toMediaCollection('attachments');
+                $path = $file->store('attachments', 'public');
+
+                $req->attachments()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'file_type' => $file->getClientMimeType(),
+                ]);
             }
         }
 
         return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
     }
 
+    // Delete (Admin only)
     public function destroy($id)
     {
-        $req = RequestModel::findOrFail($id);
+        if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $req = RequestModel::with('attachments')->findOrFail($id);
+
+        foreach ($req->attachments as $attachment) {
+            Storage::disk('public')->delete($attachment->file_path);
+            $attachment->delete();
+        }
+
         $req->delete();
+
         return redirect()->route('requests.index')->with('success', 'Request deleted successfully.');
     }
 
-    public function approve($id)
+    // Delete attachment (Admin only)
+    public function deleteAttachment($id)
     {
-        $req = RequestModel::findOrFail($id);
-        $req->status = 'approved';
-        $req->save();
-
-        if (function_exists('createNotification')) {
-            createNotification(null, "Your request #{$req->id} approved", $req->requestor_id, 'approve');
-            createNotification('Admin', "Request #{$req->id} approved by " . (auth()->user()?->name ?? 'System'));
+        if (!auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
         }
 
-        return redirect()->back()->with('success', 'Request approved successfully.');
+        $attachment = RequestAttachment::findOrFail($id);
+        Storage::disk('public')->delete($attachment->file_path);
+        $attachment->delete();
+
+        return back()->with('success', 'Attachment deleted successfully.');
     }
 
-    public function reject($id)
+    // Add comment (all users allowed)
+    public function addComment(Request $request, $id)
     {
-        $req = RequestModel::findOrFail($id);
-        $req->status = 'rejected';
-        $req->save();
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+        ]);
 
-        if (function_exists('createNotification')) {
-            createNotification(null, "Your request #{$req->id} rejected", $req->requestor_id, 'reject');
-            createNotification('Admin', "Request #{$req->id} rejected by " . (auth()->user()?->name ?? 'System'));
-        }
+        Comment::create([
+            'request_id' => $id,
+            'user_id'    => auth()->id(),
+            'comment'    => $request->comment,
+        ]);
 
-        return redirect()->back()->with('error', 'Request rejected successfully.');
+        return back()->with('success', 'Comment added successfully.');
     }
 }

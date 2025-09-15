@@ -49,4 +49,6 @@ class UserManagementController extends Controller
 
         return redirect()->route('admin.user-management')->with('success', 'User deleted successfully!');
     }
+
+    
 }

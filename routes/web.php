@@ -25,17 +25,17 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PermissionController;
 
 
-Route::get('/clear-cache', function () {
-    try {
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
-        Artisan::call('view:clear');
-        return 'cache cleared successfully';
-    } catch (\Exception $e){
-        return 'Error Clearing cache: ' . $e->getMessage();
-    }
-});
+// Route::get('/clear-cache', function () {
+//     try {
+//         Artisan::call('cache:clear');
+//         Artisan::call('config:clear');
+//         Artisan::call('route:clear');
+//         Artisan::call('view:clear');
+//         return 'cache cleared successfully';
+//     } catch (\Exception $e){
+//         return 'Error Clearing cache: ' . $e->getMessage();
+//     }
+// });
 
 
 
@@ -271,65 +271,61 @@ Route::post('/reports/request', [DepartmentController::class, 'generateRequestRe
     //Rehan Request Route
 
 Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
+
     Route::get('/', [RequestController::class, 'index'])->name('index');
     Route::get('/create', [RequestController::class, 'create'])->name('create');
     Route::post('/', [RequestController::class, 'store'])->name('store');
     Route::get('/{id}', [RequestController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [RequestController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [RequestController::class, 'update'])->name('update');
-    Route::delete('/{id}', [RequestController::class, 'destroy'])->name('destroy');
 
-    // workflow
-    Route::post('/{id}/approve', [RequestController::class, 'approve'])->name('approve');
-    Route::post('/{id}/reject', [RequestController::class, 'reject'])->name('reject');
-
-      Route::resource('requests', RequestController::class);
-
-
-
-});
-
+    // Admin-only edit/delete
+    Route::middleware('role:Admin')->group(function () {
+        Route::get('/{id}/edit', [RequestController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [RequestController::class, 'update'])->name('update');
+        Route::delete('/{id}', [RequestController::class, 'destroy'])->name('destroy');
+        Route::delete('attachments/{id}', [RequestController::class, 'deleteAttachment'])->name('attachments.delete');
+    });
 
 
 // ================= Approvals =================
 
-Route::prefix('approvals')->name('approvals.')->group(function () {
-    // Sare approvals show karna
-    Route::get('/', [ApprovalController::class, 'index'])->name('index');
+// Approval roles (FCO/PMO/CSO)
 
-    // Approval create form (agar chahiye)
-    Route::get('/create', [ApprovalController::class, 'create'])->name('create');
-
-    // Store new approval
-    Route::post('/store', [ApprovalController::class, 'store'])->name('store');
-});
+    Route::middleware('role:FCO|PMO|CSO')->group(function () {
+        Route::post('/{id}/approve', [RequestController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [RequestController::class, 'reject'])->name('reject');
+    });
 
 
 
 // ====== AUDIT MODULES ======
 
 // Audit Log
-Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
-    Route::get('/', [AuditLogController::class, 'index'])->name('index');
-    Route::get('/export', [AuditLogController::class, 'export'])->name('export');
-    Route::get('/export-full', [AuditLogController::class, 'exportFull'])->name('exportFull');
+   Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
+    Route::get('/', [AuditLogController::class, 'index'])->name('index');            // audit.logs.index
+    Route::get('/export', [AuditLogController::class, 'export'])->name('export');    // audit.logs.export
+    Route::get('/export-full', [AuditLogController::class, 'exportFull'])->name('exportFull'); // audit.logs.exportFull
 });
-
-
+    
 // ====== SEARCH MODULES ======
 
 // Search ke liye route banayein
+// requests group se bahar rakho
 Route::get('/search-results', [SearchController::class, 'index'])->name('search.results');
-
 
 
 // ====== REPORT MODULES ======
 
 // Reports Routes
-Route::prefix('reports')->group(function () {
-    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
-    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
-    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
-    Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
-    Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
+// Route::prefix('reports')->group(function () {
+//     Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+//     Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
+//     Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
+//     Route::get('/request', [ReportsController::class, 'requestReport'])->name('reports.request');
+//     Route::get('/workflow', [ReportsController::class, 'workflowReport'])->name('reports.workflow');
+// });
+
+// ====== Comments  ====== 
+
+    Route::post('/{id}/comment', [RequestController::class, 'addComment'])->name('comment');
 });
+

@@ -13,11 +13,17 @@
 
     <h5>Attachments:</h5>
     <ul>
-        @foreach($requestModel->getMedia('attachments') as $media)
+       @if($requestModel->attachments->count() > 0)
+        @foreach($requestModel->attachments as $attachment)
             <li>
-                <a href="{{ $media->getUrl() }}" target="_blank">{{ $media->file_name }}</a>
+                <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank">
+                    {{ $attachment->file_name }}
+                </a>
             </li>
         @endforeach
+    @else
+        <li>No attachments uploaded</li>
+    @endif
     </ul>
 
     <a href="{{ route('requests.index') }}" class="btn btn-secondary">Back</a>
