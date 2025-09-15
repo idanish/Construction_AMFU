@@ -17,29 +17,45 @@ class UserManagementController extends Controller
 
     // Show edit form for a user
     public function edit(User $user)
-{
-    $roles = Role::all(); // DB se sare roles fetch kar liye
-    return view('admin.users-edit', compact('user', 'roles'));
-}
+    {
+        $roles = Role::all(); // DB se sare roles fetch kar liye
+        return view('admin.users-edit', compact('user', 'roles'));
+    }
 
     // Update user info + role
-   public function update(Request $request, User $user)
+    public function update(Request $request, $id)
 {
     $request->validate([
         'name'  => 'required|string|max:255',
+        'username'  => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
         'role'  => 'required|exists:roles,name',
     ]);
 
     $user->update([ 
         'name'  => $request->name,
+        'username'  => $request->username,
         'email' => $request->email,
     ]);
 
+    // Role Update
     $user->syncRoles([$request->role]);
 
     return redirect()->route('users.index')->with('success', 'User updated successfully!');
 }
+
+    // ✅ Update status (Active / Inactive)
+    public function updateStatus(Request $request, User $user)
+    {
+        $request->validate([
+            'status' => 'required|boolean',
+        ]);
+
+        $user->status = $request->status;
+        $user->save();
+
+        return redirect()->back()->with('success', 'User status updated successfully!');
+    }
 
     // Delete user
     public function destroy($id)

@@ -5,11 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Activity Logs Files
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
+
 class AuditLog extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = ['user_id', 'action', 'description'];
+
+    // Activity Log Start Here
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('AuditLog')
+            ->logOnly(['user_id', 'action', 'description'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "AuditLog record has been {$eventName}";
+    }
+
+    // Activity Log End Here
+
+
+
 
     public function user()
     {

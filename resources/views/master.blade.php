@@ -79,61 +79,10 @@
                         </a>
                     </li>
 
-                    <!-- Reports - sab roles dekh sakte hain -->
-                    <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
-                    <li class="menu-item">
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons bx bx-file"></i>
-                            <div data-i18n="Reports">Reports</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class="menu-item">
-                                <a href="{{ route('reports.request-report') }}" class="menu-link">
-                                    <div data-i18n="Request Reports">Request Reports</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('reports.finance-report') }}" class="menu-link">
-                                    <div data-i18n="Finance Reports">Finance Reports</div>
-                                </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="{{ route('reports.audit-report') }}" class="menu-link">
-                                    <div data-i18n="Audit Reports">Audit Reports</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <!-- Pages (Admin only) -->
-                    @role('Admin')
-                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Pages</span></li>
-                        <li class="menu-item">
-                            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                                <div data-i18n="Management">Management</div>
-                            </a>
-                            <ul class="menu-sub">
-                                <li class="menu-item">
-                                    <a href="{{ route('admin.register') }}" class="menu-link">
-                                        <div data-i18n="Register">Register</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ route('roles.create') }}" class="menu-link">
-                                        <div data-i18n="Role-create">Role-create</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ route('admin.user-management') }}" class="menu-link">
-                                        <div data-i18n="User-Management">User-Management</div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    @endrole
-                        {{-- Request Page for use (PM) --}}
-
+                    <!-- Request (All Users) -->
+                    @role(['FCO', 'Admin'])
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Requests</span></li>
+                        <!-- Requests (All Users) -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-receipt"></i>
@@ -145,16 +94,22 @@
                                         <div data-i18n="Request">Request</div>
                                     </a>
                                 </li>
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Add-Request">Add Request</div>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
+                        </li>
+                    @endrole
 
-                        
-                       
-                    <!-- Finance (FCO + Admin) -->
+
+                    <!-- Finance (Admin and Assign Roles) -->
                     @role(['FCO', 'Admin'])
                         <li class="menu-header small text-uppercase"><span class="menu-header-text">Finance</span></li>
 
-                        <!--    gets -->
+                        <!-- Budget -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
@@ -163,12 +118,12 @@
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="{{ route('finance.budgets.index') }}" class="menu-link">
-                                        <div data-i18n="All Budgets">All Budgets</div>
+                                        <div data-i18n="All-Budgets">Budgets</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('finance.budgets.create') }}" class="menu-link">
-                                        <div data-i18n="Add Budgets">Add Budget</div>
+                                        <div data-i18n="Add-Budgets">Add Budget</div>
                                     </a>
                                 </li>
                             </ul>
@@ -183,12 +138,12 @@
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="{{ route('finance.invoices.index') }}" class="menu-link">
-                                        <div data-i18n="All Invoices">All Invoices</div>
+                                        <div data-i18n="All-Invoices">All Invoices</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('finance.invoices.create') }}" class="menu-link">
-                                        <div data-i18n="Add Invoices">Add Invoice</div>
+                                        <div data-i18n="Create-Invoices">Create Invoice</div>
                                     </a>
                                 </li>
                             </ul>
@@ -203,12 +158,12 @@
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="{{ route('finance.payments.index') }}" class="menu-link">
-                                        <div data-i18n="All Payments">All Payments</div>
+                                        <div data-i18n="All-Payments">Payments</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('finance.payments.create') }}" class="menu-link">
-                                        <div data-i18n="Add Payments">Add Payment</div>
+                                        <div data-i18n="Add-Payments">Add Payment</div>
                                     </a>
                                 </li>
                             </ul>
@@ -223,20 +178,109 @@
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="{{ route('finance.procurements.index') }}" class="menu-link">
-                                        <div data-i18n="All Procurements">All Procurements</div>
+                                        <div data-i18n="All-Procurements">All Procurements</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('finance.procurements.create') }}" class="menu-link">
-                                        <div data-i18n="Add Procurements">Add Procurement</div>
+                                        <div data-i18n="Create-Procurements">Create Procurement</div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
+                        </li>
                     @endrole
 
-                    <!-- Services (Admin only) -->
+                    <!-- Reports (Admin and Assign Roles) -->
                     @role('Admin')
+                    
+                        {{-- <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-file"></i>
+                                <div data-i18n="Reports">Reports</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Request-Reports">Request Reports</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Finance-Reports">Finance Reports</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Audit-Reports">Audit Reports</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        </li>
+                         --}}
+                    @endrole
+                    <!-- Management (Admin and Assign Roles) -->
+                    @role('Admin')
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Management</span></li>
+                        <!-- User Management (Admin Only) -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                                <div data-i18n="Management">User Management</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.user-management') }}" class="menu-link">
+                                        <div data-i18n="User-Management">Users</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.register') }}" class="menu-link">
+                                        <div data-i18n="Register">Create User</div>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        <!-- Roles (Admin Only) -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-box"></i>
+                                <div data-i18n="Roles">Roles</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="{{ route('roles.show') }}" class="menu-link">
+                                        <div data-i18n="All-Roles">Roles</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('roles.create') }}" class="menu-link">
+                                        <div data-i18n="Role-create">Create Role</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Permissions (Admin Only) -->
+                        <li class="menu-item">
+                            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                                <i class="menu-icon tf-icons bx bx-lock"></i>
+                                <div data-i18n="Permissions">Permissions</div>
+                            </a>
+                            <ul class="menu-sub">
+                                <li class="menu-item">
+                                    <a href="" class="menu-link">
+                                        <div data-i18n="Set-Permission">Set Permission</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Services (Admin only) -->
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-briefcase"></i>
@@ -250,6 +294,7 @@
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('services.create') }}" class="menu-link">
+
                                         <div data-i18n="Add Services">Add Work Order</div>
                                     </a>
                                 </li>
@@ -265,42 +310,47 @@
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="{{ route('departments.index') }}" class="menu-link">
-                                        <div data-i18n="All Departments">All Departments</div>
+                                        <div data-i18n="All-Departments">Departments</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
                                     <a href="{{ route('departments.create') }}" class="menu-link">
-                                        <div data-i18n="Add Department">Add Department</div>
+                                        <div data-i18n="Add-Department">Add Department</div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-
-                        <!-- Permissions (Admin only) -->
-                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Permissions</span>
                         </li>
+                    @endrole
+
+
+                    <!-- Settings (Admin and Assign Roles except Profile-settings) -->
+                    @role('Admin')
+                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Settings</span>
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bx bx-lock-alt"></i>
-                                <div data-i18n="Permissions">Permissions</div>
+                                <i class="menu-icon tf-icons bx bx-cog"></i>
+                                <div data-i18n="Settings">Settings</div>
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item">
                                     <a href="" class="menu-link">
-                                        <div data-i18n="Settings">Settings</div>
+                                        <div data-i18n="profile-Settings">Profile Settings</div>
                                     </a>
                                 </li>
+
+                                <!-- Admin Only -->
                                 <li class="menu-item">
-                                    <a href="" class="menu-link">
-                                        <div data-i18n="Add Permission">Add Permission</div>
+                                    <a href="{{ route('audit.logs.index') }}" class="menu-link">
+                                        <div data-i18n="audit-logs">Users Logs</div>
                                     </a>
                                 </li>
+
                             </ul>
+                        </li>
                         </li>
                     @endrole
                 </ul>
-
-
 
             </aside>
 
@@ -331,9 +381,14 @@
                             <!-- Search bar -->
                             <div class="me-3">
                                 <div class="d-flex align-items-center">
-                                    <i class="bx bx-search fs-5 lh-0 me-1"></i>
-                                    <input type="text" class="form-control form-control-sm border-0 shadow-none"
-                                        placeholder="Search..." aria-label="Search..." style="width: 160px;" />
+                                    <form action="{{ route('search.results') }}" method="GET" class="input-group">
+                                        <input type="text" name="query" placeholder="Search..."
+                                            class="form-control form-control-sm border-0 shadow-none"
+                                            aria-label="Search...">
+                                        <button type="submit" class="btn btn-light border-0 shadow-none">
+                                            <i class="bx bx-search"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
 
@@ -406,12 +461,29 @@
                                     data-bs-toggle="dropdown">
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-online">
-                                            <img src="{{ asset('assets/img/avatars/1.png') }}" alt
-                                                class="w-px-40 h-auto rounded-circle" />
+                                            <img src="{{ Auth::user()->profile_picture
+                                                ? asset('storage/' . Auth::user()->profile_picture)
+                                                : asset('assets/img/avatars/1.png') }}"
+                                                alt="User Avatar" class="w-px-40 h-auto rounded-circle" />
                                         </div>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
+
+
+                                    <!-- Name & Role -->
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('profile.settings') }}">
+                                            <i class="bx bx-user me-2"></i>
+                                            <span class="fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+
+
                                     <!-- Profile Settings -->
                                     <li>
                                         <a class="dropdown-item" href="{{ route('profile.settings') }}">
@@ -439,7 +511,6 @@
                         </div>
                     </div>
                 </nav>
-
 
 
 

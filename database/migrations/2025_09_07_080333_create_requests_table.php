@@ -9,21 +9,26 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::create('requests', function (Blueprint $table) {
-        $table->id();
-        $table->string('type'); // invoice, payment, budget, procurement
-        $table->unsignedBigInteger('reference_id'); // record ka id
-        $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-        $table->unsignedBigInteger('requested_by'); // jisne create kiya
-        $table->unsignedBigInteger('approved_by')->nullable(); // admin
-        $table->unsignedBigInteger('transaction_no')->default(0);
+    public function up(): void
+    {
+        Schema::create('requests', function (Blueprint $table) {
+            $table->id();
+            
+            // Foreign keys
+            $table->foreignId('requestor_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
 
-        $table->timestamps();
-    });
-}
+            // Fields
+            $table->text('description');
+            $table->decimal('amount', 12, 2)->nullable(); // amount up to billions, 2 decimals
+            $table->text('comments')->nullable();
 
+            // Status
+            $table->enum('status', ['pending', 'under_review', 'approved', 'rejected'])->default('pending');
+
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

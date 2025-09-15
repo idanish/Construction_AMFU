@@ -4,6 +4,12 @@
     <form method="POST" action="{{ route('admin.register.store') }}">
         @csrf
 
+        {{-- Userame --}}
+        <div class="mb-3">
+            <label class="form-label">User Name</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+
         {{-- Name --}}
         <div class="mb-3">
             <label class="form-label">Full Name</label>
@@ -31,7 +37,7 @@
         {{-- Department Selection --}}
         <div class="mb-3">
             <label class="form-label">Assign Department</label>
-            <select name="department_id" class="form-select" required>
+            <select name="department_id" class="form-select">
                 <option value="" disabled selected>-- Select Department --</option>
                 @foreach($departments as $dept)
                     <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
@@ -52,6 +58,6 @@
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">🚀 Register User</button>
+        <button type="submit" class="btn btn-primary w-100">Create User</button>
     </form>
 @endsection
