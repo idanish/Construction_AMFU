@@ -183,10 +183,10 @@
                         </li>
                     @endrole
 
-
                     <!-- Reports (Admin and Assign Roles) -->
                     @role('Admin')
-                        <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
+                    
+                        {{-- <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
                         <li class="menu-item">
                             <a href="javascript:void(0);" class="menu-link menu-toggle">
                                 <i class="menu-icon tf-icons bx bx-file"></i>
@@ -194,25 +194,25 @@
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.request-report') }}" class="menu-link">
+                                    <a href="" class="menu-link">
                                         <div data-i18n="Request-Reports">Request Reports</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.finance-report') }}" class="menu-link">
+                                    <a href="" class="menu-link">
                                         <div data-i18n="Finance-Reports">Finance Reports</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.audit-report') }}" class="menu-link">
+                                    <a href="" class="menu-link">
                                         <div data-i18n="Audit-Reports">Audit Reports</div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         </li>
+                         --}}
                     @endrole
-
                     <!-- Management (Admin and Assign Roles) -->
                     @role('Admin')
                         <li class="menu-header small text-uppercase"><span class="menu-header-text">Management</span></li>

@@ -16,60 +16,81 @@ class DatabaseSeeder extends Seeder
         // Call roles and permissions seeder
         $this->call(RolesAndPermissionsSeeder::class);
 
-        // ✅ Default Admin
+        // Super Admin
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'super@example.com'],
+            [
+                'name' => 'Super Admin',
+                'username' => 'superadmin',
+                'password' => Hash::make('12345678'),
+            ]
+        );
+        $superAdmin->assignRole('Super Admin');
+        
+        // Default Admin
         $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
+                'username' => 'admin',
                 'password' => Hash::make('12345678'),
             ]
         );
         $admin->assignRole('Admin');
 
-        // ✅ Default User (Example: PM/User)
+        // Default User (Example: PM/User)
         $user = User::updateOrCreate(
             ['email' => 'user@example.com'],
             [
                 'name' => 'User',
+                'username' => 'userpm',
                 'password' => Hash::make('12345678'),
             ]
         );
-        $user->assignRole('PM'); // Ya jo bhi role ho
+        $user->assignRole('PM');
 
-        // ✅ Default Department
+        //  Default Department
         Department::updateOrCreate(
-            ['name' => 'Default Department'],
-            ['transaction_no' => 1]
+            ['name' => 'Project Management Department'],
+            ['transaction_no' => 1],
+        );
+        
+        Department::updateOrCreate(
+            ['name' => 'Finance & Commercial Department'],
+            ['transaction_no' => 2],
         );
 
-        // ✅ Default Department
-$department = Department::updateOrCreate(
-    ['name' => 'Default Department'],
-    ['transaction_no' => 1]
-);
+        Department::updateOrCreate(
+            ['name' => 'Security & Administration Department'],
+            ['transaction_no' => 3]
+        );
 
-// ✅ Default Budget
-Budget::updateOrCreate(
-    ['title' => 'Default Budget'],
-    [
-        'department_id' => $department->id, 
-        'allocated' => 10000,
-        'spent' => 0,
-        'balance' => 10000,
-        'transaction_no' => 1
-    ]
-);
+        // Default Department
+        $department = Department::updateOrCreate(
+            ['name' => 'Project Management Department'],
+            ['transaction_no' => 1],
+        );
 
+        // Default Budget
+        Budget::updateOrCreate(
+            ['title' => 'Default Budget'],
+            [
+                'department_id' => $department->id, 
+                'allocated' => 10000,
+                'spent' => 0,
+                'balance' => 10000,
+                'transaction_no' => 1
+            ]
+        );
 
-        // ✅ Default Procurement
+        // Default Procurement
         Procurement::updateOrCreate(
-    ['title' => 'Default Procurement'],
-    [
-        'transaction_no' => 1,
-        'department_id' => 1 // yahan koi valid department ka ID daalo
-    ]
-);
+            ['title' => 'Default Procurement'],
+            [
+                'transaction_no' => 1,
+                'department_id' => 1 // yahan koi valid department ka ID daalo
+            ]
+        );
 
-        // ... baki tables bhi isi style me add karo (Reports & Audit skip)
     }
 }

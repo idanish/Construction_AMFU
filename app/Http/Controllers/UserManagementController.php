@@ -27,18 +27,16 @@ class UserManagementController extends Controller
 {
     $request->validate([
         'name'  => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $id,
-        'role'  => 'required',
-        'department_id' => 'nullable|exists:departments,id',
-        'status' => 'required|in:0,1',
+        'username'  => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'role'  => 'required|exists:roles,name',
     ]);
 
-    $user = User::findOrFail($id);
-    $user->name  = $request->name;
-    $user->email = $request->email;
-    $user->department_name = $request->department_name;
-    $user->status = $request->status;
-    $user->save();
+    $user->update([ 
+        'name'  => $request->name,
+        'username'  => $request->username,
+        'email' => $request->email,
+    ]);
 
     // Role Update
     $user->syncRoles([$request->role]);
