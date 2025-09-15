@@ -5,7 +5,7 @@
     <div class="p-6">
         <!-- Heading -->
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-700">👥 User Management</h1>
+            <h1 class="text-2xl font-bold text-gray-700">Users Management</h1>
         </div>
 
         <!-- Table -->
@@ -14,6 +14,7 @@
                 <thead>
                     <tr class="bg-gray-100 text-left text-gray-700">
                         <th class="px-4 py-3 border">ID</th>
+                        <th class="px-4 py-3 border">Username</th>
                         <th class="px-4 py-3 border">Name</th>
                         <th class="px-4 py-3 border">Email</th>
                         <th class="px-4 py-3 border">Role</th>
@@ -23,9 +24,11 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php $counter = 1; @endphp
                     @forelse ($users as $user)
                         <tr class="hover:bg-gray-50 transition">
-                            <td class="border px-4 py-2">{{ $user->id }}</td>
+                            <td class="border px-4 py-2">{{ $counter++ }}</td>
+                            <td class="border px-4 py-2 font-medium text-gray-800">{{ $user->username }}</td>
                             <td class="border px-4 py-2 font-medium text-gray-800">{{ $user->name }}</td>
                             <td class="border px-4 py-2">{{ $user->email }}</td>
                             <td class="border px-4 py-2 text-blue-600">
@@ -43,12 +46,13 @@
                             </td>
                             <td class="border px-4 py-2 text-center">
                                 <div class="grid grid-cols-2 gap-4">
+                                    
+
                                     <!-- Edit -->
                                     <a href="{{ route('users.edit', $user->id) }}"
-                                        class="text-blue-600 hover:underline text-center">
-                                        Edit
+                                        class="btn btn-warning" title="Edit">
+                                        <i class="bx bx-pencil"> </i>
                                     </a>
-
 
                                     <!-- Delete -->
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
@@ -57,14 +61,14 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            class="text-red-600 hover:underline bg-transparent border-0 cursor-pointer">
-                                            Delete
+                                            class="btn btn-danger"  title="Delete">
+                                            <i class="bx bx-trash"> </i>
                                         </button>
                                     </form>
 
                                     <a href="{{ route('users.edit-permissions', $user) }}"
-                                        class="text-green-600 hover:underline text-center">
-                                        Assign Permissions
+                                        class="btn btn-primary"  title="Assign Permissions">
+                                        <i class="bx bx-user-check"> </i>
                                     </a>
                                 </div>
                             </td>

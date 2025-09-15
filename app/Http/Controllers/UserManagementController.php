@@ -27,12 +27,14 @@ class UserManagementController extends Controller
 {
     $request->validate([
         'name'  => 'required|string|max:255',
+        'username'  => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
         'role'  => 'required|exists:roles,name',
     ]);
 
     $user->update([ 
         'name'  => $request->name,
+        'username'  => $request->username,
         'email' => $request->email,
     ]);
 

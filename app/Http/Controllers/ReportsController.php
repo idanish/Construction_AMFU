@@ -3,31 +3,38 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Report;
 
 class ReportsController extends Controller
 {
-    public function auditReport(Request $request)
+    // Audit Report
+    public function auditReport()
     {
-        // Activity logs fetch + filters
+        return view('Reports.audit-report');
     }
 
-    public function financeReport(Request $request)
+    // Finance Report
+    public function financeReport()
     {
-        // Budget + Invoice + Payment ka data
+        return view('Reports.finance-report');
     }
 
-    public function procurementAnalysis(Request $request)
+    // Procurement Analysis
+    public function procurementAnalysis()
     {
-        // Procurement ka data + filters
+        return view('Reports.procurement-analysis');
     }
 
-    public function requestReport(Request $request)
+    // Request Report
+    public function requestReport()
     {
-        // Requests table ka data + filters
+        return view('Reports.request-report');
     }
 
-    public function workflowReport(Request $request)
+    // Work Flow Report
+    public function workFlowReport()
     {
-        // Request → Procurement → Invoice → Payment ka joined data
+        return view('Reports.work-flow-report');
     }
 }
+

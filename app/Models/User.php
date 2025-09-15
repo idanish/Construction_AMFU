@@ -25,7 +25,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'password', 'department_id', 'status', 'transaction_no'];
+    protected $fillable = ['name', 'username', 'email', 'password', 'department_id', 'status', 'transaction_no'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -60,7 +60,7 @@ class User extends Authenticatable
     {
         return LogOptions::defaults()
             ->useLogName('User')
-            ->logOnly(['name', 'email', 'password', 'department_id', 'status', 'transaction_no'])
+            ->logOnly(['name', 'username', 'email', 'password', 'department_id', 'status', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
