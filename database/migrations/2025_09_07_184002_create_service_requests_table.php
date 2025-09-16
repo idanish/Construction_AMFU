@@ -6,25 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
-{
-    Schema::create('service_requests', function (Blueprint $table) {
-        $table->id();
-        $table->string('title');              // request ka naam
-        $table->text('description')->nullable(); // details
-        $table->enum('status', ['pending','approved','rejected'])->default('pending');
-        $table->unsignedBigInteger('transaction_no')->default(0);
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('service_requests', function (Blueprint $table) {
+            $table->id();
+            $table->string('request_no')->nullable();              // unique request number (added from alter)
+            $table->string('title')->nullable();                   // title now nullable
+            $table->text('description')->nullable();               // details
+            $table->enum('status', ['pending','approved','rejected'])->default('pending');
+            $table->unsignedBigInteger('transaction_no')->default(0); // already added but ensured
+            $table->timestamps();
+        });
+    }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('service_requests');

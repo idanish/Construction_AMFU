@@ -6,27 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-    Schema::create('procurements', function (Blueprint $table) {
-        $table->id();
-        $table->string('title');
-        $table->unsignedBigInteger('department_id')->nullable();
-        $table->text('description')->nullable();
-        $table->string('attachment')->nullable();
-        $table->timestamps();
-        $table->unsignedBigInteger('transaction_no')->default(0);
-        $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
-    });
-}
+    {
+        Schema::create('procurements', function (Blueprint $table) {
+            $table->id();
+            $table->string('item_name');
+            $table->integer('quantity');
+            $table->decimal('cost_estimate', 12, 2);
+            $table->unsignedBigInteger('department_id')->nullable();
+            $table->text('justification')->nullable();
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('attachment')->nullable();
+            $table->unsignedBigInteger('transaction_no')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
 
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
+        });
+    }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('procurements');
