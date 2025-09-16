@@ -30,7 +30,7 @@ class LoginController extends Controller
             'user_id' => $user->id,
             'role'    => $user->roles->pluck('name')->first(), 
             'type'    => 'login',
-            'message' => "You logged in",
+            'message' => "You have logged in successfully.",
             'is_read' => false,
         ]);
 
