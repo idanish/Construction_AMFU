@@ -194,17 +194,27 @@
                             </a>
                             <ul class="menu-sub">
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.request-report') }}" class="menu-link">
+                                    <a href="{{ route('reports.requests') }}" class="menu-link">
                                         <div data-i18n="Request-Reports">Request Reports</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.finance-report') }}" class="menu-link">
+                                    <a href="{{ route('reports.finance') }}" class="menu-link">
                                         <div data-i18n="Finance-Reports">Finance Reports</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="{{ route('reports.audit-report') }}" class="menu-link">
+                                    <a href="{{ route('reports.procurement') }}" class="menu-link">
+                                        <div data-i18n="reports.procurement">Procurement Reports</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('reports.workflow') }}" class="menu-link">
+                                        <div data-i18n="Workflow-Reports">Workflow Reports</div>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a href="{{ route('reports.audit') }}" class="menu-link">
                                         <div data-i18n="Audit-Reports">Audit Reports</div>
                                     </a>
                                 </li>
