@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold m-0">Roles List</h4>
         <a href="{{ route('roles.create') }}" class="btn btn-primary">
-            <i class='bx bx-plus'></i> Naya Role Banayen
+            <i class='bx bx-plus'></i> Create New Role
         </a>
     </div>
 
@@ -19,14 +19,14 @@
     <div class="card">
         <div class="card-body">
             @if($roles->isEmpty())
-                <p class="text-center text-muted">Abhi koi role maujood nahi hai.</p>
+                <p class="text-center text-muted">No roles found.</p>
             @else
                 <div class="table-responsive text-nowrap">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Role Name</th>
-                                <th>Permissions</th>
+                                
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -34,11 +34,7 @@
                             @foreach ($roles as $role)
                                 <tr>
                                     <td><strong>{{ $role->name }}</strong></td>
-                                    <td>
-                                        @foreach($role->permissions->pluck('name') as $permission)
-                                            <span class="badge bg-label-primary me-1">{{ $permission }}</span>
-                                        @endforeach
-                                    </td>
+                                    
                                     <td>
                                         <div class="d-flex justify-content-center">
                                             <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-sm btn-info me-2">

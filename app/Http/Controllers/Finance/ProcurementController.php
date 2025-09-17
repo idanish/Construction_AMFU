@@ -15,8 +15,8 @@ class ProcurementController extends Controller
      */
     public function index()
     {
-        $procurements = Procurement::all();
-        return view('finance.procurements.index', compact('procurements')); // plural
+        $procurements = Procurement::with('department')->latest()->get();
+        return view('finance.procurements.index', compact('procurements'));
     }
 
     /**
@@ -25,107 +25,103 @@ class ProcurementController extends Controller
     public function create()
     {
         $departments = Department::all();
-        $budgets = Budget::all();
-
-        return view('finance.procurements.create', compact('departments', 'budgets'));
+        return view('finance.procurements.create', compact('departments'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'department_id' => 'required|exists:departments,id',
-        'description' => 'nullable|string',
-        'status' => 'required|in:pending,approved,rejected',
-        'attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:2048',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'item_name'     => 'required|string|max:255',
+            'quantity'      => 'required|numeric|min:1',
+            'cost_estimate' => 'required|numeric|min:0',
+            'department_id' => 'required|exists:departments,id',
+            'justification' => 'nullable|string',
+            'status'        => 'required|in:pending,approved,rejected',
+            'attachment'    => 'nullable|file',
+        ]);
 
-    $attachmentPath = null;
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('procurements', 'public');
+        }
 
-    if ($request->hasFile('attachment')) {
-        // ✅ File save
-        $attachmentPath = $request->file('attachment')->store('attachments', 'public');
+        Procurement::create([
+            'item_name'     => $request->item_name,
+            'quantity'      => $request->quantity,
+            'cost_estimate' => $request->cost_estimate,
+            'department_id' => $request->department_id,
+            'justification' => $request->justification,
+            'status'        => $request->status,
+            'attachment'    => $attachmentPath,
+        ]);
+
+        return redirect()->route('finance.procurements.index')
+                         ->with('success', 'Procurement created successfully!');
     }
-
-    Procurement::create([
-        'title' => $request->title,
-        'department_id' => $request->department_id,
-        'description' => $request->description,
-        'status' => $request->status,
-        'attachment' => $attachmentPath, // yahan path save hoga
-    ]);
-
-    return redirect()->route('finance.procurements.index')
-        ->with('success', 'Procurement created successfully!');
-}
-
-
-
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $procurement = Procurement::findOrFail($id); // singular
+        $procurement = Procurement::with('department')->findOrFail($id);
         return view('finance.procurements.show', compact('procurement'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        $procurement = Procurement::findOrFail($id); // singular
+        $procurement = Procurement::findOrFail($id);
         $departments = Department::all();
-        $budgets = Budget::all();
-
-        return view('finance.procurements.edit', compact('procurement', 'departments', 'budgets'));
+        return view('finance.procurements.edit', compact('procurement', 'departments'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-{
-    $request->validate([
-        'title'        => 'required|string|max:255',
-        'department_id'=> 'required|exists:departments,id',
-        'description'  => 'nullable|string',
-        'attachment'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'status'       => 'nullable|string|in:pending,approved,rejected',
-    ]);
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'item_name'     => 'required|string|max:255',
+            'quantity'      => 'required|numeric|min:1',
+            'cost_estimate' => 'required|numeric|min:0',
+            'department_id' => 'required|exists:departments,id',
+            'justification' => 'nullable|string',
+            'status'        => 'nullable|in:pending,approved,rejected',
+            'attachment'    => 'nullable|file',
+        ]);
 
-    $procurement = Procurement::findOrFail($id);
+        $procurement = Procurement::findOrFail($id);
 
-    $data = $request->only(['title', 'department_id', 'description', 'status']);
+        $data = $request->only(['item_name', 'quantity', 'cost_estimate', 'department_id', 'justification', 'status']);
 
-    // ✅ Agar user normal hai to status update na ho
-    if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'officer') {
-        $data['status'] = $procurement->status; // purana status hi rahega
+        // Normal users cannot update status
+        if (auth()->user()->role !== 'admin' && auth()->user()->role !== 'officer') {
+            $data['status'] = $procurement->status;
+        }
+
+        // Attachment handle
+        if ($request->hasFile('attachment')) {
+            $data['attachment'] = $request->file('attachment')->store('procurements', 'public');
+        }
+
+        $procurement->update($data);
+
+        return redirect()->route('finance.procurements.index')
+                         ->with('success', 'Procurement updated successfully!');
     }
-
-    // ✅ File upload handle
-    if ($request->hasFile('attachment')) {
-        $data['attachment'] = $request->file('attachment')->store('procurements', 'public');
-    }
-
-    $procurement->update($data);
-
-    return redirect()->route('finance.procurements.index')
-                     ->with('success', 'Procurement updated successfully!');
-}
-
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $procurement = Procurement::findOrFail($id); // singular
+        $procurement = Procurement::findOrFail($id);
         $procurement->delete();
 
         return redirect()->route('finance.procurements.index')

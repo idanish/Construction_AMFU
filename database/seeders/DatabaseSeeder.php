@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Super Admin',
                 'username' => 'superadmin',
                 'password' => Hash::make('12345678'),
+                'status' => '1',
             ]
         );
         $superAdmin->assignRole('Super Admin');
@@ -34,6 +35,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin',
                 'username' => 'admin',
                 'password' => Hash::make('12345678'),
+                'status' => '1',
             ]
         );
         $admin->assignRole('Admin');
@@ -79,18 +81,13 @@ class DatabaseSeeder extends Seeder
                 'allocated' => 10000,
                 'spent' => 0,
                 'balance' => 10000,
+                'year' => 2025,
+                'notes' => 'This is a default budget.',
                 'transaction_no' => 1
             ]
         );
 
-        // Default Procurement
-        Procurement::updateOrCreate(
-            ['title' => 'Default Procurement'],
-            [
-                'transaction_no' => 1,
-                'department_id' => 1 // yahan koi valid department ka ID daalo
-            ]
-        );
+        
 
     }
 }

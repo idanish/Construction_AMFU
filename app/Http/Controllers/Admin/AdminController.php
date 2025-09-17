@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,8 +13,9 @@ class AdminController extends Controller
     // Show Register Form
     public function showRegisterForm()
     {
+         $departments = Department::all();
         $roles = Role::all();
-        return view('admin.register',compact('roles')); // resources/views/admin/register.blade.php
+        return view('admin.register',compact('departments','roles')); // resources/views/admin/register.blade.php
     }
 
     // Handle Register Logic

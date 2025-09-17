@@ -14,7 +14,7 @@
         "livewire/livewire": "^3.6",
         "maatwebsite/excel": "3.1.67",
         "spatie/laravel-activitylog": "^4.10",
-        "spatie/laravel-medialibrary": "dev-main",
+        "spatie/laravel-medialibrary": "^11.14",
         "spatie/laravel-permission": "^6.21"
     },
     "require-dev": {

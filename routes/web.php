@@ -45,7 +45,6 @@ Route::get('/', function () {
 
 Route::get('/index',[ViewController::class,'index']); 
 Route::get('/login',[ViewController::class,'login']);
-Route::get('/ZUHAIB',[ViewController::class,'ZUHAIB']);
 Route::get('/signup',[ViewController::class,'signup']);
 Route::get('/users',[ViewController::class,'users']);
 Route::get('/form',[ViewController::class,'form']);
@@ -79,6 +78,9 @@ Route::middleware('auth')->prefix('notifications')->group(function () {
 // User Management - Protected route for Admin only
 Route::get('/admin/user-management', [App\Http\Controllers\UserManagementController::class, 'index'])
         ->name('admin.user-management');
+
+Route::patch('/users/{user}/status', [UserManagementController::class, 'updateStatus'])->name('users.update-status');
+
 // Assign Role to User - Protected route for Admin only
 Route::put('/users/{user}/assign-role', [App\Http\Controllers\UserManagementController::class, 'assignRole'])
     ->name('users.assignRole');
@@ -117,6 +119,16 @@ Route::middleware(['role:Admin'])->group(function () {
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
+        // ✅ Show roles list
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles.show');
+      // ✅ Edit role form
+    Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+
+    // ✅ Update role
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+
+    // ✅ Delete role
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 });
 
 
@@ -151,20 +163,30 @@ Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('up
 Route::prefix('finance')->name('finance.')->group(function () {
 
     // Budgets
-    Route::prefix('budgets')->name('budgets.')->group(function () {
-        Route::get('/', [BudgetController::class, 'index'])->name('index');         // route('finance.budgets.index')
-        Route::get('/create', [BudgetController::class, 'create'])->name('create'); // route('finance.budgets.create')
-        Route::post('/store', [BudgetController::class, 'store'])->name('store');
-        Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
-        Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
-        Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
-    });
+Route::prefix('finance/budgets')->name('budgets.')->group(function () {
+    Route::get('/', [BudgetController::class, 'index'])->name('index');
+    Route::get('/create', [BudgetController::class, 'create'])->name('create');
+    Route::post('/store', [BudgetController::class, 'store'])->name('store');
+    Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
+    Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
+    Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
+});
+
+
+
+
 
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {
     Route::get('/', [InvoiceController::class, 'index'])->name('index');
     Route::get('/create', [InvoiceController::class, 'create'])->name('create');
     Route::post('/store', [InvoiceController::class, 'store'])->name('store');
+    // routes/web.php
+
+Route::get('finance/invoices/pdf', [InvoiceController::class, 'download'])
+    ->name('finance.invoices.pdf');
+
+
 
     // EDIT route should come before {invoice} catch-all routes
     Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');

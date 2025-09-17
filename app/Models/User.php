@@ -54,6 +54,13 @@ class User extends Authenticatable
     return $this->belongsTo(Role::class);
 }
 
+
+ public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+
     // Activity Log Start Here
 
     public function getActivitylogOptions(): LogOptions
@@ -71,9 +78,5 @@ class User extends Authenticatable
     }
 
     // Activity Log End Here
-
-
-
-
 
 }

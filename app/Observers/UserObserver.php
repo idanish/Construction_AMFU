@@ -14,7 +14,7 @@ class UserObserver
             'user_id' => $user->id,
             'role'    => null, // sirf user ke liye
             'type'    => 'create',
-            'message' => 'Aapka account create ho gaya!',
+            'message' => 'your account has been created.',
             'is_read' => false,
         ]);
     }
@@ -25,7 +25,7 @@ class UserObserver
             'user_id' => $user->id,
             'role'    => null,
             'type'    => 'update',
-            'message' => 'Aapki profile update ho gayi!',
+            'message' => 'Your account details have been updated.',
             'is_read' => false,
         ]);
     }

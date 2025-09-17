@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd783d36e504c75ba547f846d8349f5d",
+    "content-hash": "4e7359e99771c53d00d6b9e2eecac411",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -4590,16 +4590,16 @@
         },
         {
             "name": "spatie/laravel-medialibrary",
-            "version": "dev-main",
+            "version": "11.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-medialibrary.git",
-                "reference": "45e43aebc8ee89589eaa6439cb38fff8e039f618"
+                "reference": "7050a0d041be8c5c5ef5886967fbbbe578a54296"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-medialibrary/zipball/45e43aebc8ee89589eaa6439cb38fff8e039f618",
-                "reference": "45e43aebc8ee89589eaa6439cb38fff8e039f618",
+                "url": "https://api.github.com/repos/spatie/laravel-medialibrary/zipball/7050a0d041be8c5c5ef5886967fbbbe578a54296",
+                "reference": "7050a0d041be8c5c5ef5886967fbbbe578a54296",
                 "shasum": ""
             },
             "require": {
@@ -4644,7 +4644,6 @@
                 "php-ffmpeg/php-ffmpeg": "Required for generating video thumbnails",
                 "spatie/pdf-to-image": "Required for generating thumbnails of PDFs and SVGs"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -4684,7 +4683,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-medialibrary/issues",
-                "source": "https://github.com/spatie/laravel-medialibrary/tree/main"
+                "source": "https://github.com/spatie/laravel-medialibrary/tree/11.14.0"
             },
             "funding": [
                 {
@@ -4696,7 +4695,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-09-05T08:02:46+00:00"
+            "time": "2025-08-19T08:01:56+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
@@ -8747,16 +8746,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.36",
+            "version": "11.5.39",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "264a87c7ef68b1ab9af7172357740dc266df5957"
+                "reference": "ad5597f79d8489d2870073ac0bc0dd0ad1fa9931"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/264a87c7ef68b1ab9af7172357740dc266df5957",
-                "reference": "264a87c7ef68b1ab9af7172357740dc266df5957",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ad5597f79d8489d2870073ac0bc0dd0ad1fa9931",
+                "reference": "ad5597f79d8489d2870073ac0bc0dd0ad1fa9931",
                 "shasum": ""
             },
             "require": {
@@ -8828,7 +8827,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.36"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.39"
             },
             "funding": [
                 {
@@ -8852,7 +8851,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-03T06:24:17+00:00"
+            "time": "2025-09-14T06:20:41+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -10009,9 +10008,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "spatie/laravel-medialibrary": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
