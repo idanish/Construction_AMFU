@@ -25,7 +25,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'username', 'email', 'password', 'department_id', 'status', 'transaction_no'];
+    protected $fillable = ['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'transaction_no'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,9 +55,9 @@ class User extends Authenticatable
 }
 
 
- public function department()
+         public function department()
     {
-        return $this->belongsTo(Department::class, 'department_id');
+        return $this->belongsTo(Department::class);
     }
 
 

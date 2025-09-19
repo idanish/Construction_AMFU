@@ -1,40 +1,45 @@
 <?php
 
 namespace App\Models;
-use App\Models\BaseModel;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Model;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// Activity Logs Files
+// Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class Budget extends BaseModel
-
+class Budget extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
-    'department_id',
-    'year',
-    'allocated',
-    'spent',
-    'balance',
-    'notes',
-    'status',
-    'attachment',
-    'transaction_no',
-];
+        'title',
+        'department_id',
+        'attachment',
+        'year',
+        'allocated',
+        'spent',
+        'balance',
+        'notes',
+        'status',
+        'transaction_no',
+    ];
 
-    // Activity Log Start Here
-
+    // 🔹 Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('budget')
-            ->logOnly(['department_id', 'allocated', 'spent', 'balance', 'status','transaction_no'])
+            ->useLogName('Budget')
+            ->logOnly(['title', 
+            'department_id',
+            'year',
+            'allocated', 
+            'spent', 
+            'balance', 
+            'status',
+            'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -44,9 +49,7 @@ class Budget extends BaseModel
         return "Budget record has been {$eventName}";
     }
 
-    // Activity Log End Here
-
-
+    // 🔹 Relationships
     public function department()
     {
         return $this->belongsTo(Department::class);

@@ -6,28 +6,30 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// Activity Logs Files
+// Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
 
 class Payment extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-     protected $fillable = [
-    'payment_ref','invoice_id','payment_date','amount','method','status','attachment'
-];
+    protected $fillable = [
+        'payment_ref',
+        'invoice_id',
+        'payment_date',
+        'amount',
+        'method',
+        'status',
+        'transaction_no',
+    ];
 
-
-
-    // Activity Log Start Here
-
+    // 🔹 Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Payment')
-            ->logOnly(['invoice_id', 'payment_date', 'amount', 'status'])
+            ->logOnly(['invoice_id', 'payment_date', 'amount', 'method', 'status'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -37,17 +39,9 @@ class Payment extends Model
         return "Payment record has been {$eventName}";
     }
 
-    // Activity Log End Here
-
-
-
-    public function invoice() {
+    // 🔹 Relationships
+    public function invoice()
+    {
         return $this->belongsTo(Invoice::class);
     }
-
-    public function payments()
-{
-    return $this->hasMany(Payment::class);
-}
-
 }

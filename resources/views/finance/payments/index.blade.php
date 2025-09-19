@@ -1,78 +1,128 @@
 @extends('master')
 
 @section('content')
-<div class="container py-4">
-    <h4 class="mb-4">Payments</h4>
+    <div class="app-page-title">
+        <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+            <div class="page-title-heading m-0">
+                <div class="page-title-icon">
+                    <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
+                </div>
+                <div class="h4 m-0">
+                    Payments
+                </div>
+            </div>
+            <div class="page-title-actions">
+                <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3">Create Payment</a>
+            </div>
+        </div>
+    </div>
 
-    <!-- @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table id="paymentsTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Payment Ref</th>
+                        <th>Invoice</th>
+                        <th>Amount</th>
+                        <th>Payment Date</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Attachment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+@endsection
 
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif -->
+@section('js')
+    <script>
+        $(document).ready(function() {
+            var table = $('#paymentsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('finance.payments.index') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'payment_ref',
+                        name: 'payment_ref'
+                    },
+                    {
+                        data: 'invoice',
+                        name: 'invoice'
+                    },
+                    {
+                        data: 'amount',
+                        name: 'amount'
+                    },
+                    {
+                        data: 'payment_date',
+                        name: 'payment_date'
+                    },
+                    {
+                        data: 'method',
+                        name: 'method'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'attachment',
+                        name: 'attachment',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
 
-    <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3">Add Payment</a>
+            // SweetAlert delete confirmation
+            $(document).on('click', '.delete-btn', function() {
+                var id = $(this).data('id');
+                var url = "{{ url('finance/payments') }}/" + id;
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Payment Ref</th>
-                <th>Invoice</th>
-                <th>Amount</th>
-                <th>Payment Date</th>
-                <th>Payment Method</th> {{-- Naya Column --}}
-                <th>Status</th>
-                <th>Attachment</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($payments as $payment)
-                <tr>
-                    <td>{{ $payment->id }}</td>
-                    <td>{{ $payment->payment_ref }}</td>
-                    <td>#{{ $payment->invoice->invoice_no ?? $payment->invoice_id }}</td>
-                    <td>₨{{ number_format($payment->amount, 2) }}</td>
-                    <td>{{ $payment->payment_date }}</td>
-                    <td>{{ ucfirst($payment->method ?? 'N/A') }}</td> {{-- Payment Method --}}
-                    <td>
-                        @if ($payment->status == 'pending')
-                            <span class="badge bg-warning">Pending</span>
-                        @else
-                            <span class="badge bg-success">Completed</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if ($payment->attachment)
-                            <a href="{{ asset('storage/' . $payment->attachment) }}" 
-                               target="_blank" 
-                               class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        @else
-                            <span class="badge bg-secondary">No File</span>
-                        @endif
-                    </td>
-
-                    <td>
-                        <a href="{{ route('finance.payments.show', $payment->id) }}" class="btn btn-info btn-sm">Show</a>
-                        <a href="{{ route('finance.payments.edit', $payment->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="9" class="text-center">No payments found</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            method: 'DELETE',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire('Deleted!', response.success, 'success');
+                                table.ajax.reload();
+                            },
+                            error: function() {
+                                Swal.fire('Error!', 'Something went wrong', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

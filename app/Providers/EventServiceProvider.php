@@ -15,6 +15,13 @@ class EventServiceProvider extends ServiceProvider
         \App\Models\Project::class => \App\Observers\ProjectObserver::class,
     ];
 
+    protected $listen = [
+            \App\Events\ProcurementApproved::class => [
+            \App\Listeners\UpdateBudgetAndInvoice::class,
+        ],
+    ];
+
+
     /**
      * Register any events for your application.
      */
