@@ -22,6 +22,8 @@ return new class extends Migration
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
         });
     }
 
