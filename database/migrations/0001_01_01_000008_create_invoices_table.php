@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('request_id');
-            $table->string('invoice_no');
+            $table->unsignedBigInteger('procurement_id')->nullable();
+            $table->string('invoice_no')->unique();
             $table->decimal('amount', 10, 2);
             $table->dateTime('invoice_date')->nullable();
             $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('request_id')->references('id')->on('requests')->onDelete('cascade');
+            $table->foreign('procurement_id')->references('id')->on('procurements')->onDelete('cascade');
         });
     }
 

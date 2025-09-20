@@ -208,19 +208,25 @@ Route::get('finance/invoices/pdf', [InvoiceController::class, 'download'])
     });
 
     // Procurements
-Route::prefix('procurements')->name('procurements.')->group(function () {
-    Route::get('/', [ProcurementController::class, 'index'])->name('index');         
-    Route::get('/create', [ProcurementController::class, 'create'])->name('create'); 
-    Route::post('/store', [ProcurementController::class, 'store'])->name('store');
-    Route::get('/{procurement}', [ProcurementController::class, 'show'])->name('show'); // <-- Show detail page
-    Route::get('/{procurement}/edit', [ProcurementController::class, 'edit'])->name('edit');
-    Route::put('/{procurement}', [ProcurementController::class, 'update'])->name('update');
-    Route::delete('/{procurement}', [ProcurementController::class, 'destroy'])->name('destroy');
+Route::middleware(['auth'])->group(function () {
+
+    // Procurement Routes + custom actions
+    Route::resource('procurements', ProcurementController::class);
+    Route::post('procurements/{procurement}/approve', [ProcurementController::class, 'approve'])->name('procurements.approve');
+    Route::post('procurements/{procurement}/reject', [ProcurementController::class, 'reject'])->name('procurements.reject');
+    Route::post('/procurements/store', [ProcurementController::class, 'store'])
+    ->name('finance.procurements.store');
+
+    // Invoice, Payment, Budget
+    Route::resource('invoices', InvoiceController::class);
+    Route::resource('payments', PaymentController::class);
+    Route::resource('budgets', BudgetController::class);
+
+    // Import stub
+    Route::post('/imports/excel', [ImportController::class, 'importExcel'])->name('imports.excel');
+});
 });
 
-
-})
-;
 // User Management Routes
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::resource('users', UserManagementController::class);
@@ -236,7 +242,6 @@ Route::put('/departments/{department}', [DepartmentController::class, 'update'])
 Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
 // Service Route
-
 Route::prefix('services')->name('services.')->group(function () {
     // List all service requests
     Route::get('/services', [ServiceRequestController::class, 'index'])->name('index');           // views/services/index.blade.php
@@ -253,13 +258,10 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::get('/{serviceRequest}/show', [ServiceRequestController::class, 'show'])->name('show'); // views/services/show.blade.php
 
     // Delete service request
-    Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action
-
- 
+    Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action 
 });
 
     //Rehan Request Route
-
 Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
     Route::get('/', [RequestController::class, 'index'])->name('index');
     Route::get('/create', [RequestController::class, 'create'])->name('create');
@@ -274,15 +276,11 @@ Route::middleware('auth')->prefix('requests')->name('requests.')->group(function
     Route::post('/{id}/reject', [RequestController::class, 'reject'])->name('reject');
 
       Route::resource('requests', RequestController::class);
-
-
-
 });
 
 
 
 // ================= Approvals =================
-
 Route::prefix('approvals')->name('approvals.')->group(function () {
     // Sare approvals show karna
     Route::get('/', [ApprovalController::class, 'index'])->name('index');
@@ -297,7 +295,6 @@ Route::prefix('approvals')->name('approvals.')->group(function () {
 
 
 // ====== AUDIT MODULES ======
-
 // Audit Log
 Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
     Route::get('/', [AuditLogController::class, 'index'])->name('index');
@@ -307,14 +304,12 @@ Route::prefix('audit-logs')->name('audit.logs.')->group(function () {
 
 
 // ====== SEARCH MODULES ======
-
 // Search ke liye route banayein
 Route::get('/search-results', [SearchController::class, 'index'])->name('search.results');
 
 
 
 // ====== REPORT MODULES ======
-
 // Reports Routes
 Route::prefix('reports')->middleware(['auth'])->group(function () {
     Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');

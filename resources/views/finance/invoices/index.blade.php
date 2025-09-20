@@ -1,77 +1,130 @@
 @extends('master')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-4">Invoices</h2>
-    <a href="{{ route('finance.invoices.create') }}" class="btn btn-primary mb-3">Add New Invoice</a>
-
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-    <tr>
-        <th>ID</th>
-        <th>Invoice No</th>
-        <th>Date</th>
-        <th>Request</th>
-        <th>Amount</th>
-        <th>Status</th>
-        <th>Notes</th>
-        <th>Attachment</th>
-        <th>Download</th> {{-- 👈 New Column --}}
-        <th>Actions</th>
-    </tr>
-</thead>
-<tbody>
-    @forelse($invoices as $invoice)
-    <tr>
-        <td>{{ $invoice->id }}</td>
-        <td>{{ $invoice->invoice_no }}</td>
-        <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') : 'N/A' }}</td>
-        <td>{{ $invoice->serviceRequest->title ?? 'Request #'.$invoice->serviceRequest->id ?? 'N/A' }}</td>
-        <td>{{ number_format($invoice->amount, 2) }}</td>
-        <td>
-            <span class="badge {{ $invoice->status == 'Paid' ? 'bg-success' : 'bg-warning text-dark' }}">
-                {{ $invoice->status }}
-            </span>
-        </td>
-        <td>{{ $invoice->notes ? \Illuminate\Support\Str::limit($invoice->notes, 50, '...') : 'N/A' }}</td>
-        <td>
-            @if($invoice->attachment)
-                <a href="{{ asset('storage/'.$invoice->attachment) }}" target="_blank" class="btn btn-info btn-sm">
-                    <i class="bi bi-eye"></i> View
+    <div class="app-page-title">
+        <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+            <div class="page-title-heading m-0">
+                <div class="page-title-icon">
+                    <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
+                </div>
+                <div class="h4 m-0">
+                    Invoices
+                </div>
+            </div>
+            <div class="page-title-actions">
+                <a href="{{ route('finance.invoices.create') }}" class="btn btn-primary mb-3">
+                    <i class="bi bi-plus-circle"></i> Create Invoice
                 </a>
-            @else
-                <span class="badge bg-secondary">
-                    <i class="bi bi-file-earmark-excel"></i> No File
-                </span>
-            @endif
-        </td>
+            </div>
+        </div>
+    </div>
 
-        {{-- 👇 New Download Column --}}
-        <td>
-    <a href="#" 
-   class="btn btn-primary">
-   Download PDF
-</a>
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            <table id="invoicesTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Invoice No</th>
+                        <th>Date</th>
+                        <th>Request</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Attachment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+@endsection
 
+@section('js')
+    <script>
+        $(document).ready(function() {
+            var table = $('#invoicesTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('finance.invoices.index') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'invoice_no',
+                        name: 'invoice_no'
+                    },
+                    {
+                        data: 'invoice_date',
+                        name: 'invoice_date'
+                    },
+                    {
+                        data: 'request',
+                        name: 'request'
+                    },
+                    {
+                        data: 'amount',
+                        name: 'amount'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
+                    },
+                    {
+                        data: 'notes',
+                        name: 'notes'
+                    },
+                    {
+                        data: 'attachment',
+                        name: 'attachment',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
 
-        </td>
+            // Delete confirmation
+            $(document).on('click', '.delete-btn', function() {
+                var id = $(this).data('id');
+                var url = "{{ url('finance/invoices') }}/" + id;
 
-        <td>
-            <a href="{{ route('finance.invoices.edit', $invoice->id) }}" class="btn btn-primary btn-sm">Edit</a>
-            <form action="{{ route('finance.invoices.destroy', $invoice->id) }}" method="POST" style="display:inline-block;">
-                @csrf
-                @method('DELETE')
-                <button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
-            </form>
-        </td>
-    </tr>
-    @empty
-    <tr>
-        <td colspan="10" class="text-center">No invoices found</td>
-    </tr>
-    @endforelse
-</tbody>
-
-    </table>
-</div>
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This invoice will be deleted permanently!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: url,
+                            method: 'DELETE',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire('Deleted!', response.success, 'success');
+                                table.ajax.reload();
+                            },
+                            error: function() {
+                                Swal.fire('Error!', 'Something went wrong', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

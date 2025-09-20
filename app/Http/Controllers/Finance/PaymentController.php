@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Finance;
-
+use Yajra\DataTables\DataTables;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Http\Controllers\Controller;
@@ -10,14 +10,41 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    // List all payments
-    public function index()
-    {
+    public function index(Request $request)
+{
+    if ($request->ajax()) {
         $payments = Payment::with('invoice')->latest()->get();
-        return view('finance.payments.index', compact('payments'));
+
+        return DataTables::of($payments)
+            ->addIndexColumn()
+            ->addColumn('invoice', function($row){
+                return $row->invoice->invoice_no ?? 'N/A';
+            })
+            ->addColumn('amount', function($row){
+                return number_format($row->amount, 2);
+            })
+            ->addColumn('status', function($row){
+                $color = $row->status == 'completed' ? 'success' : 'warning';
+                return '<span class="badge bg-'.$color.'">'.ucfirst($row->status).'</span>';
+            })
+            ->addColumn('attachment', function($row){
+                if($row->attachment){
+                    return '<a href="'.asset('storage/'.$row->attachment).'" target="_blank" class="btn btn-sm btn-info">View</a>';
+                }
+                return '<span class="badge bg-secondary">No File</span>';
+            })
+            ->addColumn('action', function($row){
+                return '
+                    <a href="'.route('finance.payments.edit',$row->id).'" class="btn btn-warning btn-sm">Edit</a>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="'.$row->id.'">Delete</button>
+                ';
+            })
+            ->rawColumns(['status','attachment','action'])
+            ->make(true);
     }
 
-    // Show create form
+    return view('finance.payments.index');
+}
     public function create()
     {
         $invoices = Invoice::all();
@@ -25,11 +52,9 @@ class PaymentController extends Controller
         return view('finance.payments.create', compact('invoices', 'payment_ref'));
     }
 
-    // Store new payment
-    public function store(Request $request)
+    public function store(Request $r)
     {
-        // Validate input
-        $request->validate([
+        $r->validate([
             'payment_ref'  => 'required|unique:payments,payment_ref',
             'invoice_id'   => 'required|exists:invoices,id',
             'payment_date' => 'required|date',
@@ -38,96 +63,77 @@ class PaymentController extends Controller
             'attachment'   => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Prepare data
-        $data = $request->only('payment_ref','invoice_id','payment_date','amount','method');
+        $data = $r->only('payment_ref','invoice_id','payment_date','amount','method');
         $data['status'] = 'pending';
 
-        // Handle attachment
-        if ($request->hasFile('attachment')) {
-            try {
-                $file = $request->file('attachment');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/payments', $filename);
-                $data['attachment'] = $filename;
-            } catch (\Exception $e) {
-                return back()->with('error', 'Attachment upload failed: ' . $e->getMessage())->withInput();
-            }
+        if ($r->hasFile('attachment')) {
+            $file = $r->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/payments', $filename);
+            $data['attachment'] = $filename;
         }
 
-        // Insert payment
-        try {
-            Payment::create($data);
-        } catch (\Exception $e) {
-            return back()->with('error', 'Payment could not be saved: ' . $e->getMessage())->withInput();
+        $payment = Payment::create($data);
+
+        // ✅ Update Invoice Status
+        $invoice = Invoice::find($payment->invoice_id);
+        $paidTotal = $invoice->payments()->sum('amount');
+        if ($paidTotal >= $invoice->amount) {
+            $invoice->update(['status' => 'Paid']);
         }
 
-        return redirect()->route('finance.payments.index')
-            ->with('success', 'Payment added successfully. Awaiting admin approval.');
+        return redirect()->route('payments.index')
+            ->with('success', 'Payment added successfully.');
     }
 
-    // Show edit form
     public function edit(Payment $payment)
     {
         $invoices = Invoice::all();
         return view('finance.payments.edit', compact('payment', 'invoices'));
     }
 
-    // Update payment
-    public function update(Request $request, Payment $payment)
-{
-    $request->validate([
-        'invoice_id'   => 'required|exists:invoices,id',
-        'payment_date' => 'required|date',
-        'amount'       => 'required|numeric|min:0',
-        'status'       => 'required|in:pending,completed',
-        'attachment'   => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-    ]);
+    public function update(Request $r, Payment $payment)
+    {
+        $r->validate([
+            'invoice_id'   => 'required|exists:invoices,id',
+            'payment_date' => 'required|date',
+            'amount'       => 'required|numeric|min:0',
+            'status'       => 'required|in:pending,completed',
+            'attachment'   => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
 
-    // Only the correct columns
-    $data = $request->only('invoice_id', 'payment_date', 'amount', 'status');
+        $data = $r->only('invoice_id','payment_date','amount','status');
 
-    // Handle attachment replacement
-    if ($request->hasFile('attachment')) {
-        // Delete old file if exists
-        if ($payment->attachment && file_exists(storage_path('app/public/payments/' . $payment->attachment))) {
-            unlink(storage_path('app/public/payments/' . $payment->attachment));
+        if ($r->hasFile('attachment')) {
+            if ($payment->attachment && file_exists(storage_path('app/public/payments/' . $payment->attachment))) {
+                unlink(storage_path('app/public/payments/' . $payment->attachment));
+            }
+            $file = $r->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/payments', $filename);
+            $data['attachment'] = $filename;
         }
-        $file = $request->file('attachment');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $file->storeAs('public/payments', $filename);
-        $data['attachment'] = $filename;
-    }
 
-    try {
         $payment->update($data);
-    } catch (\Exception $e) {
-        return back()->with('error', 'Update failed: ' . $e->getMessage())->withInput();
+
+        // ✅ Invoice auto-update
+        $invoice = Invoice::find($payment->invoice_id);
+        $paidTotal = $invoice->payments()->sum('amount');
+        $invoice->update(['status' => $paidTotal >= $invoice->amount ? 'Paid' : 'Unpaid']);
+
+        return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
     }
 
-    return redirect()->route('finance.payments.index')
-        ->with('success', 'Payment updated successfully.');
-}
-
-
-    // Delete payment
     public function destroy(Payment $payment)
     {
-        // Delete attachment
         if ($payment->attachment && file_exists(storage_path('app/public/payments/' . $payment->attachment))) {
             unlink(storage_path('app/public/payments/' . $payment->attachment));
         }
 
-        try {
-            $payment->delete();
-        } catch (\Exception $e) {
-            return back()->with('error', 'Payment could not be deleted: ' . $e->getMessage());
-        }
-
-        return redirect()->route('finance.payments.index')
-            ->with('success', 'Payment deleted successfully.');
+        $payment->delete();
+        return redirect()->route('payments.index')->with('success', 'Payment deleted successfully.');
     }
 
-    // Show single payment
     public function show(Payment $payment)
     {
         return view('finance.payments.show', compact('payment'));

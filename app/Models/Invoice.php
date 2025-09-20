@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// Activity Logs Files
+// Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -14,31 +14,18 @@ class Invoice extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    // Agar fillable chahiye
-    protected $fillable = [
-        'request_id',
-        'invoice_no',
-        'amount',
-        'status',
-        'invoice_date',
-        'notes',
-        'attachment',
-        'transaction_no'
-    ];
+    protected $fillable = ['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'status', 'notes', 'transaction_no'];
 
     protected $casts = [
-    'invoice_date' => 'date',
-];
+        'invoice_date' => 'date',
+    ];
 
-
-    
-    // Activity Log Start Here
-
+    //  Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Invoice')
-            ->logOnly(['request_id', 'invoice_no', 'amount', 'status'])
+            ->logOnly(['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'status', 'notes', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -48,12 +35,14 @@ class Invoice extends Model
         return "Invoice record has been {$eventName}";
     }
 
-    // Activity Log End Here
-
-
-    // Relationship define karo
-    public function serviceRequest()
+    // 🔹 Relationships
+    public function procurement()
     {
-        return $this->belongsTo(ServiceRequest::class, 'request_id');
+        return $this->belongsTo(Procurement::class, 'procurement_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

@@ -6,34 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// Activity Logs Files
+// Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
 
 class Procurement extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $fillable = [
-        'item_name',
-        'quantity',
-        'cost_estimate',
-        'department_id',
-        'justification',
-        'status',
-        'attachment',
-    ];
+    protected $fillable = ['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'];
 
-
-    
-    // Activity Log Start Here
-
+    // 🔹 Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Procurement')
-            ->logOnly(['title', 'department_id', 'description', 'attachment', 'status'])
+            ->logOnly(['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -43,12 +31,19 @@ class Procurement extends Model
         return "Procurement record has been {$eventName}";
     }
 
-    // Activity Log End Here
-
-
-
-
-    public function department() {
+    // 🔹 Relationships
+    public function department()
+    {
         return $this->belongsTo(Department::class);
+    }
+
+    public function approvals()
+    {
+        return $this->hasMany(ProcurementApproval::class);
+    }
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class, 'procurement_id');
     }
 }

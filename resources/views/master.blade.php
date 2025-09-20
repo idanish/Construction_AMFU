@@ -40,6 +40,10 @@
         integrity="sha512-fZzZkYxjQy9B7M1gYiXlv2gn6w+fV50Vf3+Yv4PDe8UnD1iXxNhYExfL9M5Kj82Y6cH1wQn1yhv7cA5CjGg7FA=="
         crossorigin="anonymous" />
 
+
+    {{-- DataTables CSS --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" />
+
     <!-- SweetAlert2 CSS + JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -187,41 +191,41 @@
                     </li>
 
                     <!-- Reports (Admin and Assign Roles) -->
-                    
+
                     <li class="menu-header small text-uppercase"><span class="menu-header-text">Reports</span></li>
-                        <li class="menu-item">
-                            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                <i class="menu-icon tf-icons bx bx-file"></i>
-                                <div data-i18n="Reports">Reports</div>
-                            </a>
-                            <ul class="menu-sub">
-                                <li class="menu-item">
-                                    <a href="{{ route('reports.requests') }}" class="menu-link">
-                                        <div data-i18n="Request-Reports">Request Reports</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ route('reports.finance') }}" class="menu-link">
-                                        <div data-i18n="Finance-Reports">Finance Reports</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ route('reports.procurement') }}" class="menu-link">
-                                        <div data-i18n="reports.procurement">Procurement Reports</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ route('reports.workflow') }}" class="menu-link">
-                                        <div data-i18n="Workflow-Reports">Workflow Reports</div>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a href="{{ route('reports.audit') }}" class="menu-link">
-                                        <div data-i18n="Audit-Reports">Audit Reports</div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                    <li class="menu-item">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon tf-icons bx bx-file"></i>
+                            <div data-i18n="Reports">Reports</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                                <a href="{{ route('reports.requests') }}" class="menu-link">
+                                    <div data-i18n="Request-Reports">Request Reports</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('reports.finance') }}" class="menu-link">
+                                    <div data-i18n="Finance-Reports">Finance Reports</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('reports.procurement') }}" class="menu-link">
+                                    <div data-i18n="reports.procurement">Procurement Reports</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('reports.workflow') }}" class="menu-link">
+                                    <div data-i18n="Workflow-Reports">Workflow Reports</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{{ route('reports.audit') }}" class="menu-link">
+                                    <div data-i18n="Audit-Reports">Audit Reports</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     </li>
 
                     <!-- Management (Admin and Assign Roles) -->
@@ -283,7 +287,7 @@
                     </li>
 
                     <!-- Services (Admin only) -->
-                    <li class="menu-item">
+                    {{-- <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-briefcase"></i>
                             <div data-i18n="Services">Work Order</div>
@@ -301,7 +305,7 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
+                    </li> --}}
 
                     <!-- Departments (Admin only) -->
                     <li class="menu-item">
@@ -555,10 +559,19 @@
         integrity="sha512-SnHkO9cP47yt0J6fH9o7hF3V7jLzRRYxChh9z7nTS+7A17R37Cy6x8G4fXajNwT6SRWKmFFDKRP8+bdj9dErYw=="
         crossorigin="anonymous"></script>
 
+    {{-- J Queery CDN --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    {{-- DataTables JS --}}
+    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // let table = new DataTable('#myTable');
+
         document.addEventListener('DOMContentLoaded', function() {
             @if (session()->has('success'))
                 Swal.fire({
@@ -580,10 +593,6 @@
                 });
             @endif
         });
-    </script>
-
-
-    <script>
         Dropzone.autoDiscover = false;
 
         let attachmentDropzone = new Dropzone("#attachmentDropzone", {
@@ -611,7 +620,6 @@
             document.getElementById("invoiceForm").submit(); // ab form submit kar
         });
     </script>
-
 </body>
 
 </html>

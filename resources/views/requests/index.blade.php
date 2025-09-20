@@ -3,12 +3,12 @@
 @section('content')
 <div class="container py-4">
     <h2 class="mb-4">Requests</h2>
-    <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create New Request</a>
+    <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create Request</a>
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
+                <th>S.No</th>
                 <th>Requestor</th>
                 <th>Department</th>
                 <th>Description</th>
@@ -18,9 +18,10 @@
             </tr>
         </thead>
         <tbody>
+            @php $counter = 1; @endphp
             @foreach($requests as $req)
             <tr>
-                <td>{{ $req->id }}</td>
+                <td>{{ $counter++ }}</td>
                 <td>{{ $req->requestor->name ?? '-' }}</td>
                 <td>{{ $req->department->name ?? '-' }}</td>
                 <td>{{ $req->description }}</td>
