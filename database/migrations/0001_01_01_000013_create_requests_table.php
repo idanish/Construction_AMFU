@@ -6,33 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('requests', function (Blueprint $table) {
             $table->id();
-            
-            // Foreign keys
-            $table->foreignId('requestor_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
-
-            // Fields
-            $table->text('description');
-            $table->decimal('amount', 12, 2)->nullable(); // amount up to billions, 2 decimals
+            $table->foreignId('requestor_id')->constrained('users');
+            $table->foreignId('department_id')->constrained('departments');
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->decimal('amount', 15, 2);
             $table->text('comments')->nullable();
-
-            // Status
-            $table->enum('status', ['pending', 'under_review', 'approved', 'rejected'])->default('pending');
-
+            $table->string('status')->default('pending');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('requests');
