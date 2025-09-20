@@ -5,13 +5,50 @@ namespace App\Http\Controllers;
 use App\Models\RequestModel;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class RequestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $requests = RequestModel::with('department', 'requestor')->latest()->get();
-        return view('requests.index', compact('requests'));
+        if ($request->ajax()) {
+            $data = RequestModel::with(['requestor', 'department'])->latest();
+            
+            return DataTables::of($data->get()) // .get() is needed here for collection
+                ->addIndexColumn()
+                ->addColumn('requestor_name', function($row){
+                    return $row->requestor->name ?? 'N/A';
+                })
+                ->addColumn('department_name', function($row){
+                    return $row->department->name ?? 'N/A';
+                })
+                ->addColumn('status', function($row){
+                    if($row->status == 'pending'){
+                        return '<span class="badge bg-warning">Pending</span>';
+                    } elseif($row->status == 'approved'){
+                        return '<span class="badge bg-success">Approved</span>';
+                    } else {
+                        return '<span class="badge bg-danger">Rejected</span>';
+                    }
+                })
+                ->addColumn('action', function($row){
+                    $btn = '<a href="'.route('requests.show', $row->id).'" class="btn btn-info btn-sm">Show</a> ';
+                    if ($row->status === 'rejected') {
+                        $btn .= '<a href="'.route('requests.edit', $row->id).'" class="btn btn-warning btn-sm">Edit</a> ';
+                    }
+                    $btn .= '<form action="'.route('requests.destroy', $row->id).'" method="POST" style="display:inline">';
+                    $btn .= csrf_field();
+                    $btn .= method_field('DELETE');
+                    $btn .= '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure?\')">Delete</button>';
+                    $btn .= '</form>';
+                    return $btn;
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+        
+        return view('requests.index');
     }
 
     public function create()
@@ -22,98 +59,64 @@ class RequestController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
+            'title' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
-            'description'   => 'required|string',
-            'amount'        => 'required|numeric',
-            'comments'      => 'nullable|string',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx'
+            'description' => 'required|string',
+            'amount' => 'required|numeric|min:0',
         ]);
 
-        $data['requestor_id'] = auth()->id();
-        $data['status'] = 'pending';
+        RequestModel::create([
+            'requestor_id' => auth()->id(),
+            'department_id' => $request->department_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'status' => 'pending',
+        ]);
 
-        $req = RequestModel::create($data);
+        return redirect()->route('requests.index')->with('success', 'Request has been submitted successfully!');
+    }
 
-        // Handle attachments
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $req->addMedia($file)->toMediaCollection('attachments');
-            }
+    public function show(RequestModel $request)
+    {
+        
+        return view('requests.show', compact('request'));
+    }
+
+    public function edit(RequestModel $request)
+    {
+        if ($request->status !== 'rejected') {
+            return back()->with('error', 'Only rejected requests can be edited.');
         }
 
-        return redirect()->route('requests.index')->with('success', 'Request created successfully.');
-    }
-
-    public function show($id)
-    {
-        $requestModel = RequestModel::with('department', 'requestor', 'media')->findOrFail($id);
-        return view('requests.show', compact('requestModel'));
-    }
-
-    public function edit($id)
-    {
-        $requestModel = RequestModel::findOrFail($id);
         $departments = Department::all();
-        return view('requests.edit', compact('requestModel', 'departments'));
+        return view('requests.edit', compact('request', 'departments'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, RequestModel $requestModel)
     {
-        $req = RequestModel::findOrFail($id);
-
-        $data = $request->validate([
+        if ($requestModel->status !== 'rejected') {
+            return back()->with('error', 'Only rejected requests can be updated.');
+        }
+        
+        $request->validate([
+            'title' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
-            'description'   => 'required|string',
-            'amount'        => 'required|numeric',
-            'comments'      => 'nullable|string',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx'
+            'description' => 'required|string',
+            'amount' => 'required|numeric|min:0',
         ]);
 
-        $req->update($data);
+        $requestModel->update([
+            'title' => $request->title,
+            'department_id' => $request->department_id,
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'status' => 'pending',
+            'comments' => null, 
+        ]);
 
-        // Handle attachments
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $req->addMedia($file)->toMediaCollection('attachments');
-            }
-        }
-
-        return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
+        return redirect()->route('requests.index')->with('success', 'Request has been updated and resubmitted successfully.');
     }
 
-    public function destroy($id)
-    {
-        $req = RequestModel::findOrFail($id);
-        $req->delete();
-        return redirect()->route('requests.index')->with('success', 'Request deleted successfully.');
-    }
-
-    public function approve($id)
-    {
-        $req = RequestModel::findOrFail($id);
-        $req->status = 'approved';
-        $req->save();
-
-        if (function_exists('createNotification')) {
-            createNotification(null, "Your request #{$req->id} approved", $req->requestor_id, 'approve');
-            createNotification('Admin', "Request #{$req->id} approved by " . (auth()->user()?->name ?? 'System'));
-        }
-
-        return redirect()->back()->with('success', 'Request approved successfully.');
-    }
-
-    public function reject($id)
-    {
-        $req = RequestModel::findOrFail($id);
-        $req->status = 'rejected';
-        $req->save();
-
-        if (function_exists('createNotification')) {
-            createNotification(null, "Your request #{$req->id} rejected", $req->requestor_id, 'reject');
-            createNotification('Admin', "Request #{$req->id} rejected by " . (auth()->user()?->name ?? 'System'));
-        }
-
-        return redirect()->back()->with('error', 'Request rejected successfully.');
-    }
 }

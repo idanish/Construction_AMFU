@@ -261,22 +261,7 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action 
 });
 
-    //Rehan Request Route
-Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
-    Route::get('/', [RequestController::class, 'index'])->name('index');
-    Route::get('/create', [RequestController::class, 'create'])->name('create');
-    Route::post('/', [RequestController::class, 'store'])->name('store');
-    Route::get('/{id}', [RequestController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [RequestController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [RequestController::class, 'update'])->name('update');
-    Route::delete('/{id}', [RequestController::class, 'destroy'])->name('destroy');
-
-    // workflow
-    Route::post('/{id}/approve', [RequestController::class, 'approve'])->name('approve');
-    Route::post('/{id}/reject', [RequestController::class, 'reject'])->name('reject');
-
-      Route::resource('requests', RequestController::class);
-});
+Route::resource('requests', RequestController::class);
 
 
 

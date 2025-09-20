@@ -2,24 +2,35 @@
 
 @section('content')
 <div class="container">
-    <h2>Request #{{ $requestModel->id }}</h2>
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>Request Details</h1>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ $request->title }}</h5>
+                    <p class="card-text"><strong>Requestor:</strong> {{ $request->requestor->name }}</p>
+                    <p class="card-text"><strong>Department:</strong> {{ $request->department->name }}</p>
+                    <p class="card-text"><strong>Amount:</strong> {{ $request->amount }}</p>
+                    <p class="card-text"><strong>Status:</strong> 
+                        @if($request->status == 'pending')
+                            <span class="badge bg-warning">Pending</span>
+                        @elseif($request->status == 'approved')
+                            <span class="badge bg-success">Approved</span>
+                        @else
+                            <span class="badge bg-danger">Rejected</span>
+                        @endif
+                    </p>
+                    <hr>
+                    <p class="card-text"><strong>Description:</strong></p>
+                    <p>{{ $request->description }}</p>
+                    <hr>
+                    <p class="card-text"><strong>Comments:</strong></p>
+                    <p>{{ $request->comments }}</p>
 
-    <p><strong>Description:</strong> {{ $requestModel->description }}</p>
-    <p><strong>Amount:</strong> {{ $requestModel->amount }}</p>
-    <p><strong>Status:</strong> <span class="badge bg-info">{{ ucfirst($requestModel->status) }}</span></p>
-    <p><strong>Department:</strong> {{ $requestModel->department->name ?? '-' }}</p>
-    <p><strong>Requestor:</strong> {{ $requestModel->requestor->name ?? '-' }}</p>
-    <p><strong>Comments:</strong> {{ $requestModel->comments ?? '-' }}</p>
-
-    <h5>Attachments:</h5>
-    <ul>
-        @foreach($requestModel->getMedia('attachments') as $media)
-            <li>
-                <a href="{{ $media->getUrl() }}" target="_blank">{{ $media->file_name }}</a>
-            </li>
-        @endforeach
-    </ul>
-
-    <a href="{{ route('requests.index') }}" class="btn btn-secondary">Back</a>
+                    <a href="{{ route('requests.index') }}" class="btn btn-secondary mt-3">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

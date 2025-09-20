@@ -16,13 +16,7 @@ class ServiceRequest extends Model
 
     // ServiceRequest.php model
 
- protected $fillable = [
-        'request_no',
-         'title',
-        'description',
-        'status',
-        'transaction_no',
-    ];
+ protected $fillable = ['request_no', 'title', 'description', 'status', 'transaction_no'];
   
     // Activity Log Start Here
 
