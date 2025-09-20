@@ -6,13 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// Activity Logs
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+
 
 class Procurement extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'];
 
