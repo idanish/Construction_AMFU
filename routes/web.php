@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\ApprovalController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuditLogController;
@@ -36,7 +36,6 @@ Route::get('/clear-cache', function () {
         return 'Error Clearing cache: ' . $e->getMessage();
     }
 });
-
 
 
 Route::get('/', function () {
@@ -63,7 +62,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
 // Notification Routes
 Route::middleware('auth')->prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
@@ -72,7 +70,6 @@ Route::middleware('auth')->prefix('notifications')->group(function () {
     Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
 });
-
 
 
 // User Management - Protected route for Admin only
@@ -95,7 +92,6 @@ Route::post('/admin/register', [AdminController::class, 'register'])->name('admi
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
 
 
-
 // Permissions page
 Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
 Route::post('/permissions/{user}', [PermissionController::class, 'update'])->name('permissions.update');
@@ -105,8 +101,6 @@ Route::get('/users/{user}/permissions', [PermissionController::class, 'editPermi
 
 // Permissions ko update karne ke liye naya route
 Route::post('/users/{user}/permissions', [PermissionController::class, 'updatePermissions'])->name('users.update-permissions');
-
-
 
 
 // Protected routes for users with roles
@@ -119,15 +113,15 @@ Route::middleware(['role:Admin'])->group(function () {
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
-        // ✅ Show roles list
+        // Show roles list
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.show');
-      // ✅ Edit role form
+      //  Edit role form
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
 
-    // ✅ Update role
+    //  Update role
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
 
-    // ✅ Delete role
+    // Delete role
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 });
 
@@ -162,70 +156,27 @@ Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('up
 // Finance Module Routes
 Route::prefix('finance')->name('finance.')->group(function () {
 
-    // Budgets
-Route::prefix('finance/budgets')->name('budgets.')->group(function () {
-    Route::get('/', [BudgetController::class, 'index'])->name('index');
-    Route::get('/create', [BudgetController::class, 'create'])->name('create');
-    Route::post('/store', [BudgetController::class, 'store'])->name('store');
-    Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
-    Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
-    Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
-});
-
-
-
-
-
-    // Invoices
-    Route::prefix('invoices')->name('invoices.')->group(function () {
-    Route::get('/', [InvoiceController::class, 'index'])->name('index');
-    Route::get('/create', [InvoiceController::class, 'create'])->name('create');
-    Route::post('/store', [InvoiceController::class, 'store'])->name('store');
-    // routes/web.php
-
-Route::get('finance/invoices/pdf', [InvoiceController::class, 'download'])
-    ->name('finance.invoices.pdf');
-
-
-
-    // EDIT route should come before {invoice} catch-all routes
-    Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
-    Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
-
-    Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
-});
-
-
-// Payments
-    Route::prefix('payments')->name('payments.')->group(function () {
-        Route::get('/', [PaymentController::class, 'index'])->name('index');
-        Route::get('/create', [PaymentController::class, 'create'])->name('create');
-        Route::post('/', [PaymentController::class, 'store'])->name('store');
-        Route::get('/{payment}', [PaymentController::class, 'show'])->name('show');
-        Route::get('/{payment}/edit', [PaymentController::class, 'edit'])->name('edit');
-        Route::put('/{payment}', [PaymentController::class, 'update'])->name('update');
-        Route::delete('/{payment}', [PaymentController::class, 'destroy'])->name('destroy');
-    });
-
-    // Procurements
-Route::middleware(['auth'])->group(function () {
-
-    // Procurement Routes + custom actions
-    Route::resource('procurements', ProcurementController::class);
-    Route::post('procurements/{procurement}/approve', [ProcurementController::class, 'approve'])->name('procurements.approve');
-    Route::post('procurements/{procurement}/reject', [ProcurementController::class, 'reject'])->name('procurements.reject');
-    Route::post('/procurements/store', [ProcurementController::class, 'store'])
-    ->name('finance.procurements.store');
-
-    // Invoice, Payment, Budget
     Route::resource('invoices', InvoiceController::class);
     Route::resource('payments', PaymentController::class);
     Route::resource('budgets', BudgetController::class);
+    Route::resource('procurements', ProcurementController::class);
+    
+//    // Procurements
+//     Route::middleware(['auth'])->group(function () {
+//         Route::resource('procurements', ProcurementController::class);
+//         Route::post('procurements/{procurement}/approve', [ProcurementController::class, 'approve'])->name('procurements.approve');
+//         Route::post('procurements/{procurement}/reject', [ProcurementController::class, 'reject'])->name('procurements.reject');
+//         Route::post('/procurements/store', [ProcurementController::class, 'store'])
+//         ->name('finance.procurements.store');
 
-    // Import stub
-    Route::post('/imports/excel', [ImportController::class, 'importExcel'])->name('imports.excel');
+    
+//     });
+
+
+
 });
-});
+
+
 
 // User Management Routes
 Route::prefix('admin')->middleware(['auth'])->group(function () {
@@ -234,7 +185,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 // Department CRUD routes
-Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::get('/departments/create', [DepartmentController::class, 'create'])->name('departments.create');
 Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
 Route::get('/departments/{department}/edit', [DepartmentController::class, 'edit'])->name('departments.edit');
@@ -261,8 +212,9 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action 
 });
 
-Route::resource('requests', RequestController::class);
 
+// Request Route
+Route::resource('requests', RequestController::class);
 
 
 // ================= Approvals =================

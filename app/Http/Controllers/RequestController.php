@@ -3,120 +3,121 @@
 namespace App\Http\Controllers;
 
 use App\Models\RequestModel;
-use App\Models\Department;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
-use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
+
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
 
 class RequestController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            // Query banayi with relations
             $data = RequestModel::with(['requestor', 'department'])->latest();
-            
-            return DataTables::of($data->get()) // .get() is needed here for collection
+
+            return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('requestor_name', function($row){
+                ->addColumn('requestor_name', function ($row) {
                     return $row->requestor->name ?? 'N/A';
                 })
-                ->addColumn('department_name', function($row){
-                    return $row->department->name ?? 'N/A';
+                ->addColumn('department_name', function ($row) {
+                    return $row->department->department_name ?? 'N/A';
                 })
-                ->addColumn('status', function($row){
-                    if($row->status == 'pending'){
-                        return '<span class="badge bg-warning">Pending</span>';
-                    } elseif($row->status == 'approved'){
-                        return '<span class="badge bg-success">Approved</span>';
-                    } else {
-                        return '<span class="badge bg-danger">Rejected</span>';
-                    }
-                })
-                ->addColumn('action', function($row){
-                    $btn = '<a href="'.route('requests.show', $row->id).'" class="btn btn-info btn-sm">Show</a> ';
-                    if ($row->status === 'rejected') {
-                        $btn .= '<a href="'.route('requests.edit', $row->id).'" class="btn btn-warning btn-sm">Edit</a> ';
-                    }
-                    $btn .= '<form action="'.route('requests.destroy', $row->id).'" method="POST" style="display:inline">';
+                ->addColumn('action', function ($row) {
+                    $btn  = '<a href="'.route('requests.show', $row->id).'" class="btn btn-sm btn-info">View</a> ';
+                    $btn .= '<a href="'.route('requests.edit', $row->id).'" class="btn btn-sm btn-primary">Edit</a> ';
+                    $btn .= '<form action="'.route('requests.destroy', $row->id).'" method="POST" style="display:inline-block">';
                     $btn .= csrf_field();
-                    $btn .= method_field('DELETE');
-                    $btn .= '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure?\')">Delete</button>';
+                    $btn .= method_field("DELETE");
+                    $btn .= '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')">Delete</button>';
                     $btn .= '</form>';
                     return $btn;
                 })
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
-        
+
         return view('requests.index');
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        $departments = Department::all();
-        return view('requests.create', compact('departments'));
+        return view('requests.create');
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'requestor_id' => 'required|exists:users,id',
             'department_id' => 'required|exists:departments,id',
-            'description' => 'required|string',
-            'amount' => 'required|numeric|min:0',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        RequestModel::create([
-            'requestor_id' => auth()->id(),
-            'department_id' => $request->department_id,
-            'title' => $request->title,
-            'description' => $request->description,
-            'amount' => $request->amount,
-            'status' => 'pending',
-        ]);
+        RequestModel::create($request->all());
 
-        return redirect()->route('requests.index')->with('success', 'Request has been submitted successfully!');
+        return redirect()->route('requests.index')->with('success', 'Request created successfully.');
     }
 
-    public function show(RequestModel $request)
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
     {
-        
+        $request = RequestModel::with(['requestor', 'department'])->findOrFail($id);
         return view('requests.show', compact('request'));
     }
 
-    public function edit(RequestModel $request)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
     {
-        if ($request->status !== 'rejected') {
-            return back()->with('error', 'Only rejected requests can be edited.');
-        }
-
-        $departments = Department::all();
-        return view('requests.edit', compact('request', 'departments'));
+        $request = RequestModel::findOrFail($id);
+        return view('requests.edit', compact('request'));
     }
 
-    public function update(Request $request, RequestModel $requestModel)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, $id)
     {
-        if ($requestModel->status !== 'rejected') {
-            return back()->with('error', 'Only rejected requests can be updated.');
-        }
-        
         $request->validate([
-            'title' => 'required|string|max:255',
+            'requestor_id' => 'required|exists:users,id',
             'department_id' => 'required|exists:departments,id',
-            'description' => 'required|string',
-            'amount' => 'required|numeric|min:0',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        $requestModel->update([
-            'title' => $request->title,
-            'department_id' => $request->department_id,
-            'description' => $request->description,
-            'amount' => $request->amount,
-            'status' => 'pending',
-            'comments' => null, 
-        ]);
+        $req = RequestModel::findOrFail($id);
+        $req->update($request->all());
 
-        return redirect()->route('requests.index')->with('success', 'Request has been updated and resubmitted successfully.');
+        return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $req = RequestModel::findOrFail($id);
+        $req->delete();
+
+        return redirect()->route('requests.index')->with('success', 'Request deleted successfully.');
+    }
+
+   
+
 
 }

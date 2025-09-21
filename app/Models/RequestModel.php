@@ -42,15 +42,14 @@ class RequestModel extends Model implements HasMedia
 
 
 
-    public function requestor()
-    {
+    public function requestor() {
         return $this->belongsTo(User::class, 'requestor_id');
     }
-
-    public function department()
-    {
-        return $this->belongsTo(Department::class);
+    public function department() {
+        return $this->belongsTo(Department::class, 'department_id');
     }
+
+
 
 
 }

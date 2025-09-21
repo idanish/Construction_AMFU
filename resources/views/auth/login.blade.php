@@ -115,11 +115,11 @@
     </style>
 
     <!-- Video Background -->
-    <video autoplay muted loop class="video-background">
+    <!-- <video autoplay muted loop class="video-background">
         <source src="{{ asset('assets/img/backgrounds/video.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-    <div class="overlay"></div>
+    <div class="overlay"></div> -->
 
     <!-- Login Form -->
     <div class="login-container">

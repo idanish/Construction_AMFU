@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('type'); // login, create, approve, download etc
             $table->text('message'); // notification text
             $table->boolean('is_read')->default(false); // read/unread
+            $table->text('read_at]')->nullable(); // read/unread
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
 

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('cost_estimate', 12, 2);
             $table->unsignedBigInteger('department_id')->nullable();
-            $table->text('justification')->nullable();
+            $table->text('Remarks')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('attachment')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);

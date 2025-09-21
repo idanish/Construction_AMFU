@@ -3,38 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Report;
+use App\Models\Budget;
+use App\Models\Invoice;
+use App\Models\Payment;
 
 class ReportsController extends Controller
 {
-    // Audit Report
-    public function auditReport()
+    // Finance Report Page
+    public function financeReport(Request $request)
     {
-        return view('Reports.audit-report');
+        // filters (status, department, date range, etc)
+        $status = $request->input('status');
+        $department = $request->input('department_id');
+
+        $budgets = Budget::with('department')
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($department, fn($q) => $q->where('department_id', $department))
+            ->paginate($request->input('per_page', 25));
+
+        return view('Reports.finance-report', compact('budgets'));
     }
 
-    // Finance Report
-    public function financeReport()
-    {
-        return view('Reports.finance-report');
-    }
-
-    // Procurement Analysis
-    public function procurementAnalysis()
-    {
-        return view('Reports.procurement-analysis');
-    }
-
-    // Request Report
-    public function requestReport()
-    {
-        return view('Reports.request-report');
-    }
-
-    // Work Flow Report
-    public function workFlowReport()
-    {
-        return view('Reports.work-flow-report');
-    }
+    
 }
-

@@ -16,6 +16,9 @@ return new class extends Migration
             $table->dateTime('invoice_date')->nullable();
             $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
             $table->text('notes')->nullable();
+            $table->text('due_date')->nullable();
+            $table->text('vendor_name')->nullable();
+            $table->unsignedBigInteger('vendor_id')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();
