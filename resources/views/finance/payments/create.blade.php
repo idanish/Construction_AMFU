@@ -7,9 +7,7 @@
                 <div class="page-title-icon">
                     <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
                 </div>
-                <div class="h4 m-0">
-                    Add New Payment
-                </div>
+                <div class="h4 m-0">Add New Payment</div>
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
@@ -21,7 +19,8 @@
 
     <div class="main-card mb-3 card">
         <div class="card-body">
-            <form action="{{ route('finance.payments.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('finance.payments.store') }}" method="POST" enctype="multipart/form-data"
+                id="paymentForm">
                 @csrf
 
                 <div class="mb-3">
@@ -40,8 +39,12 @@
                         required>
                         <option value="">Select Invoice</option>
                         @foreach ($invoices as $invoice)
-                            <option value="{{ $invoice->id }}" {{ old('invoice_id') == $invoice->id ? 'selected' : '' }}>
-                                {{ $invoice->invoice_no }}
+                            @php
+                                $remaining = $invoice->amount - $invoice->payments()->sum('amount');
+                            @endphp
+                            <option value="{{ $invoice->id }}" data-amount="{{ $remaining }}"
+                                {{ old('invoice_id') == $invoice->id ? 'selected' : '' }}>
+                                {{ $invoice->invoice_no }} (Remaining: {{ $remaining }})
                             </option>
                         @endforeach
                     </select>
@@ -85,9 +88,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Status</label>
-                    <input type="text" class="form-control" value="pending" disabled>
-                    <input type="hidden" name="status" value="pending">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select" required>
+                        <option value="partial">Partial Payment</option>
+                        <option value="completed">Full Payment</option>
+                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -142,6 +147,9 @@
         const uploadBox = document.getElementById('uploadBox');
         const attachmentInput = document.getElementById('attachmentInput');
         const filePreview = document.getElementById('filePreview');
+        const invoiceSelect = document.getElementById('invoice_id');
+        const amountInput = document.getElementById('amount');
+        const statusSelect = document.getElementById('status');
 
         uploadBox.addEventListener('click', () => attachmentInput.click());
         uploadBox.addEventListener('dragover', (e) => {
@@ -155,16 +163,38 @@
             e.preventDefault();
             if (e.dataTransfer.files.length > 0) {
                 attachmentInput.files = e.dataTransfer.files;
-                showFileName(attachmentInput.files[0]);
+                filePreview.textContent = "📎 " + attachmentInput.files[0].name + " attached";
             }
             uploadBox.style.background = '#f8f9fa';
         });
         attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) showFileName(attachmentInput.files[0]);
+            if (attachmentInput.files.length > 0) filePreview.textContent = "📎 " + attachmentInput.files[0].name +
+                " attached";
         });
 
-        function showFileName(file) {
-            if (file) filePreview.textContent = "📎 " + file.name + " attached";
-        }
+        invoiceSelect.addEventListener('change', () => {
+            let option = invoiceSelect.options[invoiceSelect.selectedIndex];
+            let remaining = parseFloat(option.dataset.amount);
+            amountInput.value = remaining;
+            // auto status
+            if (remaining < parseFloat(option.dataset.amount)) {
+                statusSelect.value = 'partial';
+            }
+        });
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            let selectedOption = invoiceSelect.options[invoiceSelect.selectedIndex];
+            let remaining = parseFloat(selectedOption.dataset.amount);
+            let enteredAmount = parseFloat(amountInput.value);
+
+            if (enteredAmount > remaining) {
+                e.preventDefault();
+                alert('Error: Amount cannot be greater than invoice remaining balance (' + remaining + ')');
+            } else if (enteredAmount < remaining) {
+                statusSelect.value = 'partial';
+            } else {
+                statusSelect.value = 'completed';
+            }
+        });
     </script>
 @endsection

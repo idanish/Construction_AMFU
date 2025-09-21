@@ -14,7 +14,10 @@ class Invoice extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $fillable = ['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'status', 'notes', 'transaction_no'];
+    protected $fillable = [
+        'procurement_id', 'invoice_no', 'amount', 'invoice_date',
+        'vendor_name', 'due_date', 'status', 'notes', 'attachment'
+    ];
 
     protected $casts = [
         'invoice_date' => 'date',
@@ -38,7 +41,7 @@ class Invoice extends Model
     // 🔹 Relationships
     public function procurement()
     {
-        return $this->belongsTo(Procurement::class, 'procurement_id');
+        return $this->belongsTo(Procurement::class);
     }
 
     public function payments()

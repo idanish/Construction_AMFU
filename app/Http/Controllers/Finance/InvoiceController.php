@@ -20,35 +20,37 @@ class InvoiceController extends Controller
     }
 
     public function create()
-{
+    {
         $user = auth()->user();
 
         $procurements = Procurement::with('department')
-    ->where('status', 'approved')
-    // ->whereDoesntHave('invoices')
-    ->get();
+            ->where('status', 'approved')
+            ->get();
 
-    // Invoice number simple logic
-        $lastInvoice = Invoice::latest()->first();
-        $invoice_no = $lastInvoice
-            ? 'INV-' . str_pad($lastInvoice->id + 1, 5, '0', STR_PAD_LEFT)
-            : 'INV-10001';
+        // Invoice number simple logic
+        $lastInvoice = Invoice::withTrashed()->latest('id')->first();
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;  
+        $invoice_no = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
-    return view('finance.invoices.create', compact('procurements', 'invoice_no'));
-}
+        return view('finance.invoices.create', compact('procurements', 'invoice_no'));
+    }
+
     public function store(Request $r)
     {
         $r->validate([
             'procurement_id' => 'required|exists:procurements,id',
             'amount'         => 'required|numeric|min:0',
             'invoice_date'   => 'required|date',
+            'vendor_name'    => 'required|string|max:255',
+            'due_date'       => 'required|date',
             'notes'          => 'nullable|string|max:65535',
             'attachment'     => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
-        $lastInvoice = Invoice::latest('id')->first();
-        $nextId      = $lastInvoice ? $lastInvoice->id + 1 : 1;
-        $invoiceNo   = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        // Invoice number based on ID including soft deleted
+        $lastInvoice = Invoice::withTrashed()->latest('id')->first();
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $invoiceNo = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $status = (Auth::check() && Auth::user()->role === 'admin')
             ? ($r->status ?? 'Unpaid')
@@ -59,6 +61,8 @@ class InvoiceController extends Controller
             'invoice_no'     => $invoiceNo,
             'amount'         => $r->amount,
             'invoice_date'   => Carbon::parse($r->invoice_date)->format('Y-m-d'),
+            'vendor_name'    => $r->vendor_name,
+            'due_date'       => Carbon::parse($r->due_date)->format('Y-m-d'),
             'status'         => $status,
             'notes'          => $r->notes ?? null,
         ];
@@ -73,54 +77,54 @@ class InvoiceController extends Controller
     }
 
     public function edit(Invoice $invoice)
-{
-    // Sirf approved procurements leke aao, aur invoice ka apna procurement bhi include karo
-    $procurements = Procurement::where('status', 'approved')
-        ->orWhere('id', $invoice->procurement_id) // ensure current procurement always included
-        ->get();
+    {
+        $procurements = Procurement::where('status', 'approved')
+            ->orWhere('id', $invoice->procurement_id) // ensure current procurement always included
+            ->get();
 
-    return view('finance.invoices.edit', compact('invoice', 'procurements'));
-}
-    public function update(Request $r, Invoice $invoice)
-{
-    // ✅ Validation
-    $r->validate([
-        'procurement_id' => 'required|exists:procurements,id',
-        'amount'         => 'required|numeric|min:0',
-        'invoice_date'   => 'required|date',
-        'notes'          => 'nullable|string|max:65535',
-        'attachment'     => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
-    ]);
-
-    // ✅ Status (sirf admin change kar sakta hai)
-    $status = auth()->check() && auth()->user()->role === 'admin'
-        ? ($r->status ?? $invoice->status)
-        : $invoice->status;
-
-    // ✅ Update Data
-    $data = [
-        'procurement_id' => $r->procurement_id,
-        'amount'         => $r->amount,
-        'invoice_date'   => Carbon::parse($r->invoice_date)->toDateString(),
-        'status'         => $status,
-        'notes'          => $r->notes ?? null,
-    ];
-
-    // ✅ File Upload (replace old if exists)
-    if ($r->hasFile('attachment')) {
-        if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
-            Storage::disk('public')->delete($invoice->attachment);
-        }
-        $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+        return view('finance.invoices.edit', compact('invoice', 'procurements'));
     }
 
-    // ✅ Save
-    $invoice->update($data);
+    public function update(Request $r, Invoice $invoice)
+    {
+        $r->validate([
+            'procurement_id' => 'required|exists:procurements,id',
+            'amount'         => 'required|numeric|min:0',
+            'invoice_date'   => 'required|date',
+            'vendor_name'    => 'required|string|max:255',
+            'due_date'       => 'required|date',
+            'notes'          => 'nullable|string|max:65535',
+            'attachment'     => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+        ]);
 
-    return redirect()
-        ->route('finance.invoices.index')
-        ->with('success', 'Invoice updated successfully!');
-}
+        $status = auth()->check() && auth()->user()->role === 'admin'
+            ? ($r->status ?? $invoice->status)
+            : $invoice->status;
+
+        $data = [
+            'procurement_id' => $r->procurement_id,
+            'amount'         => $r->amount,
+            'invoice_date'   => Carbon::parse($r->invoice_date)->format('Y-m-d'),
+            'vendor_name'    => $r->vendor_name,
+            'due_date'       => Carbon::parse($r->due_date)->format('Y-m-d'),
+            'status'         => $status,
+            'notes'          => $r->notes ?? null,
+        ];
+
+        // File Upload (replace old if exists)
+        if ($r->hasFile('attachment')) {
+            if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
+                Storage::disk('public')->delete($invoice->attachment);
+            }
+            $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+        }
+
+        $invoice->update($data);
+
+        return redirect()
+            ->route('finance.invoices.index')
+            ->with('success', 'Invoice updated successfully!');
+    }
 
     public function destroy(Invoice $invoice)
     {
