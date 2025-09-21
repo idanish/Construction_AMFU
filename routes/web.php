@@ -26,6 +26,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\RequestApproval;
 
+
 Route::get('/clear-cache', function () {
     try {
         Artisan::call('cache:clear');
@@ -287,8 +288,8 @@ Route::prefix('reports')->middleware(['auth'])->group(function () {
 });
 
 // Pending and Rejected Requests
-Route::get('/requests/pending', [RequestApproval::class, 'pendingRequests'])->name('requests.pending');
-Route::get('/requests/rejected', [RequestApproval::class, 'rejectedRequests'])->name('requests.rejected');
+Route::get('/requests.pending', [RequestApproval::class, 'pending'])->name('requests.pending');
+Route::get('/requests.rejected', [RequestApproval::class, 'rejected'])->name('requests.rejected');
 
 // Backup & Restore
 Route::get('/settings/backup-restore', [BackupController::class, 'index'])->name('settings.backup&restore');

@@ -31,7 +31,9 @@
                     <th>No</th>
                     <th>Payment Reference</th>
                     <th>Invoice No</th>
-                    <th>Cost Estimate</th>
+                    <th>Invoice Amount</th> 
+                    <th>Payment</th>
+                    <th>Balance</th> 
                     <th>Status</th>
                     <th>Attachment</th>
                     <th>Action</th>
@@ -43,7 +45,9 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $payment->payment_ref }}</td>
                         <td>{{ optional($payment->invoice)->invoice_no ?? 'N/A' }}</td>
-                        <td>{{ optional($payment->invoice)->amount ?? '-' }}</td>
+                        <td>{{ number_format($payment->invoice_amount, 2) }}</td> <!-- invoice amount -->
+                        <td>{{ number_format($payment->amount, 2) }}</td> <!-- payment made -->
+                        <td>{{ number_format($payment->balance, 2) }}</td> <!-- remaining balance -->
                         <td>
                             <span
                                 class="badge bg-{{ $payment->status == 'completed' ? 'success' : ($payment->status == 'partial' ? 'info' : 'warning') }}">
@@ -65,9 +69,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" onclick="return confirm('Are you sure?')"
-                                    class="btn btn-sm btn-danger">
-                                    Delete
-                                </button>
+                                    class="btn btn-sm btn-danger">Delete</button>
                             </form>
                         </td>
                     </tr>

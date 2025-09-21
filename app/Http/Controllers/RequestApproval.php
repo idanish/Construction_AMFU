@@ -11,7 +11,7 @@ use App\Models\Payment;
 
 class RequestApproval extends Controller
 {
-    public function pendingRequests()
+    public function pending()
     {
         
         $pendingPayments = Payment::where('status', 'pending')->get();
@@ -22,7 +22,7 @@ class RequestApproval extends Controller
         return view('requests.pending_request', compact('pendingPayments', 'pendingInvoices', 'pendingProcurement', 'pendingBudget'));
     }
 
-    public function rejectedRequests()
+    public function rejected()
     {
        
         $rejectedPayments = Payment::where('status', 'rejected')->get();

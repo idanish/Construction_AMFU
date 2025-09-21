@@ -357,13 +357,13 @@
                                     <div data-i18n="audit-logs">Activity Logs</div>
                                 </a>
                             </li>
-                                @can('admin')
+                                {{-- @can('admin') --}}
                             <li class="menu-item">
                                 <a href="{{ route('settings.backup&restore') }}" class="menu-link">
                                     <div data-i18n="backup">Backup</div>
                                 </a>
                             </li>
-                            @endcan
+                            {{-- @endcan --}}
 
                         </ul>
                     </li>

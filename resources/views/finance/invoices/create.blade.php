@@ -86,7 +86,7 @@
                 </div>
 
                 {{-- Status --}}
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select" @if (auth()->user()->role != 'admin') disabled @endif>
                         <option value="Unpaid" {{ old('status', 'Unpaid') == 'Unpaid' ? 'selected' : '' }}>Unpaid</option>

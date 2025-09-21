@@ -54,30 +54,32 @@ class ProcurementController extends Controller
         return view('finance.procurements.edit', compact('procurement', 'departments'));
     }
 
-    public function update(Request $r, $id)
-    {
-        $proc = Procurement::findOrFail($id);
+   public function update(Request $r, $id)
+{
+    $proc = Procurement::findOrFail($id);
 
-        $r->validate([
-            'item_name'     => 'required|string|max:255',
-            'quantity'      => 'required|numeric|min:1',
-            'cost_estimate' => 'required|numeric|min:0',
-            'department_id' => 'required|exists:departments,id',
-            'justification' => 'nullable|string',
-            'attachment'    => 'nullable|file|max:5120',
-            'status' => 'required|in:approved,rejected',
-        ]);
+    $r->validate([
+        'item_name'     => 'required|string|max:255',
+        'quantity'      => 'required|numeric|min:1',
+        'cost_estimate' => 'required|numeric|min:0',
+        'department_id' => 'required|exists:departments,id',
+        'justification' => 'nullable|string',
+        'attachment'    => 'nullable|file|max:5120',
+        'status'        => 'required|in:pending,approved,rejected', // include pending if needed
+    ]);
 
-        $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification']);
+    $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
 
-        if ($r->hasFile('attachment')) {
-            $data['attachment'] = $r->file('attachment')->store('procurements', 'public');
-        }
-
-        $proc->update($data);
-
-        return redirect()->route('finance.procurements.index')->with('success','Procurement updated successfully!');
+    if ($r->hasFile('attachment')) {
+        $data['attachment'] = $r->file('attachment')->store('procurements', 'public');
     }
+
+    $proc->update($data);
+
+    return redirect()->route('finance.procurements.index')
+                     ->with('success','Procurement updated successfully!');
+}
+
 
     public function destroy($id)
     {
