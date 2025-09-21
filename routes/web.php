@@ -23,7 +23,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PermissionController;
-
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\RequestApproval;
 
 Route::get('/clear-cache', function () {
     try {
@@ -126,31 +127,31 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 
-// Settings - Backup & Restore
-Route::prefix('settings')->name('settings.')->group(function () {
-    // Settings ka main page (GET)
-    Route::get('/', [SettingsController::class, 'index'])->name('backup&restore');
+// // Settings - Backup & Restore
+// // Route::prefix('settings')->name('settings.')->group(function () {
+// //     // Settings ka main page (GET)
+// //     Route::get('/', [SettingsController::class, 'index'])->name('backup&restore');
     
 
-     // Backup database download
-    Route::get('/backup/download', [SettingsController::class, 'backupDatabase'])->name('backup.download');
+// //     //  // Backup database download
+// //     // Route::get('/backup/download', [SettingsController::class, 'backupDatabase'])->name('backup.download');
 
-    // Restore backup
-    Route::post('/backup/restore', [SettingsController::class, 'restoreBackup'])->name('backup.restore');
+// //     // // Restore backup
+// //     // Route::post('/backup/restore', [SettingsController::class, 'restoreBackup'])->name('backup.restore');
 
-     // Security
-    Route::get('/setting', [SettingsController::class, 'security'])->name('security');   // <- ye zaroori hai
-    Route::post('/security/change-password', [SettingsController::class, 'changePassword'])->name('security.changePassword');
+// //      // Security
+// //     Route::get('/setting', [SettingsController::class, 'security'])->name('security');   // <- ye zaroori hai
+// //     Route::post('/security/change-password', [SettingsController::class, 'changePassword'])->name('security.changePassword');
 
-    // Logo
-    // GET: form show karne ke liye
+//     // Logo
+//     // GET: form show karne ke liye
     
-    Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
+//     Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
 
-// POST: logo update karne ke liye
-Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
+// // POST: logo update karne ke liye
+// Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
 
-});
+// });
 
 // ====== FINANCE MODULES ======
 // Finance Module Routes
@@ -284,3 +285,15 @@ Route::prefix('reports')->middleware(['auth'])->group(function () {
     Route::get('/workflows/export/excel', [ReportsController::class, 'exportWorkflowExcel'])->name('reports.workflows.export.excel');
     Route::get('/workflows/export/pdf', [ReportsController::class, 'exportWorkflowPDF'])->name('reports.workflows.export.pdf');
 });
+
+// Pending and Rejected Requests
+Route::get('/requests/pending', [RequestApproval::class, 'pendingRequests'])->name('requests.pending');
+Route::get('/requests/rejected', [RequestApproval::class, 'rejectedRequests'])->name('requests.rejected');
+
+// Backup & Restore
+Route::get('/settings/backup-restore', [BackupController::class, 'index'])->name('settings.backup&restore');
+Route::post('/settings/backup', [BackupController::class, 'backup'])->name('settings.backup');
+Route::post('/settings/restore', [BackupController::class, 'restore'])->name('settings.restore');
+
+// approvals
+Route::post('/procurement/{id}/update-status', [ProcurementController::class, 'updateStatus'])->name('procurement.updateStatus');

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-    <title>@yield('title', 'Dashboard - Finance Module')</title>
+    <title>@yield('title', ' - Finance Module')</title>
     <meta name="description" content="" />
 
     <!-- Favicon -->
@@ -101,8 +101,19 @@
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="" class="menu-link">
+                                
+                                    <a href="{{ route('requests.create') }}" class="menu-link">
                                     <div data-i18n="Add-Request">Add Request</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                    <a href="{{ route('requests.pending') }}" class="menu-link">
+                                    <div data-i18n="Add-Request">Pending Request</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                    <a href="{{ route('requests.rejected') }}" class="menu-link">
+                                    <div data-i18n="Add-Request">Rejected Request</div>
                                 </a>
                             </li>
                         </ul>
@@ -140,7 +151,7 @@
                         <ul class="menu-sub">
                             <li class="menu-item">
                                 <a href="{{ route('finance.invoices.index') }}" class="menu-link">
-                                    <div data-i18n="All-Invoices">All Invoices</div>
+                                    <div data-i18n="All-Invoices">Invoices</div>
                                 </a>
                             </li>
                             <li class="menu-item">
@@ -180,7 +191,7 @@
                         <ul class="menu-sub">
                             <li class="menu-item">
                                 <a href="{{ route('finance.procurements.index') }}" class="menu-link">
-                                    <div data-i18n="All-Procurements">All Procurements</div>
+                                    <div data-i18n="All-Procurements">Procurements</div>
                                 </a>
                             </li>
                             <li class="menu-item">
@@ -343,9 +354,16 @@
                             <!-- Admin Only -->
                             <li class="menu-item">
                                 <a href="{{ route('audit.logs.index') }}" class="menu-link">
-                                    <div data-i18n="audit-logs">Users Logs</div>
+                                    <div data-i18n="audit-logs">Activity Logs</div>
                                 </a>
                             </li>
+                                @can('admin')
+                            <li class="menu-item">
+                                <a href="{{ route('settings.backup&restore') }}" class="menu-link">
+                                    <div data-i18n="backup">Backup</div>
+                                </a>
+                            </li>
+                            @endcan
 
                         </ul>
                     </li>
