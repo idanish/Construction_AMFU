@@ -86,5 +86,24 @@ class ProcurementController extends Controller
 
         return redirect()->route('finance.procurements.index')->with('success','Procurement deleted successfully!');
     }
-    
+
+    // Approved Request
+    public function updateStatus(Request $request, $id)
+    {
+        // Sabse pehle, request ko validate karein
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+        $procurement = Procurement::find($id);
+
+        if ($procurement) {
+            $procurement->status = $request->input('status');
+            $procurement->save();
+            return redirect()->back()->with('success', 'Status updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Procurement not found!');
+    }
+
 }
