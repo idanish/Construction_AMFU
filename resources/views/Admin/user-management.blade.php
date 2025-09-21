@@ -53,7 +53,7 @@
                         @forelse($users as $user)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td><strong>{{ $user->username }}</strong></td>
+                                <td>{{ $user->username }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
