@@ -47,7 +47,7 @@
 
                 {{-- Username --}}
                 <div class="mb-3">
-                    <label class="form-label">User Name</label>
+                    <label class="form-label">Username</label>
                     <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
                         value="{{ old('username') }}" required>
                     @error('username')
@@ -123,7 +123,7 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Create Admin</button>
+                <button type="submit" class="btn btn-primary w-100">Create User</button>
             </form>
         </div>
     </div>
