@@ -216,11 +216,7 @@
                                     <div data-i18n="reports.procurement">Procurement Reports</div>
                                 </a>
                             </li>
-                            <li class="menu-item">
-                                <a href="{{ route('reports.workflow') }}" class="menu-link">
-                                    <div data-i18n="Workflow-Reports">Workflow Reports</div>
-                                </a>
-                            </li>
+                            
                             <li class="menu-item">
                                 <a href="{{ route('reports.audit') }}" class="menu-link">
                                     <div data-i18n="Audit-Reports">Audit Reports</div>

@@ -2,16 +2,20 @@
 
 @section('content')
 <div class="container">
-    <h2>Audit Report</h2>
+    <h2>Procurement Analysis Report</h2>
 
     <!-- Filters -->
-    <form method="GET" action="{{ route('reports.audit') }}" class="mb-3">
+    <form method="GET" action="{{ route('reports.procurement') }}" class="mb-3">
         <div class="row">
+            <div class="col-md-3">
+                <label>Supplier</label>
+                <input type="text" name="supplier_id" value="{{ request('supplier_id') }}" class="form-control">
+            </div>
             <div class="col-md-3">
                 <label>Status</label>
                 <select name="status" class="form-control">
                     <option value="">All</option>
-                    <option value="paid" {{ request('status')=='paid' ? 'selected' : '' }}>Paid</option>
+                    <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
                     <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
                 </select>
             </div>
@@ -23,39 +27,37 @@
                 <label>Date To</label>
                 <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
             </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-primary w-100">Filter</button>
-            </div>
+        </div>
+        <div class="mt-2">
+            <button class="btn btn-primary">Filter</button>
         </div>
     </form>
 
     <!-- Export Buttons -->
     <div class="mb-3">
-        <a href="{{ route('reports.audit.export.excel') }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('reports.audit.export.pdf') }}" class="btn btn-danger">Export PDF</a>
+        <a href="{{ route('reports.procurement.export.excel') }}" class="btn btn-success">Export Excel</a>
+        <a href="{{ route('reports.procurement.export.pdf') }}" class="btn btn-danger">Export PDF</a>
     </div>
 
     <!-- Table -->
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Payment ID</th>
-                <th>Invoice No</th>
-                <th>Request Description</th>
-                <th>Amount</th>
+                <th>ID</th>
+                <th>Supplier</th>
                 <th>Status</th>
-                <th>Payment Date</th>
+                <th>Date</th>
+                <th>Total Items</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($payments as $pay)
+            @foreach($procurements as $p)
             <tr>
-                <td>{{ $pay->id }}</td>
-                <td>{{ $pay->invoice->invoice_no ?? 'N/A' }}</td>
-                <td>{{ $pay->invoice->request->description ?? 'N/A' }}</td>
-                <td>{{ $pay->amount }}</td>
-                <td>{{ ucfirst($pay->status) }}</td>
-                <td>{{ $pay->payment_date }}</td>
+                <td>{{ $p->id }}</td>
+                <td>{{ $p->supplier->name ?? 'N/A' }}</td>
+                <td>{{ ucfirst($p->status) }}</td>
+                <td>{{ $p->procurement_date }}</td>
+                <td>{{ $p->items->count() }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -63,7 +65,7 @@
 
     <!-- Pagination -->
     <div>
-        {{ $payments->appends(request()->query())->links() }}
+        {{ $procurements->appends(request()->query())->links() }}
     </div>
 </div>
 @endsection

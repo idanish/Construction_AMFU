@@ -233,13 +233,23 @@ Route::get('/search-results', [SearchController::class, 'index'])->name('search.
 // ====== REPORT MODULES ======
 // Reports Routes
 Route::prefix('reports')->middleware(['auth'])->group(function () {
-    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
-    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
-    Route::get('/requests', [ReportsController::class, 'requestReport'])->name('reports.requests');
-    Route::get('/workflow', [ReportsController::class, 'workFlowReport'])->name('reports.workflow');
-    
-    // Export routes (PDF + Excel)
     Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
     Route::get('/finance/export/excel', [ReportsController::class, 'exportFinanceExcel'])->name('reports.finance.export.excel');
     Route::get('/finance/export/pdf', [ReportsController::class, 'exportFinancePdf'])->name('reports.finance.export.pdf');
+    
+    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+    Route::get('/audit/export/excel', [ReportsController::class, 'exportAuditExcel'])->name('reports.audit.export.excel');
+    Route::get('/audit/export/pdf', [ReportsController::class, 'exportAuditPDF'])->name('reports.audit.export.pdf');
+    
+    Route::get('/procurement', [ReportsController::class, 'procurementReport'])->name('reports.procurement');
+    Route::get('/procurement/export/excel', [ReportsController::class, 'exportProcurementExcel'])->name('reports.procurement.export.excel');
+    Route::get('/procurement/export/pdf', [ReportsController::class, 'exportProcurementPDF'])->name('reports.procurement.export.pdf');
+    
+    Route::get('/requests', [ReportsController::class, 'requestReport'])->name('reports.requests');
+    Route::get('/requests/export/excel', [ReportsController::class, 'exportRequestExcel'])->name('reports.requests.export.excel');
+    Route::get('/requests/export/pdf', [ReportsController::class, 'exportRequestPDF'])->name('reports.requests.export.pdf');
+    
+    Route::get('/workflow', [ReportsController::class, 'workFlowReport'])->name('reports.workflow');
+    Route::get('/workflows/export/excel', [ReportsController::class, 'exportWorkflowExcel'])->name('reports.workflows.export.excel');
+    Route::get('/workflows/export/pdf', [ReportsController::class, 'exportWorkflowPDF'])->name('reports.workflows.export.pdf');
 });
