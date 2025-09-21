@@ -154,28 +154,12 @@ Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('up
 
 // ====== FINANCE MODULES ======
 // Finance Module Routes
-Route::prefix('finance')->name('finance.')->group(function () {
-
-    Route::resource('invoices', InvoiceController::class);
-    Route::resource('payments', PaymentController::class);
-    Route::resource('budgets', BudgetController::class);
-    Route::resource('procurements', ProcurementController::class);
-    
-//    // Procurements
-//     Route::middleware(['auth'])->group(function () {
-//         Route::resource('procurements', ProcurementController::class);
-//         Route::post('procurements/{procurement}/approve', [ProcurementController::class, 'approve'])->name('procurements.approve');
-//         Route::post('procurements/{procurement}/reject', [ProcurementController::class, 'reject'])->name('procurements.reject');
-//         Route::post('/procurements/store', [ProcurementController::class, 'store'])
-//         ->name('finance.procurements.store');
-
-    
-//     });
-
-
-
+Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function () {
+    Route::resource('budgets', Finance\BudgetController::class);
+    Route::resource('invoices', Finance\InvoiceController::class);
+    Route::resource('payments', Finance\PaymentController::class);
+    Route::resource('procurements', Finance\ProcurementController::class);
 });
-
 
 
 // User Management Routes
@@ -250,8 +234,12 @@ Route::get('/search-results', [SearchController::class, 'index'])->name('search.
 // Reports Routes
 Route::prefix('reports')->middleware(['auth'])->group(function () {
     Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
-    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
     Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
     Route::get('/requests', [ReportsController::class, 'requestReport'])->name('reports.requests');
     Route::get('/workflow', [ReportsController::class, 'workFlowReport'])->name('reports.workflow');
+    
+    // Export routes (PDF + Excel)
+    Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
+    Route::get('/finance/export/excel', [ReportsController::class, 'exportFinanceExcel'])->name('reports.finance.export.excel');
+    Route::get('/finance/export/pdf', [ReportsController::class, 'exportFinancePdf'])->name('reports.finance.export.pdf');
 });
