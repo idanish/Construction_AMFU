@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RequestModel;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -14,61 +15,45 @@ class RequestController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            // Query banayi with relations
-            $data = RequestModel::with(['requestor', 'department'])->latest();
+    public function index()
+{
+    // Sab requests fetch karo, relations ke saath
+    $requests = RequestModel::with(['requestor', 'department'])->latest()->get();
 
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('requestor_name', function ($row) {
-                    return $row->requestor->name ?? 'N/A';
-                })
-                ->addColumn('department_name', function ($row) {
-                    return $row->department->department_name ?? 'N/A';
-                })
-                ->addColumn('action', function ($row) {
-                    $btn  = '<a href="'.route('requests.show', $row->id).'" class="btn btn-sm btn-info">View</a> ';
-                    $btn .= '<a href="'.route('requests.edit', $row->id).'" class="btn btn-sm btn-primary">Edit</a> ';
-                    $btn .= '<form action="'.route('requests.destroy', $row->id).'" method="POST" style="display:inline-block">';
-                    $btn .= csrf_field();
-                    $btn .= method_field("DELETE");
-                    $btn .= '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')">Delete</button>';
-                    $btn .= '</form>';
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-
-        return view('requests.index');
-    }
+    // View me $requests pass karo
+    return view('requests.index', compact('requests'));
+}
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        return view('requests.create');
-    }
+{
+    // Sab departments fetch karo
+    $departments = Department::all();
 
+    // View ko $departments pass karo
+    return view('requests.create', compact('departments'));
+}
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'requestor_id' => 'required|exists:users,id',
-            'department_id' => 'required|exists:departments,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'requestor_id' => 'required|exists:users,id',
+        'department_id' => 'required|exists:departments,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'amount' => 'required|numeric|min:0',
+    ]);
 
-        RequestModel::create($request->all());
+    RequestModel::create(array_merge($request->all(), [
+        'status' => 'Pending'
+    ]));
 
-        return redirect()->route('requests.index')->with('success', 'Request created successfully.');
-    }
+    return redirect()->route('requests.index')->with('success', 'Request created successfully.');
+}
 
     /**
      * Display the specified resource.
@@ -82,29 +67,42 @@ class RequestController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
-    {
-        $request = RequestModel::findOrFail($id);
-        return view('requests.edit', compact('request'));
-    }
+    public function edit($id) 
+{
+    $request = RequestModel::findOrFail($id);
+
+    // Add this line to fetch all departments
+    $departments = Department::all();
+
+    return view('requests.edit', compact('request', 'departments'));
+}
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'requestor_id' => 'required|exists:users,id',
-            'department_id' => 'required|exists:departments,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'requestor_id' => 'required|exists:users,id',
+        'department_id' => 'required|exists:departments,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'amount' => 'required|numeric|min:0',
+    ]);
 
-        $req = RequestModel::findOrFail($id);
-        $req->update($request->all());
+    $req = RequestModel::findOrFail($id);
 
-        return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
-    }
+    $req->update([
+        'requestor_id' => $request->requestor_id,
+        'department_id' => $request->department_id,
+        'title' => $request->title,
+        'description' => $request->description,
+        'amount' => $request->amount,
+        // Optional: 'status' => $request->status ?? $req->status
+    ]);
+
+    return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
+}
 
     /**
      * Remove the specified resource from storage.

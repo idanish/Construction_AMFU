@@ -7,6 +7,7 @@
             <h1>Edit Request</h1>
             <form action="{{ route('requests.update', $request->id) }}" method="POST">
                 @csrf
+                <input type="hidden" name="requestor_id" value="{{ $request->requestor_id }}">
                 @method('PUT')
                 <div class="form-group mb-3">
                     <label for="title">Title</label>

@@ -1,20 +1,32 @@
 @extends('master')
 
 @section('content')
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Requests</h2>
-            <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create New Request</a>
+    <div class="container mt-4">
+        <div class="app-page-title">
+            <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+                <div class="page-title-heading m-0">
+                    <div class="page-title-icon">
+                        <i class="pe-7s-note2 icon-gradient bg-tempting-azure"></i>
+                    </div>
+                    <div class="h4 m-0">Requests</div>
+                </div>
+                <div class="page-title-actions">
+                    <div class="d-inline-block">
+                        <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create New Request</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
-            <table class="table table-bordered table-striped" id="requests-table">
-                <thead class="thead-dark">
+        <div class="table-responsive-lg">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
                     <tr>
-                        <th>#</th>
+                        <th>S.No</th>
                         <th>Title</th>
                         <th>Requestor</th>
                         <th>Department</th>
@@ -24,40 +36,34 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @forelse ($requests as $key => $request)
+                        <tr class="text-center align-middle">
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $request->title }}</td>
+                            <td>{{ $request->requestor->name ?? 'N/A' }}</td>
+                            <td>{{ $request->department->name ?? 'N/A' }}</td>
+                            <td>{{ number_format($request->amount) }}</td>
+                            <td>{{ ucfirst($request->status) }}</td>
+                            <td>{{ $request->created_at->format('d-m-Y') }}</td>
+                            <td>
+                                <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="{{ route('requests.destroy', $request->id) }}" method="POST"
+                                    class="d-inline-block"
+                                    onsubmit="return confirm('Are you sure you want to delete this request?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">No requests found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>
-</div>
 @endsection
-
-@push('scripts')
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-
-<script type="text/javascript">
-    
-$(function () {
-    $('#requests-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('requests.index') }}",
-        columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'title', name: 'title'},
-            {data: 'requestor_name', name: 'requestor.name'},
-            {data: 'department_name', name: 'department.name'},
-            {data: 'amount', name: 'amount'},
-            {data: 'status', name: 'status', orderable: false, searchable: false},
-            {data: 'created_at', name: 'created_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ]
-    });
-});
-</script>
-@endpush

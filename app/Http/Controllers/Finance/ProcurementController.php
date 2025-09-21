@@ -45,31 +45,7 @@ class ProcurementController extends Controller
                          ->with('success', 'Procurement created successfully!');
     }
 
-    // Reject procurement
-    // public function reject(Request $request, Procurement $procurement)
-    // {
-    //     $user = auth()->user();
-
-    //     DB::transaction(function() use ($procurement, $user, $request) {
-    //         ProcurementApproval::create([
-    //             'procurement_id' => $procurement->id,
-    //             'approved_by' => $user->id,
-    //             'role' => $user->roles->pluck('name')->first(),
-    //             'status' => 'rejected',
-    //             'remarks' => $request->remarks ?? null,
-    //         ]);
-
-    //         $procurement->update(['status' => 'rejected']);
-    //     });
-
-    //     return back()->with('error', 'Procurement Rejected.');
-    // }
-
-    // public function show($id)
-    // {
-    //     $procurement = Procurement::with('department')->findOrFail($id);
-    //     return view('finance.procurements.show', compact('procurement'));
-    // }
+   
 
     public function edit($id)
     {
@@ -89,6 +65,7 @@ class ProcurementController extends Controller
             'department_id' => 'required|exists:departments,id',
             'justification' => 'nullable|string',
             'attachment'    => 'nullable|file|max:5120',
+            'status' => 'required|in:approved,rejected',
         ]);
 
         $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification']);

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ViewController;
-use App\Http\Controllers\HomeControlle;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\SettingsController;
@@ -155,12 +155,43 @@ Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('up
 // ====== FINANCE MODULES ======
 // Finance Module Routes
 Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function () {
-    Route::resource('budgets', Finance\BudgetController::class);
-    Route::resource('invoices', Finance\InvoiceController::class);
-    Route::resource('payments', Finance\PaymentController::class);
-    Route::resource('procurements', Finance\ProcurementController::class);
-});
+    
+    // Budgets
+    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
+    Route::post('/budgets/store', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::get('/budgets/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
+    Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
+    Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
+    Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
 
+    // Invoices
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    // Payments
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+
+    // Procurements
+    Route::get('/procurements', [ProcurementController::class, 'index'])->name('procurements.index');
+    Route::get('/procurements/create', [ProcurementController::class, 'create'])->name('procurements.create');
+    Route::post('/procurements/store', [ProcurementController::class, 'store'])->name('procurements.store');
+    Route::get('/procurements/{procurement}', [ProcurementController::class, 'show'])->name('procurements.show');
+    Route::get('/procurements/{procurement}/edit', [ProcurementController::class, 'edit'])->name('procurements.edit');
+    Route::put('/procurements/{procurement}', [ProcurementController::class, 'update'])->name('procurements.update');
+    Route::delete('/procurements/{procurement}', [ProcurementController::class, 'destroy'])->name('procurements.destroy');
+});
 
 // User Management Routes
 Route::prefix('admin')->middleware(['auth'])->group(function () {

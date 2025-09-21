@@ -11,7 +11,7 @@ class BudgetController extends Controller
 {
  public function index()
 {
-    $budgets = Budget::with('department')->get(); // department relation bhi load ho jaye
+    $budgets = Budget::with('department')->get(); 
     return view('finance.budgets.index', compact('budgets'));
 }
     public function create()

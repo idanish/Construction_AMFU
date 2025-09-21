@@ -96,12 +96,10 @@
                 </div>
 
                 {{-- Status --}}
-                <div class="mb-4">
+                <div class="mb-4" hidden>
                     <label for="status" class="form-label fw-bold">Status</label>
                     <select name="status" class="form-select @error('status') is-invalid @enderror">
                         <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ old('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                     @error('status')
                         <div class="invalid-feedback">{{ $message }}</div>
