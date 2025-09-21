@@ -9,22 +9,22 @@
             @method('PUT')
 
             {{-- Service Request --}}
-            <div class="mb-3">
-                <label for="request_id" class="form-label">Select Request</label>
-                <select name="request_id" class="form-select">
-                    <option value="">Select Service Request</option>
-                    @foreach($requests as $request)
-                        <option value="{{ $request->id }}" 
-                            {{ old('request_id', $invoice->request_id) == $request->id ? 'selected' : '' }}>
-                            {{ $request->title ?? 'Request #'.$request->id }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('request_id')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
+           <div class="mb-3">
+    <label for="procurement_id" class="form-label">Select Procurement</label>
+    <select name="procurement_id" class="form-select">
+        <option value="">Select Procurement</option>
+        @foreach($procurements as $proc)
+            <option value="{{ $proc->id }}" 
+                {{ old('procurement_id', $invoice->procurement_id) == $proc->id ? 'selected' : '' }}>
+                {{ $proc->item_name ?? 'Procurement #'.$proc->id }}
+                ({{ $proc->department->name ?? 'N/A' }})
+            </option>
+        @endforeach
+    </select>
+    @error('procurement_id')
+        <small class="text-danger">{{ $message }}</small>
+    @enderror
+</div>
             {{-- Invoice No (Readonly) --}}
             <div class="mb-3">
                 <label for="invoice_no" class="form-label">Invoice No</label>
