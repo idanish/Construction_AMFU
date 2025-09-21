@@ -17,10 +17,9 @@
         </div>
     </div>
 
-
     <div class="main-card mb-3 card">
         <div class="card-body">
-            <table id="procurementTable" class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -34,92 +33,38 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach ($procurements as $key => $proc)
+                        <tr>
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $proc->item_name }}</td>
+                            <td>{{ $proc->quantity }}</td>
+                            <td>{{ number_format($proc->cost_estimate) }}</td>
+                            <td>{{ $proc->department->name ?? 'N/A' }}</td>
+                            <td>{{ ucfirst($proc->status) }}</td>
+                            <td>
+                                @if ($proc->attachment)
+                                    <a href="{{ asset('storage/' . $proc->attachment) }}" target="_blank">View</a>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('finance.procurements.edit', $proc->id) }}"
+                                    class="btn btn-sm btn-warning">Edit</a>
+
+                                <form action="{{ route('finance.procurements.destroy', $proc->id) }}" method="POST"
+                                    class="d-inline-block"
+                                    onsubmit="return confirm('Are you sure you want to delete this procurement?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+
                 </tbody>
             </table>
         </div>
     </div>
-@endsection
-
-@section('js')
-    <script>
-        $(document).ready(function() {
-            var table = $('#procurementTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('finance.procurements.index') }}",
-                columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'item_name',
-                        name: 'item_name'
-                    },
-                    {
-                        data: 'quantity',
-                        name: 'quantity'
-                    },
-                    {
-                        data: 'cost_estimate',
-                        name: 'cost_estimate'
-                    },
-                    {
-                        data: 'department_name',
-                        name: 'department_name'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status'
-                    },
-                    {
-                        data: 'attachment',
-                        name: 'attachment',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
-                ]
-            });
-
-            // SweetAlert delete confirmation
-            $(document).on('click', '.delete-btn', function() {
-                var id = $(this).data('id');
-                var url = "{{ url('finance/procurements') }}/" + id;
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: url,
-                            method: 'DELETE',
-                            data: {
-                                _token: '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                Swal.fire('Deleted!', response.success, 'success');
-                                table.ajax.reload();
-                            },
-                            error: function(error) {
-                                Swal.fire('Error!', 'Something went wrong', 'error');
-                            }
-                        });
-                    }
-                });
-            });
-        });
-    </script>
 @endsection

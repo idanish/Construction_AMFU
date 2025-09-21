@@ -9,45 +9,10 @@ use App\Models\Budget;
 
 class BudgetController extends Controller
 {
- public function index(Request $request)
+ public function index()
 {
-    if ($request->ajax()) {
-        $data = Budget::with('department')->latest(); 
-
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('department', function($row){
-                return $row->department->name ?? 'N/A';
-            })
-            ->addColumn('allocated', function($row){
-                return number_format($row->allocated, 2);
-            })
-            ->addColumn('spent', function($row){
-                return number_format($row->spent, 2);
-            })
-            ->addColumn('balance', function($row){
-                return number_format($row->allocated - $row->spent, 2);
-            })
-            ->addColumn('status', function($row){
-                return ucfirst($row->status);
-            })
-            ->addColumn('attachment', function($row){
-                if($row->attachment){
-                    return '<a href="'.asset('storage/'.$row->attachment).'" target="_blank" class="btn btn-sm btn-info">View</a>';
-                }
-                return '<span class="badge bg-secondary">No File</span>';
-            })
-            ->addColumn('action', function($row){
-                return '
-                    <a href="'.route('finance.budgets.edit',$row->id).'" class="btn btn-sm btn-primary">Edit</a>
-                    <button class="btn btn-sm btn-danger delete-btn" data-id="'.$row->id.'">Delete</button>
-                ';
-            })
-            ->rawColumns(['attachment','action'])
-            ->make(true);
-    }
-
-    return view('finance.budgets.index');
+    $budgets = Budget::with('department')->get(); // department relation bhi load ho jaye
+    return view('finance.budgets.index', compact('budgets'));
 }
     public function create()
     {
@@ -104,7 +69,7 @@ class BudgetController extends Controller
         $budget->year          = $r->year;
         $budget->allocated     = $r->allocated;
         $budget->spent         = $r->spent ?? 0;
-        $budget->balance       = $budget->allocated - $budget->spent;
+        $budget->balance       = $budget ->  allocated - $budget    ->spent;
         $budget->notes         = $r->notes;
         $budget->status        = $r->status;
 

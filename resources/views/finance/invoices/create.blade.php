@@ -23,6 +23,7 @@
         <div class="card-body">
             <form action="{{ route('finance.invoices.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                
 
                 {{-- Procurement Selection --}}
                 <div class="mb-3">

@@ -44,4 +44,9 @@ class Procurement extends Model
     {
         return $this->hasOne(Invoice::class, 'procurement_id');
     }
+    public function procurement()
+{
+    return $this->belongsTo(\App\Models\Procurement::class, 'procurement_id');
+}
+
 }

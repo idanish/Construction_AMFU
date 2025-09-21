@@ -10,41 +10,13 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    public function index(Request $request)
-{
-    if ($request->ajax()) {
-        $payments = Payment::with('invoice')->latest()->get();
+   public function index()
+    {
+        // simple get with invoice relation
+        $payments = Payment::with('invoice')->latest()->paginate(10);
 
-        return DataTables::of($payments)
-            ->addIndexColumn()
-            ->addColumn('invoice', function($row){
-                return $row->invoice->invoice_no ?? 'N/A';
-            })
-            ->addColumn('amount', function($row){
-                return number_format($row->amount, 2);
-            })
-            ->addColumn('status', function($row){
-                $color = $row->status == 'completed' ? 'success' : 'warning';
-                return '<span class="badge bg-'.$color.'">'.ucfirst($row->status).'</span>';
-            })
-            ->addColumn('attachment', function($row){
-                if($row->attachment){
-                    return '<a href="'.asset('storage/'.$row->attachment).'" target="_blank" class="btn btn-sm btn-info">View</a>';
-                }
-                return '<span class="badge bg-secondary">No File</span>';
-            })
-            ->addColumn('action', function($row){
-                return '
-                    <a href="'.route('finance.payments.edit',$row->id).'" class="btn btn-warning btn-sm">Edit</a>
-                    <button class="btn btn-danger btn-sm delete-btn" data-id="'.$row->id.'">Delete</button>
-                ';
-            })
-            ->rawColumns(['status','attachment','action'])
-            ->make(true);
+        return view('finance.payments.index', compact('payments'));
     }
-
-    return view('finance.payments.index');
-}
     public function create()
     {
         $invoices = Invoice::all();
@@ -82,7 +54,7 @@ class PaymentController extends Controller
             $invoice->update(['status' => 'Paid']);
         }
 
-        return redirect()->route('payments.index')
+        return redirect()->route('finance.payments.index')
             ->with('success', 'Payment added successfully.');
     }
 
@@ -121,7 +93,7 @@ class PaymentController extends Controller
         $paidTotal = $invoice->payments()->sum('amount');
         $invoice->update(['status' => $paidTotal >= $invoice->amount ? 'Paid' : 'Unpaid']);
 
-        return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
+        return redirect()->route('finance.payments.index')->with('success', 'Payment updated successfully.');
     }
 
     public function destroy(Payment $payment)
@@ -131,7 +103,7 @@ class PaymentController extends Controller
         }
 
         $payment->delete();
-        return redirect()->route('payments.index')->with('success', 'Payment deleted successfully.');
+        return redirect()->route('finance.payments.index')->with('success', 'Payment deleted successfully.');
     }
 
     public function show(Payment $payment)
