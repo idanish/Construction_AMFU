@@ -17,7 +17,6 @@
         </div>
     </div>
 
-    {{-- Success & Error Messages --}}
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -27,53 +26,53 @@
 
     <div class="table-responsive-lg ">
         <table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th>Payment Reference</th>
-            <th>Invoice No</th>
-            {{-- <th>Quantity</th> --}}
-            <th>Cost Estimate</th>
-            {{-- <th>Department</th> --}}
-            <th>Status</th>
-            <th>Attachment</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($payments as $key => $payment)
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $payment->payment_ref }}</td>
-                <td>{{ optional($payment->invoice)->invoice_no ?? 'N/A' }}</td>
-                {{-- <td>{{ optional($payment->invoice)->quantity ?? '-' }}</td> --}}
-                <td>{{ optional($payment->invoice)->amount ?? '-' }}</td>
-                {{-- <td>{{ optional($payment->invoice->department)->name ?? 'N/A' }}</td> --}}
-                <td>
-                    <span class="badge bg-{{ $payment->status == 'completed' ? 'success' : 'warning' }}">
-                        {{ ucfirst($payment->status) }}
-                    </span>
-                </td>
-                <td>
-                    @if ($payment->attachment)
-                        <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank">View</a>
-                    @else
-                        N/A
-                    @endif
-                </td>
-                <td>
-                    <a href="{{ route('finance.payments.edit', $payment->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                    <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" onclick="return confirm('Are you sure?')" class="btn btn-sm btn-danger">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Payment Reference</th>
+                    <th>Invoice No</th>
+                    <th>Cost Estimate</th>
+                    <th>Status</th>
+                    <th>Attachment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($payments as $key => $payment)
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $payment->payment_ref }}</td>
+                        <td>{{ optional($payment->invoice)->invoice_no ?? 'N/A' }}</td>
+                        <td>{{ optional($payment->invoice)->amount ?? '-' }}</td>
+                        <td>
+                            <span
+                                class="badge bg-{{ $payment->status == 'completed' ? 'success' : ($payment->status == 'partial' ? 'info' : 'warning') }}">
+                                {{ ucfirst($payment->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            @if ($payment->attachment)
+                                <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank">View</a>
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('finance.payments.edit', $payment->id) }}"
+                                class="btn btn-sm btn-primary">Edit</a>
+                            <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST"
+                                style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Are you sure?')"
+                                    class="btn btn-sm btn-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 @endsection
