@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Audit Report</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { background: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -13,24 +15,26 @@
     <table>
         <thead>
             <tr>
-                <th>Payment ID</th>
-                <th>Invoice No</th>
-                <th>Request Description</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Payment Date</th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Action</th>
+                <th>Model</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($payments as $pay)
-            <tr>
-                <td>{{ $pay->id }}</td>
-                <td>{{ $pay->invoice->invoice_no ?? 'N/A' }}</td>
-                <td>{{ $pay->invoice->request->description ?? 'N/A' }}</td>
-                <td>{{ $pay->amount }}</td>
-                <td>{{ ucfirst($pay->status) }}</td>
-                <td>{{ $pay->payment_date }}</td>
-            </tr>
+            @foreach($activities as $activity)
+                <tr>
+                    <td>{{ $activity->causer?->name }}</td>
+                    <td>{{ $activity->causer?->roles->pluck('name')->join(', ') }}</td>
+                    <td>{{ ucfirst($activity->event) }}</td>
+                    <td>{{ class_basename($activity->subject_type) }}</td>
+                    <td>{{ $activity->properties['old']['title'] ?? '' }}</td>
+                    <td>{{ $activity->properties['attributes']['title'] ?? '' }}</td>
+                    <td>{{ $activity->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>

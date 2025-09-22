@@ -2,70 +2,79 @@
 
 @section('content')
 <div class="container">
-    <h2>Procurement Analysis Report</h2>
+    <h1 class="mb-4">Procurement Report</h1>
 
-    <!-- Filters -->
-    <form method="GET" action="{{ route('reports.procurement') }}" class="mb-3">
-        <div class="row">
-            <div class="col-md-3">
-                <label>Supplier</label>
-                <input type="text" name="supplier_id" value="{{ request('supplier_id') }}" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                    <option value="">All</option>
-                    <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label>Date From</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label>Date To</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
-            </div>
+    {{-- Filters --}}
+    <form method="GET" action="{{ route('reports.procurement') }}" class="mb-4 row g-3">
+        <div class="col-md-3">
+            <label>Department</label>
+            <select name="department_id" class="form-control">
+                <option value="">-- All --</option>
+                @foreach(\App\Models\Department::all() as $dept)
+                    <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                        {{ $dept->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
-        <div class="mt-2">
-            <button class="btn btn-primary">Filter</button>
+        <div class="col-md-3">
+            <label>Date From</label>
+            <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>Date To</label>
+            <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>Min Cost</label>
+            <input type="number" step="0.01" name="cost_min" value="{{ request('cost_min') }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label>Max Cost</label>
+            <input type="number" step="0.01" name="cost_max" value="{{ request('cost_max') }}" class="form-control">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Filter</button>
         </div>
     </form>
 
-    <!-- Export Buttons -->
+    {{-- Export Buttons --}}
     <div class="mb-3">
-        <a href="{{ route('reports.procurement.export.excel') }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('reports.procurement.export.pdf') }}" class="btn btn-danger">Export PDF</a>
+        <a href="{{ route('reports.procurement.export.excel') }}" class="btn btn-success">Export to Excel</a>
+        <a href="{{ route('reports.procurement.export.pdf') }}" class="btn btn-danger">Export to PDF</a>
     </div>
 
-    <!-- Table -->
+    {{-- Report Table --}}
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Supplier</th>
-                <th>Status</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Cost Estimate</th>
+                <th>Department</th>
+                <th>Remarks</th>
                 <th>Date</th>
-                <th>Total Items</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($procurements as $p)
-            <tr>
-                <td>{{ $p->id }}</td>
-                <td>{{ $p->supplier->name ?? 'N/A' }}</td>
-                <td>{{ ucfirst($p->status) }}</td>
-                <td>{{ $p->procurement_date }}</td>
-                <td>{{ $p->items->count() }}</td>
-            </tr>
-            @endforeach
+            @forelse ($procurements as $procurement)
+                <tr>
+                    <td>{{ $procurement->item_name }}</td>
+                    <td>{{ $procurement->quantity }}</td>
+                    <td>{{ number_format($procurement->cost_estimate, 2) }}</td>
+                    <td>{{ optional($procurement->department)->name ?? 'N/A' }}</td>
+                    <td>{{ $procurement->justification ?? '-' }}</td>
+                    <td>{{ $procurement->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6">No procurement records found</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
-    <!-- Pagination -->
-    <div>
-        {{ $procurements->appends(request()->query())->links() }}
-    </div>
+    {{-- Pagination --}}
+    {{ $procurements->links() }}
 </div>
 @endsection

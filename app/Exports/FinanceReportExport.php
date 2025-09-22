@@ -67,7 +67,7 @@ class FinanceReportExport implements FromCollection, WithHeadings, WithMapping
             $budget->amount,
             $budget->comments,
             ucfirst($budget->status),
-            $budget->created_at->format('Y-m-d'),
+            $budget->created_at->format('d-M-Y h:i A'),
         ];
     }
 }

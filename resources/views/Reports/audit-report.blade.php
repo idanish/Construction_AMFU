@@ -5,65 +5,68 @@
     <h2>Audit Report</h2>
 
     <!-- Filters -->
-    <form method="GET" action="{{ route('reports.audit') }}" class="mb-3">
-        <div class="row">
-            <div class="col-md-3">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                    <option value="">All</option>
-                    <option value="paid" {{ request('status')=='paid' ? 'selected' : '' }}>Paid</option>
-                    <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label>Date From</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
-            </div>
-            <div class="col-md-3">
-                <label>Date To</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-primary w-100">Filter</button>
-            </div>
+    <form method="GET" action="{{ route('reports.audit') }}" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <input type="text" name="user_id" class="form-control" placeholder="User ID" value="{{ request('user_id') }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="role" class="form-control" placeholder="Role" value="{{ request('role') }}">
+        </div>
+        <div class="col-md-3">
+            <select name="action" class="form-control">
+                <option value="">--Action--</option>
+                <option value="created" @selected(request('action')=='created')>Created</option>
+                <option value="updated" @selected(request('action')=='updated')>Updated</option>
+                <option value="deleted" @selected(request('action')=='deleted')>Deleted</option>
+                <option value="login" @selected(request('action')=='login')>Login</option>
+                <option value="logout" @selected(request('action')=='logout')>Logout</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Filter</button>
         </div>
     </form>
 
     <!-- Export Buttons -->
-    <div class="mb-3">
-        <a href="{{ route('reports.audit.export.excel') }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('reports.audit.export.pdf') }}" class="btn btn-danger">Export PDF</a>
+    <div class="mb-3 text-end">
+        <a href="{{ route('reports.audit.export.excel') }}" class="btn btn-success btn-sm">Export Excel</a>
+        <a href="{{ route('reports.audit.export.pdf') }}" class="btn btn-danger btn-sm">Export PDF</a>
     </div>
 
     <!-- Table -->
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Payment ID</th>
-                <th>Invoice No</th>
-                <th>Request Description</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Payment Date</th>
+                <th>User</th>
+                <th>Role</th>
+                <th>Action</th>
+                <th>Model</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($payments as $pay)
-            <tr>
-                <td>{{ $pay->id }}</td>
-                <td>{{ $pay->invoice->invoice_no ?? 'N/A' }}</td>
-                <td>{{ $pay->invoice->request->description ?? 'N/A' }}</td>
-                <td>{{ $pay->amount }}</td>
-                <td>{{ ucfirst($pay->status) }}</td>
-                <td>{{ $pay->payment_date }}</td>
-            </tr>
+            @foreach($activities as $activity)
+                <tr>
+                    <td>{{ $activity->causer?->name }}</td>
+                    <td>{{ $activity->causer?->roles->pluck('name')->join(', ') }}</td>
+                    <td>{{ ucfirst($activity->event) }}</td>
+                    <td>{{ class_basename($activity->subject_type) }}</td>
+                    <td>{{ $activity->properties['old']['title'] ?? '' }}</td>
+                    <td>{{ $activity->properties['attributes']['title'] ?? '' }}</td>
+                    <td>{{ $activity->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
 
-    <!-- Pagination -->
-    <div>
-        {{ $payments->appends(request()->query())->links() }}
-    </div>
+    {{ $activities->withQueryString()->links() }}
 </div>
 @endsection

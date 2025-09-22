@@ -6,9 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Budget;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\ProcurementController;
+use App\Models\RequestController;
 
+use Spatie\Activitylog\Models\Activity;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+
+use Carbon\Carbon;
 
 use App\Exports\FinanceReportExport;
 use App\Exports\AuditReportExport;
@@ -57,51 +62,159 @@ class ReportsController extends Controller
 
 
 
+
+
     // AUDIT REPORT SECTION
-    public function auditReport(Request $request)
-    {
-        $query = Payment::with(['invoice', 'invoice.request']);
+    // public function auditReport(Request $request)
+    // {
+    //     $query = Payment::with(['invoice', 'invoice.request']);
 
-        // Filters
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->whereBetween('payment_date', [$request->date_from, $request->date_to]);
-        }
+    //     // Filters
+    //     if ($request->filled('status')) {
+    //         $query->where('status', $request->status);
+    //     }
+    //     if ($request->filled('date_from') && $request->filled('date_to')) {
+    //         $query->whereBetween('payment_date', [$request->date_from, $request->date_to]);
+    //     }
 
-        // Pagination (25, 50, 100)
-        $payments = $query->paginate($request->get('per_page', 25));
+    //     // Pagination (25, 50, 100)
+    //     $payments = $query->paginate($request->get('per_page', 25));
 
-        return view('reports.audit-report', compact('payments'));
-    }
+    //     return view('reports.audit-report', compact('payments'));
+    // }
 
-    public function exportAuditExcel()
-    {
-        return Excel::download(new AuditReportExport, 'audit_report.xlsx');
-    }
+    // public function exportAuditExcel()
+    // {
+    //     return Excel::download(new AuditReportExport, 'audit_report.xlsx');
+    // }
 
-    public function exportAuditPDF()
-    {
-        $payments = Payment::with(['invoice', 'invoice.request'])->get();
-        $pdf = Pdf::loadView('reports.exports.audit-pdf', compact('payments'));
-        return $pdf->download('audit_report.pdf');
-    }
+    // public function exportAuditPDF()
+    // {
+    //     $payments = Payment::with(['invoice', 'invoice.request'])->get();
+    //     $pdf = Pdf::loadView('reports.exports.audit-pdf', compact('payments'));
+    //     return $pdf->download('audit_report.pdf');
+    // }
 
-    // PROCUREMENT REPORT SECTION
-public function procurementReport(Request $request)
+
+
+
+
+
+
+public function auditReport(Request $request)
 {
-    $query = \App\Models\Procurement::with(['supplier', 'items']);
+    $query = Activity::with('causer.roles');
 
     // Filters
-    if ($request->filled('supplier_id')) {
-        $query->where('supplier_id', $request->supplier_id);
+    if ($request->filled('user_id')) {
+        $query->where('causer_id', $request->user_id);
     }
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
+    if ($request->filled('role')) {
+        $query->whereHas('causer.roles', function ($q) use ($request) {
+            $q->where('name', $request->role);
+        });
+    }
+    if ($request->filled('action')) {
+        $query->where('event', $request->action);
     }
     if ($request->filled('date_from') && $request->filled('date_to')) {
-        $query->whereBetween('procurement_date', [$request->date_from, $request->date_to]);
+        $query->whereBetween('created_at', [
+            Carbon::parse($request->date_from)->startOfDay(),
+            Carbon::parse($request->date_to)->endOfDay()
+        ]);
+    }
+
+    $activities = $query->latest()->paginate($request->get('per_page', 25));
+
+    return view('reports.audit-report', compact('activities'));
+}
+
+
+public function exportAuditExcel()
+{
+    return Excel::download(new AuditReportExport, 'audit_report.xlsx');
+}
+
+public function exportAuditPDF()
+{
+    $activities = Activity::with('causer.roles')->latest()->get();
+    $pdf = Pdf::loadView('reports.exports.audit-pdf', compact('activities'));
+    return $pdf->download('audit_report.pdf');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // PROCUREMENT REPORT SECTION
+// public function procurementReport(Request $request)
+// {
+//     $query = \App\Models\Procurement::with(['supplier', 'items']);
+
+//     // Filters
+//     if ($request->filled('supplier_id')) {
+//         $query->where('supplier_id', $request->supplier_id);
+//     }
+//     if ($request->filled('status')) {
+//         $query->where('status', $request->status);
+//     }
+//     if ($request->filled('date_from') && $request->filled('date_to')) {
+//         $query->whereBetween('procurement_date', [$request->date_from, $request->date_to]);
+//     }
+
+//     // Pagination
+//     $procurements = $query->paginate($request->get('per_page', 25));
+
+//     return view('reports.procurement-report', compact('procurements'));
+// }
+
+// public function exportProcurementExcel()
+// {
+//     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ProcurementReportExport, 'procurement_report.xlsx');
+// }
+
+// public function exportProcurementPDF()
+// {
+//     $procurements = \App\Models\Procurement::with(['supplier', 'items'])->get();
+//     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.procurement-pdf', compact('procurements'));
+//     return $pdf->download('procurement_report.pdf');
+// }
+
+
+
+public function procurementReport(Request $request)
+{
+    $query = \App\Models\Procurement::with(['department']); // department relation chahiye
+
+    // Filters
+    if ($request->filled('department_id')) {
+        $query->where('department_id', $request->department_id);
+    }
+    if ($request->filled('date_from') && $request->filled('date_to')) {
+        $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
+    }
+    if ($request->filled('cost_min') && $request->filled('cost_max')) {
+        $query->whereBetween('cost_estimate', [$request->cost_min, $request->cost_max]);
     }
 
     // Pagination
@@ -110,15 +223,23 @@ public function procurementReport(Request $request)
     return view('reports.procurement-report', compact('procurements'));
 }
 
+
 public function exportProcurementExcel()
 {
-    return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ProcurementReportExport, 'procurement_report.xlsx');
+    return \Maatwebsite\Excel\Facades\Excel::download(
+        new \App\Exports\ProcurementReportExport,
+        'procurement_report.xlsx'
+    );
 }
+
 
 public function exportProcurementPDF()
 {
-    $procurements = \App\Models\Procurement::with(['supplier', 'items'])->get();
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.procurement-pdf', compact('procurements'));
+    $procurements = \App\Models\Procurement::with('department')->get();
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+        'reports.exports.procurement-pdf',
+        compact('procurements')
+    );
     return $pdf->download('procurement_report.pdf');
 }
 

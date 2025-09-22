@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Budget;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Procurement;
 
 class ViewController extends Controller
 {
@@ -22,8 +26,26 @@ class ViewController extends Controller
     }
 
     // Admin Dashboard
+
     public function adminDashboard()
-{
-    return view('admin.dashboard');
-}    
+    {
+        // Example values (aap apne hisaab se adjust karenge)
+        $totalBudgets = Budget::count();
+        $totalInvoices = Invoice::count();
+        $totalPayments = Payment::sum('amount');
+        $totalProcurements = Procurement::count();
+
+        // Agar aapko monthly bhi chahiye
+        $monthlyPayments = Payment::whereMonth('created_at', now()->month)->sum('amount');
+
+        return view('Admin.dashboard', compact(
+            'totalBudgets',
+            'totalInvoices',
+            'totalPayments',
+            'monthlyPayments',
+            'totalProcurements'
+        ));
+    }
 }
+
+
