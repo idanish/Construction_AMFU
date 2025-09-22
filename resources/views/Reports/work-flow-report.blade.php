@@ -50,7 +50,7 @@
                 <th>Department</th>
                 <th>Status</th>
                 <th>Started At</th>
-                <th>Completed At</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
@@ -62,7 +62,7 @@
                 <td>{{ $wf->department->name ?? 'N/A' }}</td>
                 <td>{{ ucfirst(str_replace('_', ' ', $wf->status)) }}</td>
                 <td>{{ $wf->created_at->format('Y-m-d') }}</td>
-                <td>{{ $wf->completed_at ? $wf->completed_at->format('Y-m-d') : '-' }}</td>
+                <td>{{ $wf->completed_at ? $wf->completed_at->format('d-M-Y h:i A') : '-' }}</td>
             </tr>
             @endforeach
         </tbody>

@@ -20,7 +20,7 @@
                 <th>Balance</th>
                 <th>Status</th>
                 <th>Transaction</th>
-                <th>Created At</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
@@ -32,7 +32,7 @@
                 <td>{{ $budget->balance }}</td>
                 <td>{{ $budget->status }}</td>
                 <td>{{ $budget->transaction_no }}</td>
-                <td>{{ $budget->created_at->format('Y-m-d') }}</td>
+                <td>{{ $budget->created_at->format('d-M-Y h:i A') }}</td>
             </tr>
             @endforeach
         </tbody>

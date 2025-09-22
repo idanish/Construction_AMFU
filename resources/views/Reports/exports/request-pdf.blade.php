@@ -17,7 +17,7 @@
                 <th>User</th>
                 <th>Department</th>
                 <th>Status</th>
-                <th>Requested At</th>
+                <th>Date</th>
             </tr>
         </thead>
         <tbody>
@@ -27,7 +27,7 @@
                 <td>{{ $req->user->name ?? 'N/A' }}</td>
                 <td>{{ $req->department->name ?? 'N/A' }}</td>
                 <td>{{ ucfirst($req->status) }}</td>
-                <td>{{ $req->created_at->format('Y-m-d') }}</td>
+                <td>{{ $req->created_at->format('d-M-Y h:i A') }}</td>
             </tr>
             @endforeach
         </tbody>

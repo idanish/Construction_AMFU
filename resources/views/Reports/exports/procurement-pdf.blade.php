@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Procurement Analysis Report</title>
+    <title>Procurement Report</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 6px; text-align: left; }
     </style>
 </head>
 <body>
-    <h2>Procurement Analysis Report</h2>
+    <h2>Procurement Report</h2>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Supplier</th>
-                <th>Status</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Cost Estimate</th>
+                <th>Department</th>
+                <th>Remarks</th>
                 <th>Date</th>
-                <th>Total Items</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($procurements as $p)
-            <tr>
-                <td>{{ $p->id }}</td>
-                <td>{{ $p->supplier->name ?? 'N/A' }}</td>
-                <td>{{ ucfirst($p->status) }}</td>
-                <td>{{ $p->procurement_date }}</td>
-                <td>{{ $p->items->count() }}</td>
-            </tr>
+            @foreach ($procurements as $procurement)
+                <tr>
+                    <td>{{ $procurement->item_name }}</td>
+                    <td>{{ $procurement->quantity }}</td>
+                    <td>{{ number_format($procurement->cost_estimate, 2) }}</td>
+                    <td>{{ optional($procurement->department)->name ?? 'N/A' }}</td>
+                    <td>{{ $procurement->justification ?? '-' }}</td>
+                    <td>{{ $procurement->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
