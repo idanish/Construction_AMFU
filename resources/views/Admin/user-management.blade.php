@@ -44,7 +44,7 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Department</th>
+                            {{-- <th>Department</th> --}}
                             <th>Status</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -61,7 +61,10 @@
                                         {{ $user->roles->pluck('name')->implode(', ') ?: 'No Role' }}
                                     </span>
                                 </td>
-                                <td>{{ $user->department->name ?? '-' }}</td>
+                                {{-- <td>{{ $user->department?->name ?? '-' }}</td> --}}
+
+
+
                                 <td>
                                     @if ($user->status == 1)
                                         <span class="badge bg-success">Active</span>

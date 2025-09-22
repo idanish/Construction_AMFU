@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('department_name')->nullable();
             $table->unsignedBigInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('departments');
             $table->timestamp('email_verified_at')->nullable();

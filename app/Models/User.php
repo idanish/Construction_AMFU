@@ -53,9 +53,9 @@ class User extends Authenticatable
 
 
          public function department()
-    {
-        return $this->belongsTo(Department::class);
-    }
+{
+    return $this->belongsTo(\App\Models\Department::class, 'department_id');
+}
 
 
     // Activity Log Start Here

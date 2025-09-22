@@ -62,12 +62,12 @@
                 <label for="department_id" class="form-label">Department</label>
                 <select name="department_id" class="form-select">
                     <option value="">-- Select Department --</option>
-                    {{-- @foreach ($departments as $department)
+                    @foreach ($departments as $department)
                         <option value="{{ $department->id }}"
-                            {{ $user->department_id == $department->id ? 'selected' : '' }}>
+                            {{ (int) $user->department_id === (int) $department->id ? 'selected' : '' }}>
                             {{ $department->name }}
                         </option>
-                    @endforeach --}}
+                    @endforeach
                 </select>
             </div>
 
