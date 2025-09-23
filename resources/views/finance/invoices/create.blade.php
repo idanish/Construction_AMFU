@@ -7,9 +7,7 @@
                 <div class="page-title-icon">
                     <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
                 </div>
-                <div class="h4 m-0">
-                    Create Invoice
-                </div>
+                <div class="h4 m-0">Create Invoice</div>
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
@@ -46,11 +44,31 @@
                     <input type="text" name="invoice_no" class="form-control" value="{{ $invoice_no }}" readonly>
                 </div>
 
+                {{-- Vendor Name --}}
+                <div class="mb-3">
+                    <label class="form-label">Vendor Name</label>
+                    <input type="text" name="vendor_name" class="form-control @error('vendor_name') is-invalid @enderror"
+                        value="{{ old('vendor_name') }}" required>
+                    @error('vendor_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- Due Date --}}
+                <div class="mb-3">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" name="due_date" class="form-control @error('due_date') is-invalid @enderror"
+                        value="{{ old('due_date') }}" required>
+                    @error('due_date')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 {{-- Amount --}}
                 <div class="mb-3">
                     <label class="form-label">Amount</label>
                     <input type="number" name="amount" class="form-control @error('amount') is-invalid @enderror"
-                        value="{{ old('amount') }}">
+                        value="{{ old('amount') }}" required>
                     @error('amount')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -60,14 +78,15 @@
                 <div class="mb-3">
                     <label class="form-label">Invoice Date</label>
                     <input type="date" name="invoice_date"
-                        class="form-control @error('invoice_date') is-invalid @enderror" value="{{ old('invoice_date') }}">
+                        class="form-control @error('invoice_date') is-invalid @enderror" value="{{ old('invoice_date') }}"
+                        required>
                     @error('invoice_date')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- Status --}}
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select" @if (auth()->user()->role != 'admin') disabled @endif>
                         <option value="Unpaid" {{ old('status', 'Unpaid') == 'Unpaid' ? 'selected' : '' }}>Unpaid</option>
@@ -81,7 +100,7 @@
                     @enderror
                 </div>
 
-                {{-- Attachment (Drag & Drop) --}}
+                {{-- Attachment --}}
                 <div class="mb-3">
                     <label class="form-label">Attachment</label>
                     <div class="upload-box" id="uploadBox">
@@ -100,6 +119,7 @@
                     <label class="form-label">Notes</label>
                     <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
                 </div>
+
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success">Save Invoice</button>
@@ -108,6 +128,7 @@
             </form>
         </div>
     </div>
+
     <style>
         .upload-box {
             border: 2px dashed #6c757d;

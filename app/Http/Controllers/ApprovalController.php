@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Approval;
-use App\Models\RequestModel; // 👈 aapka model
+use App\Models\RequestModel; 
 
 class ApprovalController extends Controller
 {
@@ -13,7 +13,7 @@ class ApprovalController extends Controller
      */
     public function index()
 {
-    // sari approvals ke sath related request bhi lao
+    
     $approvals = Approval::with('request')->latest()->get();
 
     return view('approvals.index', compact('approvals'));

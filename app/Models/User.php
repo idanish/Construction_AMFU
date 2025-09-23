@@ -9,16 +9,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-// Activity Logs Files
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 
 
 
 class User extends Authenticatable   
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, LogsActivity;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -56,9 +53,9 @@ class User extends Authenticatable
 
 
          public function department()
-    {
-        return $this->belongsTo(Department::class);
-    }
+{
+    return $this->belongsTo(\App\Models\Department::class, 'department_id');
+}
 
 
     // Activity Log Start Here
@@ -67,7 +64,7 @@ class User extends Authenticatable
     {
         return LogOptions::defaults()
             ->useLogName('User')
-            ->logOnly(['name', 'username', 'email', 'password', 'department_id', 'status', 'transaction_no'])
+            ->logOnly(['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -14,22 +14,14 @@ class Payment extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
-    protected $fillable = [
-        'payment_ref',
-        'invoice_id',
-        'payment_date',
-        'amount',
-        'method',
-        'status',
-        'transaction_no',
-    ];
+    protected $fillable = ['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'status', 'transaction_no'];
 
     // 🔹 Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Payment')
-            ->logOnly(['invoice_id', 'payment_date', 'amount', 'method', 'status'])
+            ->logOnly(['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'status', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -42,6 +34,6 @@ class Payment extends Model
     // 🔹 Relationships
     public function invoice()
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Invoice::class,'invoice_id');
     }
 }

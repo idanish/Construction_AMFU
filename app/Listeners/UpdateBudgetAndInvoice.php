@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\ProcurementApproved;
 use App\Models\Budget;
 use App\Models\Invoice;
-use App\Models\ActivityLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -21,7 +20,7 @@ class UpdateBudgetAndInvoice
         ->first();
 
     DB::transaction(function () use ($procurement, $budget) {
-        // ✅ Budget check
+        
         if ($budget && $budget->balance < $procurement->cost_estimate) {
             throw new \Exception('Budget insufficient');
         }

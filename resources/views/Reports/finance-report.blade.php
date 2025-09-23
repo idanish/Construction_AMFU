@@ -1,52 +1,73 @@
-@extends('..master')
-@section('title', 'finnance reports page')
-@section('content')
+@extends('master')
 
-<div class="container mt-5">
-  <div class="card shadow-lg">
-    <div class="card-header bg-success text-white">
-      <h4>Finance Report</h4>
+@section('content')
+<div class="container">
+    <h2>Finance Report</h2>
+
+    <!-- Filters -->
+    <form method="GET" action="{{ route('reports.finance') }}" class="mb-3">
+        <div class="row">
+            <div class="col">
+                <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
+            </div>
+            <div class="col">
+                <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
+            </div>
+            <div class="col">
+                <select name="status" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="approved" {{ request('status')=='approved'?'selected':'' }}>Approved</option>
+                    <option value="pending" {{ request('status')=='pending'?'selected':'' }}>Pending</option>
+                </select>
+            </div>
+            <div class="col">
+                <select name="per_page" class="form-control">
+                    <option value="25">25</option>
+                    <option value="50" {{ request('per_page')==50?'selected':'' }}>50</option>
+                    <option value="100" {{ request('per_page')==100?'selected':'' }}>100</option>
+                </select>
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Export buttons -->
+    <div class="mb-3">
+        <a href="{{ route('reports.finance.export.excel') }}" class="btn btn-success">Export Excel</a>
+        <a href="{{ route('reports.finance.export.pdf') }}" class="btn btn-danger">Export PDF</a>
     </div>
-    <div class="card-body">
-      <form>
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">From Date</label>
-            <input type="date" class="form-control">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">To Date</label>
-            <input type="date" class="form-control">
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Department</label>
-            <select class="form-select">
-              <option value="">Select Department</option>
-              <option>Finance</option>
-              <option>HR</option>
-              <option>IT</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Report Type</label>
-            <select class="form-select">
-              <option value="">Select Type</option>
-              <option>Budget vs Expense</option>
-              <option>Procurement Spend</option>
-            </select>
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <button type="submit" class="btn btn-success">Generate</button>
-          <div>
-            <button type="button" class="btn btn-success">Export Excel</button>
-            <button type="button" class="btn btn-danger">Export PDF</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+
+    <!-- Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Department</th>
+                <th>Allocated</th>
+                <th>Spent</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th>Transaction</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($budgets as $budget)
+            <tr>
+                <td>{{ $budget->department->name ?? '-' }}</td>
+                <td>{{ $budget->allocated }}</td>
+                <td>{{ $budget->spent }}</td>
+                <td>{{ $budget->balance }}</td>
+                <td>{{ $budget->status }}</td>
+                <td>{{ $budget->transaction_no }}</td>
+                <td>{{ $budget->created_at->format('d-M-Y h:i A') }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    {{ $budgets->links() }}
 </div>
 @endsection

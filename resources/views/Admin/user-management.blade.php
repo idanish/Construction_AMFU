@@ -1,89 +1,184 @@
-@extends('../master')
+@extends('master')
+
 @section('title', 'User Management')
 
 @section('content')
-    <div class="p-6">
-        <!-- Heading -->
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-700">Users Management</h1>
-        </div>
-
-        <!-- Table -->
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <table class="min-w-full text-sm text-gray-700">
-                <thead>
-                    <tr class="bg-gray-100 text-left text-gray-700">
-                        <th class="px-4 py-3 border">ID</th>
-                        <th class="px-4 py-3 border">Username</th>
-                        <th class="px-4 py-3 border">Name</th>
-                        <th class="px-4 py-3 border">Email</th>
-                        <th class="px-4 py-3 border">Role</th>
-                        <th class="px-4 py-3 border">Department</th>
-                        <th class="px-4 py-3 border">Status</th>
-                        <th class="px-4 py-3 border text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php $counter = 1; @endphp
-                    @forelse ($users as $user)
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="border px-4 py-2">{{ $counter++ }}</td>
-                            <td class="border px-4 py-2 font-medium text-gray-800">{{ $user->username }}</td>
-                            <td class="border px-4 py-2 font-medium text-gray-800">{{ $user->name }}</td>
-                            <td class="border px-4 py-2">{{ $user->email }}</td>
-                            <td class="border px-4 py-2 text-blue-600">
-                                {{ $user->roles->pluck('name')->implode(', ') ?? 'No Role' }}
-                            </td>
-                            <td class="border px-4 py-2">
-                                {{ $user->department ? $user->department->name : '-' }}
-                            </td>
-                            <td class="border px-4 py-2 text-center">
-                                @if ($user->status == 1)
-                                    <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-                                        ✅ Active
-                                    </span>
-                                @else
-                                    <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-                                        ❌ Inactive
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td class="border px-4 py-2 text-center">
-                                <div class="grid grid-cols-2 gap-4">
-                                    
-
-                                    <!-- Edit -->
-                                    <a href="{{ route('users.edit', $user->id) }}"
-                                        class="btn btn-warning" title="Edit">
-                                        <i class="bx bx-pencil"> </i>
-                                    </a>
-
-                                    <!-- Delete -->
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                        onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-danger"  title="Delete">
-                                            <i class="bx bx-trash"> </i>
-                                        </button>
-                                    </form>
-
-                                    <a href="{{ route('users.edit-permissions', $user) }}"
-                                        class="btn btn-primary"  title="Assign Permissions">
-                                        <i class="bx bx-user-check"> </i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-gray-500 py-4">No users found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div class="app-page-title">
+        <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+            <div class="page-title-heading m-0">
+                <div class="page-title-icon">
+                    <i class="pe-7s-users icon-gradient bg-mean-fruit"></i>
+                </div>
+                <div class="h4 m-0">
+                    Users Management
+                </div>
+            </div>
+            <div class="page-title-actions">
+                <a href="{{ route('admin.register') }}" class="btn btn-primary">+ Add New User</a>
+            </div>
         </div>
     </div>
+
+    {{-- Success Message --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    {{-- Error Message --}}
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <div class="table-responsive-lg ">
+                <table id="procurementTable" class="table table-bordered table-striped">
+                    <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
+                        <tr>
+                            <th>No</th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            {{-- <th>Department</th> --}}
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $user)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $user->username }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ $user->roles->pluck('name')->implode(', ') ?: 'No Role' }}
+                                    </span>
+                                </td>
+                                {{-- <td>{{ $user->department?->name ?? '-' }}</td> --}}
+
+
+
+                                <td>
+                                    @if ($user->status == 1)
+                                        <span class="badge bg-success">Active</span>
+                                    @else
+                                        <span class="badge bg-danger">Inactive</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <!-- Edit -->
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning"
+                                            title="Edit">
+                                            <i class="bx bx-pencil">Edit</i>
+                                        </a>
+
+                                        <!-- Delete -->
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');"
+                                            class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                <i class="bx bx-trash">Delete</i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Permissions -->
+                                        <a href="{{ route('users.edit-permissions', $user) }}"
+                                            class="btn btn-sm btn-primary" title="Assign Permissions">
+                                            <i class="bx bx-user-check">Permission</i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No users found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+    {{-- <div class="main-card mb-3 card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $user)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td><strong>{{ $user->username }}</strong></td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ $user->roles->pluck('name')->implode(', ') ?: 'No Role' }}
+                                    </span>
+                                </td>
+                                <td>{{ $user->department->name ?? '-' }}</td>
+                                <td>
+                                    @if ($user->status == 1)
+                                        <span class="badge bg-success">Active</span>
+                                    @else
+                                        <span class="badge bg-danger">Inactive</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <!-- Edit -->
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning"
+                                            title="Edit">
+                                            <i class="bx bx-pencil"></i>
+                                        </a>
+
+                                        <!-- Delete -->
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');"
+                                            class="d-inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                <i class="bx bx-trash"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Permissions -->
+                                        <a href="{{ route('users.edit-permissions', $user) }}"
+                                            class="btn btn-sm btn-primary" title="Assign Permissions">
+                                            <i class="bx bx-user-check"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No users found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div> --}}
 @endsection

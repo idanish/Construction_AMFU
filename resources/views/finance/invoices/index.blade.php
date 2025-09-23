@@ -1,130 +1,73 @@
 @extends('master')
 
 @section('content')
-    <div class="app-page-title">
-        <div class="page-title-wrapper d-flex justify-content-between align-items-center">
-            <div class="page-title-heading m-0">
-                <div class="page-title-icon">
-                    <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
-                </div>
-                <div class="h4 m-0">
-                    Invoices
-                </div>
+<div class="app-page-title">
+    <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+        <div class="page-title-heading m-0">
+            <div class="page-title-icon">
+                <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
             </div>
-            <div class="page-title-actions">
-                <a href="{{ route('finance.invoices.create') }}" class="btn btn-primary mb-3">
-                    <i class="bi bi-plus-circle"></i> Create Invoice
-                </a>
-            </div>
+            <div class="h4 m-0">Invoices</div>
+        </div>
+        <div class="page-title-actions">
+            <a href="{{ route('finance.invoices.create') }}" class="btn btn-primary mb-3">
+                <i class="bi bi-plus-circle"></i> Create Invoice
+            </a>
         </div>
     </div>
+</div>
 
-    <div class="main-card mb-3 card">
-        <div class="card-body">
-            <table id="invoicesTable" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Invoice No</th>
-                        <th>Date</th>
-                        <th>Request</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Notes</th>
-                        <th>Attachment</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-@endsection
-
-@section('js')
-    <script>
-        $(document).ready(function() {
-            var table = $('#invoicesTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('finance.invoices.index') }}",
-                columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'invoice_no',
-                        name: 'invoice_no'
-                    },
-                    {
-                        data: 'invoice_date',
-                        name: 'invoice_date'
-                    },
-                    {
-                        data: 'request',
-                        name: 'request'
-                    },
-                    {
-                        data: 'amount',
-                        name: 'amount'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status'
-                    },
-                    {
-                        data: 'notes',
-                        name: 'notes'
-                    },
-                    {
-                        data: 'attachment',
-                        name: 'attachment',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
-                ]
-            });
-
-            // Delete confirmation
-            $(document).on('click', '.delete-btn', function() {
-                var id = $(this).data('id');
-                var url = "{{ url('finance/invoices') }}/" + id;
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This invoice will be deleted permanently!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: url,
-                            method: 'DELETE',
-                            data: {
-                                _token: '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                Swal.fire('Deleted!', response.success, 'success');
-                                table.ajax.reload();
-                            },
-                            error: function() {
-                                Swal.fire('Error!', 'Something went wrong', 'error');
-                            }
-                        });
-                    }
-                });
-            });
-        });
-    </script>
+<div class="table-responsive-lg">
+    <table class="table table-bordered table-striped">
+        <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
+            <tr>
+                <th>No</th>
+                <th>Invoice No</th>
+                <th>Invoice Date</th>
+                <th>Procurement</th>
+                <th>Vendor</th>
+                <th>Due Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Attachment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($invoices as $key => $invoice)
+            <tr class="text-center align-middle">
+                <td>{{ $key + 1 }}</td>
+                <td>{{ $invoice->invoice_no }}</td>
+                <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y') }}</td>
+                <td>{{ $invoice->procurement->item_name ?? '-' }}</td>
+                <td>{{ $invoice->vendor_name ?? '-' }}</td>
+                <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y') ?? '-' }}</td>
+                <td>{{ number_format($invoice->amount, 2) }}</td>
+                <td>{{ ucfirst($invoice->status) }}</td>
+                <td>{{ $invoice->notes ?? '-' }}</td>
+                <td>
+                    @if ($invoice->attachment)
+                        <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank">View</a>
+                    @else
+                        -
+                    @endif
+                </td>
+                <td>
+                    <a href="{{ route('finance.invoices.edit', $invoice->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ route('finance.invoices.destroy', $invoice->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="11" class="text-center">No invoices found.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 @endsection

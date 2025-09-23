@@ -8,12 +8,12 @@
                     <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
                 </div>
                 <div class="h4 m-0">
-                    Add New Payment
+                    Add New Procurement
                 </div>
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.payments.index') }}" class="btn btn-primary mb-3">Go Back</a>
+                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-primary mb-3">Go Back</a>
                 </div>
             </div>
         </div>
@@ -96,12 +96,10 @@
                 </div>
 
                 {{-- Status --}}
-                <div class="mb-4">
+                <div class="mb-4" hidden>
                     <label for="status" class="form-label fw-bold">Status</label>
                     <select name="status" class="form-select @error('status') is-invalid @enderror">
                         <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ old('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                     @error('status')
                         <div class="invalid-feedback">{{ $message }}</div>

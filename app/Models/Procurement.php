@@ -6,39 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// Activity Logs
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+
 
 class Procurement extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'item_name',
-        'quantity',
-        'cost_estimate',
-        'department_id',
-        'justification',
-        'status',
-        'attachment',
-        
-    ];
+    protected $fillable = ['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'];
 
     // 🔹 Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Procurement')
-            ->logOnly([
-                'item_name',
-                'quantity',
-                'cost_estimate',
-                'department_id',
-                'justification',
-                'attachment',
-                'status'
-            ])
+            ->logOnly(['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -63,4 +44,10 @@ class Procurement extends Model
     {
         return $this->hasOne(Invoice::class, 'procurement_id');
     }
+
+    public function procurement()
+    {
+    return $this->belongsTo(\App\Models\Procurement::class, 'procurement_id');
+    }
+
 }

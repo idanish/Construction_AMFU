@@ -10,6 +10,7 @@ class UserController extends Controller
     public function store(Request $request) {
     $user = User::create([
         'name' => $request->name,
+        'username' => $request->username,
         'email' => $request->email,
         'password' => bcrypt('12345678'),
     ]);

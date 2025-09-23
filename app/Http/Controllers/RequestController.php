@@ -5,115 +5,117 @@ namespace App\Http\Controllers;
 use App\Models\RequestModel;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\File;
 
 class RequestController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
-    {
-        $requests = RequestModel::with('department', 'requestor')->latest()->get();
-        return view('requests.index', compact('requests'));
-    }
+{
+    // Sab requests fetch karo, relations ke saath
+    $requests = RequestModel::with(['requestor', 'department'])->latest()->get();
 
+    // View me $requests pass karo
+    return view('requests.index', compact('requests'));
+}
+
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
-    {
-        $departments = Department::all();
-        return view('requests.create', compact('departments'));
-    }
+{
+    // Sab departments fetch karo
+    $departments = Department::all();
 
+    // View ko $departments pass karo
+    return view('requests.create', compact('departments'));
+}
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'description'   => 'required|string',
-            'amount'        => 'required|numeric',
-            'comments'      => 'nullable|string',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx'
-        ]);
+{
+    $request->validate([
+        'requestor_id' => 'required|exists:users,id',
+        'department_id' => 'required|exists:departments,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'amount' => 'required|numeric|min:0',
+    ]);
 
-        $data['requestor_id'] = auth()->id();
-        $data['status'] = 'pending';
+    RequestModel::create(array_merge($request->all(), [
+        'status' => 'Pending'
+    ]));
 
-        $req = RequestModel::create($data);
+    return redirect()->route('requests.index')->with('success', 'Request created successfully.');
+}
 
-        // Handle attachments
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $req->addMedia($file)->toMediaCollection('attachments');
-            }
-        }
-
-        return redirect()->route('requests.index')->with('success', 'Request created successfully.');
-    }
-
+    /**
+     * Display the specified resource.
+     */
     public function show($id)
     {
-        $requestModel = RequestModel::with('department', 'requestor', 'media')->findOrFail($id);
-        return view('requests.show', compact('requestModel'));
+        $request = RequestModel::with(['requestor', 'department'])->findOrFail($id);
+        return view('requests.show', compact('request'));
     }
 
-    public function edit($id)
-    {
-        $requestModel = RequestModel::findOrFail($id);
-        $departments = Department::all();
-        return view('requests.edit', compact('requestModel', 'departments'));
-    }
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id) 
+{
+    $request = RequestModel::findOrFail($id);
 
+    // Add this line to fetch all departments
+    $departments = Department::all();
+
+    return view('requests.edit', compact('request', 'departments'));
+}
+
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
-    {
-        $req = RequestModel::findOrFail($id);
+{
+    $request->validate([
+        'requestor_id' => 'required|exists:users,id',
+        'department_id' => 'required|exists:departments,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'amount' => 'required|numeric|min:0',
+    ]);
 
-        $data = $request->validate([
-            'department_id' => 'required|exists:departments,id',
-            'description'   => 'required|string',
-            'amount'        => 'required|numeric',
-            'comments'      => 'nullable|string',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx'
-        ]);
+    $req = RequestModel::findOrFail($id);
 
-        $req->update($data);
+    $req->update([
+        'requestor_id' => $request->requestor_id,
+        'department_id' => $request->department_id,
+        'title' => $request->title,
+        'description' => $request->description,
+        'amount' => $request->amount,
+        // Optional: 'status' => $request->status ?? $req->status
+    ]);
 
-        // Handle attachments
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $req->addMedia($file)->toMediaCollection('attachments');
-            }
-        }
+    return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
+}
 
-        return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
-    }
-
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy($id)
     {
         $req = RequestModel::findOrFail($id);
         $req->delete();
+
         return redirect()->route('requests.index')->with('success', 'Request deleted successfully.');
     }
 
-    public function approve($id)
-    {
-        $req = RequestModel::findOrFail($id);
-        $req->status = 'approved';
-        $req->save();
+   
 
-        if (function_exists('createNotification')) {
-            createNotification(null, "Your request #{$req->id} approved", $req->requestor_id, 'approve');
-            createNotification('Admin', "Request #{$req->id} approved by " . (auth()->user()?->name ?? 'System'));
-        }
 
-        return redirect()->back()->with('success', 'Request approved successfully.');
-    }
-
-    public function reject($id)
-    {
-        $req = RequestModel::findOrFail($id);
-        $req->status = 'rejected';
-        $req->save();
-
-        if (function_exists('createNotification')) {
-            createNotification(null, "Your request #{$req->id} rejected", $req->requestor_id, 'reject');
-            createNotification('Admin', "Request #{$req->id} rejected by " . (auth()->user()?->name ?? 'System'));
-        }
-
-        return redirect()->back()->with('error', 'Request rejected successfully.');
-    }
 }

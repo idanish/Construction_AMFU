@@ -1,54 +1,72 @@
-@extends('..master')
-@section('title', 'audit report Page')
+@extends('master')
+
 @section('content')
-  <div class="container mt-5">
-  <div class="card shadow-lg">
-    <div class="card-header bg-dark text-white">
-      <h4>Audit Report</h4>
-    </div>
-    <div class="card-body">
+<div class="container">
+    <h2>Audit Report</h2>
 
-      {{-- Laravel Form --}}
-      <form method="POST" action="{{ route('reports.audit.generate') }}">
-        @csrf
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">User</label>
-            <input type="text" name="user" class="form-control" placeholder="Enter Username" value="{{ old('user') }}">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Action</label>
-            <select name="action" class="form-select">
-              <option value="">Select Action</option>
-              <option value="Login" {{ old('action')=='Login'?'selected':'' }}>Login</option>
-              <option value="Create" {{ old('action')=='Create'?'selected':'' }}>Create</option>
-              <option value="Update" {{ old('action')=='Update'?'selected':'' }}>Update</option>
-              <option value="Delete" {{ old('action')=='Delete'?'selected':'' }}>Delete</option>
+    <!-- Filters -->
+    <form method="GET" action="{{ route('reports.audit') }}" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <input type="text" name="user_id" class="form-control" placeholder="User ID" value="{{ request('user_id') }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="role" class="form-control" placeholder="Role" value="{{ request('role') }}">
+        </div>
+        <div class="col-md-3">
+            <select name="action" class="form-control">
+                <option value="">--Action--</option>
+                <option value="created" @selected(request('action')=='created')>Created</option>
+                <option value="updated" @selected(request('action')=='updated')>Updated</option>
+                <option value="deleted" @selected(request('action')=='deleted')>Deleted</option>
+                <option value="login" @selected(request('action')=='login')>Login</option>
+                <option value="logout" @selected(request('action')=='logout')>Logout</option>
             </select>
-          </div>
         </div>
-
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">From Date</label>
-            <input type="date" name="from_date" class="form-control" value="{{ old('from_date') }}">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">To Date</label>
-            <input type="date" name="to_date" class="form-control" value="{{ old('to_date') }}">
-          </div>
+        <div class="col-md-3">
+            <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
         </div>
-
-        <div class="d-flex justify-content-between">
-          <button type="submit" class="btn btn-dark">Generate</button>
-          <div>
-            <a href="{{ route('reports.audit.export', 'excel') }}" class="btn btn-success">Export Excel</a>
-            <a href="{{ route('reports.audit.export', 'pdf') }}" class="btn btn-danger">Export PDF</a>
-          </div>
+        <div class="col-md-3">
+            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
         </div>
-      </form>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
 
+    <!-- Export Buttons -->
+    <div class="mb-3 text-end">
+        <a href="{{ route('reports.audit.export.excel') }}" class="btn btn-success btn-sm">Export Excel</a>
+        <a href="{{ route('reports.audit.export.pdf') }}" class="btn btn-danger btn-sm">Export PDF</a>
     </div>
-  </div>
+
+    <!-- Table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Action</th>
+                <th>Model</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($activities as $activity)
+                <tr>
+                    <td>{{ $activity->causer?->name }}</td>
+                    <td>{{ $activity->causer?->roles->pluck('name')->join(', ') }}</td>
+                    <td>{{ ucfirst($activity->event) }}</td>
+                    <td>{{ class_basename($activity->subject_type) }}</td>
+                    <td>{{ $activity->properties['old']['title'] ?? '' }}</td>
+                    <td>{{ $activity->properties['attributes']['title'] ?? '' }}</td>
+                    <td>{{ $activity->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    {{ $activities->withQueryString()->links() }}
 </div>
 @endsection

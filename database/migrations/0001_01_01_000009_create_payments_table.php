@@ -14,8 +14,8 @@ return new class extends Migration
             $table->unsignedBigInteger('invoice_id');
             $table->date('payment_date');
             $table->decimal('amount', 10, 2);
-            $table->enum('method', ['Cash', 'Bank', 'Card'])->default('Cash');
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
+            $table->enum('method', ['Cash', 'Bank', 'online']);
+            $table->enum('status', ['Unpaid','Partial','Paid'])->default('Unpaid');
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();

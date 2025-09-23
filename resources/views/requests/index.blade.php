@@ -1,50 +1,69 @@
 @extends('master')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-4">Requests</h2>
-    <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create Request</a>
+    <div class="container mt-4">
+        <div class="app-page-title">
+            <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+                <div class="page-title-heading m-0">
+                    <div class="page-title-icon">
+                        <i class="pe-7s-note2 icon-gradient bg-tempting-azure"></i>
+                    </div>
+                    <div class="h4 m-0">Requests</div>
+                </div>
+                <div class="page-title-actions">
+                    <div class="d-inline-block">
+                        <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create New Request</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>S.No</th>
-                <th>Requestor</th>
-                <th>Department</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php $counter = 1; @endphp
-            @foreach($requests as $req)
-            <tr>
-                <td>{{ $counter++ }}</td>
-                <td>{{ $req->requestor->name ?? '-' }}</td>
-                <td>{{ $req->department->name ?? '-' }}</td>
-                <td>{{ $req->description }}</td>
-                <td>{{ $req->amount }}</td>
-                <td>{{ ucfirst($req->status) }}</td>
-                <td>
-                    <a href="{{ route('requests.show', $req->id) }}" class="btn btn-info btn-sm">View</a>
-                    <a href="{{ route('requests.edit', $req->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ route('requests.destroy', $req->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
-                    @if(auth()->user()->role == 'FCO' || auth()->user()->role == 'PMO' || auth()->user()->role == 'CSO')
-                        @if($req->status == 'pending' || $req->status == 'under_review')
-                            <a href="{{ route('approvals.create', $req->id) }}" class="btn btn-success btn-sm mt-1">Approve / Reject</a>
-                        @endif
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+        <div class="table-responsive-lg">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
+                    <tr>
+                        <th>S.No</th>
+                        <th>Title</th>
+                        <th>Requestor</th>
+                        <th>Department</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($requests as $key => $request)
+                        <tr class="text-center align-middle">
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $request->title }}</td>
+                            <td>{{ $request->requestor->name ?? 'N/A' }}</td>
+                            <td>{{ $request->department->name ?? 'N/A' }}</td>
+                            <td>{{ number_format($request->amount) }}</td>
+                            <td>{{ ucfirst($request->status) }}</td>
+                            <td>{{ $request->created_at->format('d-m-Y') }}</td>
+                            <td>
+                                <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="{{ route('requests.destroy', $request->id) }}" method="POST"
+                                    class="d-inline-block"
+                                    onsubmit="return confirm('Are you sure you want to delete this request?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">No requests found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection

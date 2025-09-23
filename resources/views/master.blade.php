@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-    <title>@yield('title', 'Dashboard - Finance Module')</title>
+    <title>@yield('title', ' - Finance Module')</title>
     <meta name="description" content="" />
 
     <!-- Favicon -->
@@ -30,6 +30,8 @@
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/apex-charts/apex-charts.css') }}" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
 
     <!-- Helpers -->
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
@@ -99,8 +101,19 @@
                                 </a>
                             </li>
                             <li class="menu-item">
-                                <a href="" class="menu-link">
+                                
+                                    <a href="{{ route('requests.create') }}" class="menu-link">
                                     <div data-i18n="Add-Request">Add Request</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                    <a href="{{ route('requests.pending') }}" class="menu-link">
+                                    <div data-i18n="Add-Request">Pending Request</div>
+                                </a>
+                            </li>
+                            <li class="menu-item">
+                                    <a href="{{ route('requests.rejected') }}" class="menu-link">
+                                    <div data-i18n="Add-Request">Rejected Request</div>
                                 </a>
                             </li>
                         </ul>
@@ -138,7 +151,7 @@
                         <ul class="menu-sub">
                             <li class="menu-item">
                                 <a href="{{ route('finance.invoices.index') }}" class="menu-link">
-                                    <div data-i18n="All-Invoices">All Invoices</div>
+                                    <div data-i18n="All-Invoices">Invoices</div>
                                 </a>
                             </li>
                             <li class="menu-item">
@@ -178,7 +191,7 @@
                         <ul class="menu-sub">
                             <li class="menu-item">
                                 <a href="{{ route('finance.procurements.index') }}" class="menu-link">
-                                    <div data-i18n="All-Procurements">All Procurements</div>
+                                    <div data-i18n="All-Procurements">Procurements</div>
                                 </a>
                             </li>
                             <li class="menu-item">
@@ -214,11 +227,7 @@
                                     <div data-i18n="reports.procurement">Procurement Reports</div>
                                 </a>
                             </li>
-                            <li class="menu-item">
-                                <a href="{{ route('reports.workflow') }}" class="menu-link">
-                                    <div data-i18n="Workflow-Reports">Workflow Reports</div>
-                                </a>
-                            </li>
+                            
                             <li class="menu-item">
                                 <a href="{{ route('reports.audit') }}" class="menu-link">
                                     <div data-i18n="Audit-Reports">Audit Reports</div>
@@ -337,7 +346,7 @@
                         </a>
                         <ul class="menu-sub">
                             <li class="menu-item">
-                                <a href="" class="menu-link">
+                                <a href="{{ route('profile.settings') }}" class="menu-link">
                                     <div data-i18n="profile-Settings">Profile Settings</div>
                                 </a>
                             </li>
@@ -345,9 +354,16 @@
                             <!-- Admin Only -->
                             <li class="menu-item">
                                 <a href="{{ route('audit.logs.index') }}" class="menu-link">
-                                    <div data-i18n="audit-logs">Users Logs</div>
+                                    <div data-i18n="audit-logs">Activity Logs</div>
                                 </a>
                             </li>
+                                {{-- @can('admin') --}}
+                            <li class="menu-item">
+                                <a href="{{ route('settings.backup&restore') }}" class="menu-link">
+                                    <div data-i18n="backup">Backup</div>
+                                </a>
+                            </li>
+                            {{-- @endcan --}}
 
                         </ul>
                     </li>
@@ -524,102 +540,116 @@
                         <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
 
-                    @yield('content')
-                </div>
 
-                <!-- Footer -->
-                <footer class="content-footer footer bg-footer-theme">
-                    <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
 
+                    <div class="col-12 col-lg-12 order-2 order-md-3 order-lg-2 mb-4">
+                        <div class="card">
+                            <div class="row row-bordered g-0 my-4">
+                                <div class="col-md-12 px-5">
+
+
+                                    @yield('content')
+
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
-                </footer>
+
+                    <!-- Footer -->
+                    <footer class="content-footer footer bg-footer-theme">
+                        <div
+                            class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+
+                        </div>
+                    </footer>
+                </div>
+                <!-- / Layout container -->
+
+                <!-- Overlay -->
+                <div class="layout-overlay layout-menu-toggle"></div>
             </div>
-            <!-- / Layout container -->
-
-            <!-- Overlay -->
-            <div class="layout-overlay layout-menu-toggle"></div>
         </div>
-    </div>
 
-    <!-- Core JS -->
-    <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/popper/popper.js') }}"></script>
-    <script src="{{ asset('assets/vendor/js/bootstrap.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
-    <script src="{{ asset('assets/vendor/js/menu.js') }}"></script>
+        <!-- Core JS -->
+        <script src="{{ asset('assets/vendor/libs/jquery/jquery.js') }}"></script>
+        <script src="{{ asset('assets/vendor/libs/popper/popper.js') }}"></script>
+        <script src="{{ asset('assets/vendor/js/bootstrap.js') }}"></script>
+        <script src="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
+        <script src="{{ asset('assets/vendor/js/menu.js') }}"></script>
 
-    <!-- Vendors JS -->
-    <script src="{{ asset('assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
+        <!-- Vendors JS -->
+        <script src="{{ asset('assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
 
-    <!-- Main JS -->
-    <script src="{{ asset('assets/js/main.js') }}"></script>
+        <!-- Main JS -->
+        <script src="{{ asset('assets/js/main.js') }}"></script>
 
-    <!-- Dropzone JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"
-        integrity="sha512-SnHkO9cP47yt0J6fH9o7hF3V7jLzRRYxChh9z7nTS+7A17R37Cy6x8G4fXajNwT6SRWKmFFDKRP8+bdj9dErYw=="
-        crossorigin="anonymous"></script>
+        <!-- Dropzone JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"
+            integrity="sha512-SnHkO9cP47yt0J6fH9o7hF3V7jLzRRYxChh9z7nTS+7A17R37Cy6x8G4fXajNwT6SRWKmFFDKRP8+bdj9dErYw=="
+            crossorigin="anonymous"></script>
 
-    {{-- J Queery CDN --}}
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        {{-- J Queery CDN --}}
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-    {{-- DataTables JS --}}
-    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+        {{-- DataTables JS --}}
+        <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
 
-    <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- SweetAlert2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        // let table = new DataTable('#myTable');
+        <script>
+            // let table = new DataTable('#myTable');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            @if (session()->has('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '{{ session('success') }}',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
+            document.addEventListener('DOMContentLoaded', function() {
+                @if (session()->has('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: '{{ session('success') }}',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                @endif
 
-            @if (session()->has('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '{{ session('error') }}',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
-        });
-        Dropzone.autoDiscover = false;
+                @if (session()->has('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: '{{ session('error') }}',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                @endif
+            });
+            Dropzone.autoDiscover = false;
 
-        let attachmentDropzone = new Dropzone("#attachmentDropzone", {
-            url: "{{ route('finance.invoices.store') }}", // Laravel store route
-            paramName: "attachment", // input name
-            maxFiles: 1, // ek hi file
-            acceptedFiles: ".pdf,.jpg,.jpeg,.png",
-            addRemoveLinks: true,
-            autoProcessQueue: false, // form submit hone par hi process hoga
-        });
+            let attachmentDropzone = new Dropzone("#attachmentDropzone", {
+                url: "{{ route('finance.invoices.store') }}", // Laravel store route
+                paramName: "attachment", // input name
+                maxFiles: 1, // ek hi file
+                acceptedFiles: ".pdf,.jpg,.jpeg,.png",
+                addRemoveLinks: true,
+                autoProcessQueue: false, // form submit hone par hi process hoga
+            });
 
-        // Jab form submit ho
-        document.getElementById("invoiceForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+            // Jab form submit ho
+            document.getElementById("invoiceForm").addEventListener("submit", function(e) {
+                e.preventDefault();
 
-            if (attachmentDropzone.getQueuedFiles().length > 0) {
-                attachmentDropzone.processQueue(); // pehle file upload kar
-            } else {
-                this.submit(); // agar file nahi to seedha form submit kar
-            }
-        });
+                if (attachmentDropzone.getQueuedFiles().length > 0) {
+                    attachmentDropzone.processQueue(); // pehle file upload kar
+                } else {
+                    this.submit(); // agar file nahi to seedha form submit kar
+                }
+            });
 
-        // Jab file successfully upload ho jaye
-        attachmentDropzone.on("success", function(file, response) {
-            document.getElementById("invoiceForm").submit(); // ab form submit kar
-        });
-    </script>
+            // Jab file successfully upload ho jaye
+            attachmentDropzone.on("success", function(file, response) {
+                document.getElementById("invoiceForm").submit(); // ab form submit kar
+            });
+        </script>
 </body>
 
 </html>

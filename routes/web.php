@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ViewController;
-use App\Http\Controllers\HomeControlle;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\SettingsController;
@@ -17,12 +17,14 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\ApprovalController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\RequestApproval;
 
 
 Route::get('/clear-cache', function () {
@@ -36,7 +38,6 @@ Route::get('/clear-cache', function () {
         return 'Error Clearing cache: ' . $e->getMessage();
     }
 });
-
 
 
 Route::get('/', function () {
@@ -63,7 +64,6 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
 // Notification Routes
 Route::middleware('auth')->prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
@@ -72,7 +72,6 @@ Route::middleware('auth')->prefix('notifications')->group(function () {
     Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
 });
-
 
 
 // User Management - Protected route for Admin only
@@ -95,7 +94,6 @@ Route::post('/admin/register', [AdminController::class, 'register'])->name('admi
 Route::get('/no-role', function () {return view('no-role');})->name('no.role');
 
 
-
 // Permissions page
 Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
 Route::post('/permissions/{user}', [PermissionController::class, 'update'])->name('permissions.update');
@@ -105,8 +103,6 @@ Route::get('/users/{user}/permissions', [PermissionController::class, 'editPermi
 
 // Permissions ko update karne ke liye naya route
 Route::post('/users/{user}/permissions', [PermissionController::class, 'updatePermissions'])->name('users.update-permissions');
-
-
 
 
 // Protected routes for users with roles
@@ -119,112 +115,84 @@ Route::middleware(['role:Admin'])->group(function () {
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles/store', [RoleController::class, 'store'])->name('roles.store');
-        // ✅ Show roles list
+        // Show roles list
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.show');
-      // ✅ Edit role form
+      //  Edit role form
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
 
-    // ✅ Update role
+    //  Update role
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
 
-    // ✅ Delete role
+    // Delete role
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 });
 
 
-// Settings - Backup & Restore
-Route::prefix('settings')->name('settings.')->group(function () {
-    // Settings ka main page (GET)
-    Route::get('/', [SettingsController::class, 'index'])->name('backup&restore');
+// // Settings - Backup & Restore
+// // Route::prefix('settings')->name('settings.')->group(function () {
+// //     // Settings ka main page (GET)
+// //     Route::get('/', [SettingsController::class, 'index'])->name('backup&restore');
     
 
-     // Backup database download
-    Route::get('/backup/download', [SettingsController::class, 'backupDatabase'])->name('backup.download');
+// //     //  // Backup database download
+// //     // Route::get('/backup/download', [SettingsController::class, 'backupDatabase'])->name('backup.download');
 
-    // Restore backup
-    Route::post('/backup/restore', [SettingsController::class, 'restoreBackup'])->name('backup.restore');
+// //     // // Restore backup
+// //     // Route::post('/backup/restore', [SettingsController::class, 'restoreBackup'])->name('backup.restore');
 
-     // Security
-    Route::get('/setting', [SettingsController::class, 'security'])->name('security');   // <- ye zaroori hai
-    Route::post('/security/change-password', [SettingsController::class, 'changePassword'])->name('security.changePassword');
+// //      // Security
+// //     Route::get('/setting', [SettingsController::class, 'security'])->name('security');   // <- ye zaroori hai
+// //     Route::post('/security/change-password', [SettingsController::class, 'changePassword'])->name('security.changePassword');
 
-    // Logo
-    // GET: form show karne ke liye
+//     // Logo
+//     // GET: form show karne ke liye
     
-    Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
+//     Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
 
-// POST: logo update karne ke liye
-Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
+// // POST: logo update karne ke liye
+// Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
 
-});
+// });
 
 // ====== FINANCE MODULES ======
 // Finance Module Routes
-Route::prefix('finance')->name('finance.')->group(function () {
-
+Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function () {
+    
     // Budgets
-Route::prefix('finance/budgets')->name('budgets.')->group(function () {
-    Route::get('/', [BudgetController::class, 'index'])->name('index');
-    Route::get('/create', [BudgetController::class, 'create'])->name('create');
-    Route::post('/store', [BudgetController::class, 'store'])->name('store');
-    Route::get('/{budget}/edit', [BudgetController::class, 'edit'])->name('edit');
-    Route::put('/{budget}', [BudgetController::class, 'update'])->name('update');
-    Route::delete('/{budget}', [BudgetController::class, 'destroy'])->name('destroy');
-});
-
-
-
-
+    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
+    Route::post('/budgets/store', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::get('/budgets/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
+    Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
+    Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
+    Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
 
     // Invoices
-    Route::prefix('invoices')->name('invoices.')->group(function () {
-    Route::get('/', [InvoiceController::class, 'index'])->name('index');
-    Route::get('/create', [InvoiceController::class, 'create'])->name('create');
-    Route::post('/store', [InvoiceController::class, 'store'])->name('store');
-    // routes/web.php
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
-Route::get('finance/invoices/pdf', [InvoiceController::class, 'download'])
-    ->name('finance.invoices.pdf');
-
-
-
-    // EDIT route should come before {invoice} catch-all routes
-    Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
-    Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
-
-    Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
-});
-
-
-// Payments
-    Route::prefix('payments')->name('payments.')->group(function () {
-        Route::get('/', [PaymentController::class, 'index'])->name('index');
-        Route::get('/create', [PaymentController::class, 'create'])->name('create');
-        Route::post('/', [PaymentController::class, 'store'])->name('store');
-        Route::get('/{payment}', [PaymentController::class, 'show'])->name('show');
-        Route::get('/{payment}/edit', [PaymentController::class, 'edit'])->name('edit');
-        Route::put('/{payment}', [PaymentController::class, 'update'])->name('update');
-        Route::delete('/{payment}', [PaymentController::class, 'destroy'])->name('destroy');
-    });
+    // Payments
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('/payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('/payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 
     // Procurements
-Route::middleware(['auth'])->group(function () {
-
-    // Procurement Routes + custom actions
-    Route::resource('procurements', ProcurementController::class);
-    Route::post('procurements/{procurement}/approve', [ProcurementController::class, 'approve'])->name('procurements.approve');
-    Route::post('procurements/{procurement}/reject', [ProcurementController::class, 'reject'])->name('procurements.reject');
-    Route::post('/procurements/store', [ProcurementController::class, 'store'])
-    ->name('finance.procurements.store');
-
-    // Invoice, Payment, Budget
-    Route::resource('invoices', InvoiceController::class);
-    Route::resource('payments', PaymentController::class);
-    Route::resource('budgets', BudgetController::class);
-
-    // Import stub
-    Route::post('/imports/excel', [ImportController::class, 'importExcel'])->name('imports.excel');
-});
+    Route::get('/procurements', [ProcurementController::class, 'index'])->name('procurements.index');
+    Route::get('/procurements/create', [ProcurementController::class, 'create'])->name('procurements.create');
+    Route::post('/procurements/store', [ProcurementController::class, 'store'])->name('procurements.store');
+    Route::get('/procurements/{procurement}', [ProcurementController::class, 'show'])->name('procurements.show');
+    Route::get('/procurements/{procurement}/edit', [ProcurementController::class, 'edit'])->name('procurements.edit');
+    Route::put('/procurements/{procurement}', [ProcurementController::class, 'update'])->name('procurements.update');
+    Route::delete('/procurements/{procurement}', [ProcurementController::class, 'destroy'])->name('procurements.destroy');
 });
 
 // User Management Routes
@@ -234,7 +202,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 // Department CRUD routes
-Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::get('/departments/create', [DepartmentController::class, 'create'])->name('departments.create');
 Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
 Route::get('/departments/{department}/edit', [DepartmentController::class, 'edit'])->name('departments.edit');
@@ -261,23 +229,9 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::delete('/{serviceRequest}/delete', [ServiceRequestController::class, 'destroy'])->name('destroy'); // delete action 
 });
 
-    //Rehan Request Route
-Route::middleware('auth')->prefix('requests')->name('requests.')->group(function () {
-    Route::get('/', [RequestController::class, 'index'])->name('index');
-    Route::get('/create', [RequestController::class, 'create'])->name('create');
-    Route::post('/', [RequestController::class, 'store'])->name('store');
-    Route::get('/{id}', [RequestController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [RequestController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [RequestController::class, 'update'])->name('update');
-    Route::delete('/{id}', [RequestController::class, 'destroy'])->name('destroy');
 
-    // workflow
-    Route::post('/{id}/approve', [RequestController::class, 'approve'])->name('approve');
-    Route::post('/{id}/reject', [RequestController::class, 'reject'])->name('reject');
-
-      Route::resource('requests', RequestController::class);
-});
-
+// Request Route
+Route::resource('requests', RequestController::class);
 
 
 // ================= Approvals =================
@@ -312,9 +266,35 @@ Route::get('/search-results', [SearchController::class, 'index'])->name('search.
 // ====== REPORT MODULES ======
 // Reports Routes
 Route::prefix('reports')->middleware(['auth'])->group(function () {
-    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
     Route::get('/finance', [ReportsController::class, 'financeReport'])->name('reports.finance');
-    Route::get('/procurement', [ReportsController::class, 'procurementAnalysis'])->name('reports.procurement');
+    Route::get('/finance/export/excel', [ReportsController::class, 'exportFinanceExcel'])->name('reports.finance.export.excel');
+    Route::get('/finance/export/pdf', [ReportsController::class, 'exportFinancePdf'])->name('reports.finance.export.pdf');
+    
+    Route::get('/audit', [ReportsController::class, 'auditReport'])->name('reports.audit');
+    Route::get('/audit/export/excel', [ReportsController::class, 'exportAuditExcel'])->name('reports.audit.export.excel');
+    Route::get('/audit/export/pdf', [ReportsController::class, 'exportAuditPDF'])->name('reports.audit.export.pdf');
+    
+    Route::get('/procurement', [ReportsController::class, 'procurementReport'])->name('reports.procurement');
+    Route::get('/procurement/export/excel', [ReportsController::class, 'exportProcurementExcel'])->name('reports.procurement.export.excel');
+    Route::get('/procurement/export/pdf', [ReportsController::class, 'exportProcurementPDF'])->name('reports.procurement.export.pdf');
+    
     Route::get('/requests', [ReportsController::class, 'requestReport'])->name('reports.requests');
+    Route::get('/requests/export/excel', [ReportsController::class, 'exportRequestExcel'])->name('reports.requests.export.excel');
+    Route::get('/requests/export/pdf', [ReportsController::class, 'exportRequestPDF'])->name('reports.requests.export.pdf');
+    
     Route::get('/workflow', [ReportsController::class, 'workFlowReport'])->name('reports.workflow');
+    Route::get('/workflows/export/excel', [ReportsController::class, 'exportWorkflowExcel'])->name('reports.workflows.export.excel');
+    Route::get('/workflows/export/pdf', [ReportsController::class, 'exportWorkflowPDF'])->name('reports.workflows.export.pdf');
 });
+
+// Pending and Rejected Requests
+Route::get('/requests.pending', [RequestApproval::class, 'pending'])->name('requests.pending');
+Route::get('/requests.rejected', [RequestApproval::class, 'rejected'])->name('requests.rejected');
+
+// Backup & Restore
+Route::get('/settings/backup-restore', [BackupController::class, 'index'])->name('settings.backup&restore');
+Route::post('/settings/backup', [BackupController::class, 'backup'])->name('settings.backup');
+Route::post('/settings/restore', [BackupController::class, 'restore'])->name('settings.restore');
+
+// approvals
+Route::post('/procurement/{id}/update-status', [ProcurementController::class, 'updateStatus'])->name('procurement.updateStatus');

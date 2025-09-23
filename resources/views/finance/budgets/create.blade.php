@@ -76,8 +76,10 @@
                 {{-- Balance (auto-calc, disabled) --}}
                 <div class="form-group mb-3">
                     <label for="balance">Balance</label>
-                    <input type="number" id="balance" class="form-control" value="{{ old('balance', 0) }}" disabled>
+                    <input type="number" id="balance" class="form-control"
+                        value="{{ old('balance', max(0, $balance ?? 0)) }}" disabled>
                 </div>
+
 
                 {{-- Notes --}}
                 <div class="form-group mb-3">
@@ -100,26 +102,28 @@
                     @error('attachment')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
-                </div {{-- Status --}} <div class="form-group mb-3">
-                <label for="status">Status</label>
-                @if (auth()->check() && auth()->user()->role === 'admin')
-                    <select name="status" id="status" class="form-control">
-                        <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="Approved" {{ old('status') == 'Approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="Rejected" {{ old('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                    </select>
-                @else
-                    <input type="text" class="form-control" value="Pending" disabled>
-                    <input type="hidden" name="status" value="Pending">
-                @endif
+                </div>
+                {{-- Status --}}
+                <div class="form-group mb-3" hidden>
+                    <label for="status">Status</label>
+                    @if (auth()->check() && auth()->user()->role === 'admin')
+                        <select name="status" id="status" class="form-control">
+                            <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Approved" {{ old('status') == 'Approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="Rejected" {{ old('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                        </select>
+                    @else
+                        <input type="text" class="form-control" value="Pending" disabled>
+                        <input type="hidden" name="status" value="Pending">
+                    @endif
+                </div>
+                {{-- Submit --}}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Save Budget</button>
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
         </div>
-        {{-- Submit --}}
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success">Save Budget</button>
-            <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary">Cancel</a>
-        </div>
-        </form>
-    </div>
     </div>
     <style>
         .upload-box {

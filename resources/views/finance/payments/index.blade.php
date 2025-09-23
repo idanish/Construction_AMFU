@@ -7,122 +7,74 @@
                 <div class="page-title-icon">
                     <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
                 </div>
-                <div class="h4 m-0">
-                    Payments
-                </div>
+                <div class="h4 m-0">Payments</div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3">Create Payment</a>
+                <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3">
+                    <i class="bi bi-plus-circle"></i> Add Payment
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="main-card mb-3 card">
-        <div class="card-body">
-            <table id="paymentsTable" class="table table-bordered table-striped">
-                <thead>
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    <div class="table-responsive-lg ">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Payment Reference</th>
+                    <th>Invoice No</th>
+                    <th>Invoice Amount</th> 
+                    <th>Payment</th>
+                    <th>Balance</th> 
+                    <th>Status</th>
+                    <th>Attachment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($payments as $key => $payment)
                     <tr>
-                        <th>No</th>
-                        <th>Payment Ref</th>
-                        <th>Invoice</th>
-                        <th>Amount</th>
-                        <th>Payment Date</th>
-                        <th>Method</th>
-                        <th>Status</th>
-                        <th>Attachment</th>
-                        <th>Actions</th>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $payment->payment_ref }}</td>
+                        <td>{{ optional($payment->invoice)->invoice_no ?? 'N/A' }}</td>
+                        <td>{{ number_format($payment->invoice_amount, 2) }}</td> <!-- invoice amount -->
+                        <td>{{ number_format($payment->amount, 2) }}</td> <!-- payment made -->
+                        <td>{{ number_format($payment->balance, 2) }}</td> <!-- remaining balance -->
+                        <td>
+                            <span
+                                class="badge bg-{{ $payment->status == 'completed' ? 'success' : ($payment->status == 'partial' ? 'info' : 'warning') }}">
+                                {{ ucfirst($payment->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            @if ($payment->attachment)
+                                <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank">View</a>
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('finance.payments.edit', $payment->id) }}"
+                                class="btn btn-sm btn-primary">Edit</a>
+                            <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST"
+                                style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" onclick="return confirm('Are you sure?')"
+                                    class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-@endsection
-
-@section('js')
-    <script>
-        $(document).ready(function() {
-            var table = $('#paymentsTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('finance.payments.index') }}",
-                columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'payment_ref',
-                        name: 'payment_ref'
-                    },
-                    {
-                        data: 'invoice',
-                        name: 'invoice'
-                    },
-                    {
-                        data: 'amount',
-                        name: 'amount'
-                    },
-                    {
-                        data: 'payment_date',
-                        name: 'payment_date'
-                    },
-                    {
-                        data: 'method',
-                        name: 'method'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status'
-                    },
-                    {
-                        data: 'attachment',
-                        name: 'attachment',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
-                ]
-            });
-
-            // SweetAlert delete confirmation
-            $(document).on('click', '.delete-btn', function() {
-                var id = $(this).data('id');
-                var url = "{{ url('finance/payments') }}/" + id;
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: url,
-                            method: 'DELETE',
-                            data: {
-                                _token: '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                Swal.fire('Deleted!', response.success, 'success');
-                                table.ajax.reload();
-                            },
-                            error: function() {
-                                Swal.fire('Error!', 'Something went wrong', 'error');
-                            }
-                        });
-                    }
-                });
-            });
-        });
-    </script>
 @endsection

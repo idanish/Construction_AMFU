@@ -17,114 +17,62 @@
         </div>
     </div>
 
-    <div class="main-card mb-3 card ">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="budgetsTable" class="table table-bordered table-striped">
-                    <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
-                        <tr class="text-center align-middle fw-bold ">
-                            <th>No</th>
-                            <th>Department</th>
-                            <th>Year</th>
-                            <th>Allocated</th>
-                            <th>Spent</th>
-                            <th>Balance</th>
-                            <th>Status</th>
-                            <th>Attachment</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+
+     <div class="table-responsive-lg ">
+        <table id="budgetsTable" class="table table-bordered table-striped">
+            <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
+                <tr class="text-center align-middle fw-bold ">
+                    <th>No</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Allocated</th>
+                    <th>Spent</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Attachment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                        @foreach ($budgets as $key => $budget)
+                            <tr>
+                                <td>{{ $key + 1 }}</td>
+                                <td>{{ $budget->department->name ?? 'N/A' }}</td>
+                                <td>{{ $budget->year }}</td>
+                                <td>{{ number_format($budget->allocated) }}</td>
+                                <td>{{ number_format($budget->spent) }}</td>
+                                <td>{{ number_format($budget->balance) }}</td>
+                                <td>{{ ucfirst($budget->status) }}</td>
+                                <td>
+                                    @if ($budget->attachment)
+                                        <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank">View</a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    <a href="{{ route('finance.budgets.edit', $budget->id) }}"
+                                        class="btn btn-sm btn-warning">Edit</a>
+
+                                    <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST"
+                                        class="d-inline-block"
+                                        onsubmit="return confirm('Are you sure you want to delete this budget?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+
+                        @if ($budgets->count() == 0)
+                            <tr>
+                                <td colspan="9" class="text-center">No budgets found.</td>
+                            </tr>
+                        @endif
                     </tbody>
-                </table>
-            </div>
-        </div>
-    @endsection
+        </table>
+    </div>
 
-    @section('js')
-        <script>
-            $(document).ready(function() {
-                var table = $('#budgetsTable').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    ajax: "{{ route('finance.budgets.index') }}",
-                    columns: [{
-                            data: 'DT_RowIndex',
-                            name: 'DT_RowIndex',
-                            orderable: false,
-                            searchable: false
-                        },
-                        {
-                            data: 'department',
-                            name: 'department'
-                        },
-                        {
-                            data: 'year',
-                            name: 'year'
-                        },
-                        {
-                            data: 'allocated',
-                            name: 'allocated'
-                        },
-                        {
-                            data: 'spent',
-                            name: 'spent'
-                        },
-                        {
-                            data: 'balance',
-                            name: 'balance'
-                        },
-                        {
-                            data: 'status',
-                            name: 'status'
-                        },
-                        {
-                            data: 'attachment',
-                            name: 'attachment',
-                            orderable: false,
-                            searchable: false
-                        },
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false
-                        },
-                    ]
-                });
-
-                // SweetAlert delete confirmation
-                $(document).on('click', '.delete-btn', function() {
-                    var id = $(this).data('id');
-                    var url = "{{ url('finance/budgets') }}/" + id;
-
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "This budget will be deleted permanently!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Yes, delete it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: url,
-                                method: 'DELETE',
-                                data: {
-                                    _token: '{{ csrf_token() }}'
-                                },
-                                success: function(response) {
-                                    Swal.fire('Deleted!', response.success, 'success');
-                                    table.ajax.reload();
-                                },
-                                error: function(error) {
-                                    Swal.fire('Error!', 'Something went wrong', 'error');
-                                }
-                            });
-                        }
-                    });
-                });
-            });
-        </script>
-    @endsection
+   
+@endsection

@@ -15,25 +15,20 @@ class Invoice extends Model
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
-        'procurement_id',
-        'invoice_no',
-        'amount',
-        'invoice_date',
-        'status',
-        'notes',
-        'transaction_no',
+        'procurement_id', 'invoice_no', 'amount', 'invoice_date',
+        'vendor_name', 'due_date', 'status', 'notes', 'attachment'
     ];
 
     protected $casts = [
         'invoice_date' => 'date',
     ];
 
-    // 🔹 Activity Log
+    //  Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Invoice')
-            ->logOnly(['procurement_id', 'invoice_no', 'amount', 'status'])
+            ->logOnly(['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'status', 'notes', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -46,7 +41,7 @@ class Invoice extends Model
     // 🔹 Relationships
     public function procurement()
     {
-        return $this->belongsTo(Procurement::class, 'procurement_id');
+        return $this->belongsTo(Procurement::class);
     }
 
     public function payments()
