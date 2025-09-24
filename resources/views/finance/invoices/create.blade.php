@@ -11,7 +11,9 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.invoices.index') }}" class="btn btn-primary mb-3">Go Back</a>
+                    <a href="{{ route('finance.invoices.index') }}" class="btn btn-primary mb-3 vip-btn">
+                       <i class="bi bi-arrow-left-circle"></i> Go Back
+                    </a>
                 </div>
             </div>
         </div>
@@ -25,10 +27,11 @@
                 {{-- Procurement Selection --}}
                 <div class="mb-3">
                     <label class="form-label">Select Procurement</label>
-                    <select name="procurement_id" class="form-select @error('procurement_id') is-invalid @enderror">
+                    <select name="procurement_id" id="procurement_id"
+                        class="form-select @error('procurement_id') is-invalid @enderror">
                         <option value="">Select Procurement</option>
                         @foreach ($procurements as $proc)
-                            <option value="{{ $proc->id }}" {{ old('procurement_id') == $proc->id ? 'selected' : '' }}>
+                            <option value="{{ $proc->id }}" data-amount="{{ $proc->amount }}">
                                 {{ $proc->item_name }} ({{ $proc->department->name ?? 'N/A' }})
                             </option>
                         @endforeach
@@ -67,8 +70,8 @@
                 {{-- Amount --}}
                 <div class="mb-3">
                     <label class="form-label">Amount</label>
-                    <input type="number" name="amount" class="form-control @error('amount') is-invalid @enderror"
-                        value="{{ old('amount') }}" required>
+                    <input type="number" name="amount" id="amount"
+                        class="form-control @error('amount') is-invalid @enderror" value="{{ old('amount') }}" required>
                     @error('amount')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -122,13 +125,18 @@
 
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Invoice</button>
-                    <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success vip-btn">
+                        <i class="bi bi-check-lg"></i> Save Invoice
+                    </button>
+                    <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 
+    {{-- Styles --}}
     <style>
         .upload-box {
             border: 2px dashed #6c757d;
@@ -156,33 +164,19 @@
         }
     </style>
 
+    {{-- Script --}}
     <script>
-        const uploadBox = document.getElementById('uploadBox');
-        const attachmentInput = document.getElementById('attachmentInput');
-        const filePreview = document.getElementById('filePreview');
+        const procurementSelect = document.getElementById('procurement_id');
+        const amountInput = document.getElementById('amount');
 
-        uploadBox.addEventListener('click', () => attachmentInput.click());
-        uploadBox.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadBox.style.background = '#dee2e6';
-        });
-        uploadBox.addEventListener('dragleave', () => {
-            uploadBox.style.background = '#f8f9fa';
-        });
-        uploadBox.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length > 0) {
-                attachmentInput.files = e.dataTransfer.files;
-                showFileName(attachmentInput.files[0]);
+        procurementSelect.addEventListener('change', function() {
+            let selected = this.options[this.selectedIndex];
+            let amount = selected.getAttribute('data-amount');
+            if (amount) {
+                amountInput.value = amount; // Default procurement amount set ho jaye
+            } else {
+                amountInput.value = '';
             }
-            uploadBox.style.background = '#f8f9fa';
         });
-        attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) showFileName(attachmentInput.files[0]);
-        });
-
-        function showFileName(file) {
-            if (file) filePreview.textContent = "📎 " + file.name + " attached";
-        }
     </script>
 @endsection

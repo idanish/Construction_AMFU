@@ -14,8 +14,9 @@
                 </div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                    <i class="bx bx-arrow-back"></i> Back
+                <a href="{{ route('users.index') }}" class="btn btn-secondary vip-btn">
+                    <i class="bi bi-arrow-left-circle"></i> Go Back
+
                 </a>
             </div>
         </div>
@@ -123,7 +124,9 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Create User</button>
+                <button type="submit" class="vip-btn btn-submit">
+                    <i class="bi bi-check-lg"></i> Save
+                </button>
             </form>
         </div>
     </div>

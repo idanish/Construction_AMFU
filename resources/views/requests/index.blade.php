@@ -12,7 +12,9 @@
                 </div>
                 <div class="page-title-actions">
                     <div class="d-inline-block">
-                        <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3">Create New Request</a>
+                        <a href="{{ route('requests.create') }}" class="btn btn-primary mb-3 vip-btn">
+                            <i class="bi bi-plus-circle"></i> Create
+                        </a>
                     </div>
                 </div>
             </div>
@@ -47,13 +49,17 @@
                             <td>{{ ucfirst($request->status) }}</td>
                             <td>{{ $request->created_at->format('d-m-Y') }}</td>
                             <td>
-                                <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-warning vip-btn">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
                                 <form action="{{ route('requests.destroy', $request->id) }}" method="POST"
                                     class="d-inline-block"
                                     onsubmit="return confirm('Are you sure you want to delete this request?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    <button type="submit"class="btn btn-danger vip-btn">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
                                 </form>
                             </td>
                         </tr>

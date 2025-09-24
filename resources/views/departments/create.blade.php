@@ -5,8 +5,8 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Add Department</h2>
-        <a href="{{ route('departments.index') }}" class="btn btn-secondary">
-            <i class="bx bx-arrow-back"></i> Back
+        <a href="{{ route('departments.index') }}" class="btn btn-secondary vip-btn">
+            <i class="bi bi-arrow-left-circle"></i> Go Back
         </a>
     </div>
 
@@ -37,11 +37,11 @@
 
                 {{-- Buttons --}}
                 <div class="d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bx bx-save"></i> Save
+                    <button type="submit" class="vip-btn btn-submit">
+                        <i class="bi bi-check-lg"></i> Save
                     </button>
-                    <a href="{{ route('departments.index') }}" class="btn btn-light">
-                        Cancel
+                    <a href="{{ route('departments.index') }}" class="btn btn-light vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
                     </a>
                 </div>
             </form>

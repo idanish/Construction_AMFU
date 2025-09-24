@@ -10,8 +10,8 @@
                 <div class="h4 m-0">Payments</div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3">
-                    <i class="bi bi-plus-circle"></i> Add Payment
+                <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3 vip-btn">
+                    <i class="bi bi-plus-circle"></i> Create
                 </a>
             </div>
         </div>
@@ -31,9 +31,9 @@
                     <th>No</th>
                     <th>Payment Reference</th>
                     <th>Invoice No</th>
-                    <th>Invoice Amount</th> 
+                    <th>Invoice Amount</th>
                     <th>Payment</th>
-                    <th>Balance</th> 
+                    <th>Balance</th>
                     <th>Status</th>
                     <th>Attachment</th>
                     <th>Action</th>
@@ -56,20 +56,26 @@
                         </td>
                         <td>
                             @if ($payment->attachment)
-                                <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank">View</a>
+                                <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank" class="btn vip-btn">
+                                   <i class="bi bi-eye"></i> View
+                                </a>
                             @else
                                 N/A
                             @endif
                         </td>
                         <td>
                             <a href="{{ route('finance.payments.edit', $payment->id) }}"
-                                class="btn btn-sm btn-primary">Edit</a>
+                                class="btn btn-sm btn-primary vip-btn">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
                             <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST"
                                 style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" onclick="return confirm('Are you sure?')"
-                                    class="btn btn-sm btn-danger">Delete</button>
+
+                                <button type="submit" class="btn btn-danger vip-btn" onclick="return confirm('Are you sure?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
                             </form>
                         </td>
                     </tr>

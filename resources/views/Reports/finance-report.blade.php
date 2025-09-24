@@ -28,15 +28,22 @@
                 </select>
             </div>
             <div class="col">
-                <button type="submit" class="btn btn-primary">Filter</button>
+                <button type="submit" class="btn btn-primary vip-btn btn-filter">  <I class="bi bi-funnel"></I> Filter
+</button>
             </div>
         </div>
     </form>
 
     <!-- Export buttons -->
     <div class="mb-3">
-        <a href="{{ route('reports.finance.export.excel') }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('reports.finance.export.pdf') }}" class="btn btn-danger">Export PDF</a>
+        <a href="{{ route('reports.finance.export.excel') }}" class="btn btn-success vip-btn btn-excel">
+             <i class="bi bi-file-earmark-excel"></i> Export Excel
+
+        </a>
+        <a href="{{ route('reports.finance.export.pdf') }}" class="btn btn-danger vip-btn btn-pdf">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+
+        </a>
     </div>
 
     <!-- Table -->

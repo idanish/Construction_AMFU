@@ -49,6 +49,102 @@
     <!-- SweetAlert2 CSS + JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Icons (Bootstrap Icons CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        /* Root Variables */
+        :root {
+            --btn-radius: 30px;
+            --btn-padding: 10px 20px;
+            --btn-font-weight: 600;
+            --btn-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            --btn-hover-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            --btn-scale: 1.05;
+        }
+
+        /* VIP Buttons Base Style */
+        .vip-btn {
+            transition: all 0.3s ease;
+            border-radius: var(--btn-radius);
+            padding: var(--btn-padding);
+            font-weight: var(--btn-font-weight);
+            box-shadow: var(--btn-shadow);
+        }
+
+        .vip-btn:hover {
+            transform: scale(var(--btn-scale));
+            box-shadow: var(--btn-hover-shadow);
+        }
+
+        a.vip-btn,
+        button.vip-btn {
+            transition: all 0.3s ease;
+            border-radius: var(--btn-radius);
+            padding: var(--btn-padding);
+            font-weight: var(--btn-font-weight);
+            box-shadow: var(--btn-shadow);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+
+        }
+
+        a.vip-btn:hover,
+        button.vip-btn:hover {
+            transform: scale(var(--btn-scale));
+            box-shadow: var(--btn-hover-shadow);
+        }
+
+        /* VIP Hover Glow Effect */
+        .vip-btn {
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+
+        .vip-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Submit Button Color */
+        .btn-submit {
+            background: linear-gradient(135deg, #36d1dc, #5b86e5);
+            color: #fff;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            /* Dark Blue Gradient */
+            color: #fff;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            /* Orange-Yellow Gradient */
+            color: #000;
+            /* Text dark for contrast */
+        }
+
+        .btn-excel {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            /* Green Gradient */
+            color: #fff;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #eb3349, #f45c43);
+            /* Red Gradient */
+            color: #fff;
+        }
+    </style>
+
 
 </head>
 
@@ -101,18 +197,18 @@
                                 </a>
                             </li>
                             <li class="menu-item">
-                                
-                                    <a href="{{ route('requests.create') }}" class="menu-link">
+
+                                <a href="{{ route('requests.create') }}" class="menu-link">
                                     <div data-i18n="Add-Request">Add Request</div>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                    <a href="{{ route('requests.pending') }}" class="menu-link">
+                                <a href="{{ route('requests.pending') }}" class="menu-link">
                                     <div data-i18n="Add-Request">Pending Request</div>
                                 </a>
                             </li>
                             <li class="menu-item">
-                                    <a href="{{ route('requests.rejected') }}" class="menu-link">
+                                <a href="{{ route('requests.rejected') }}" class="menu-link">
                                     <div data-i18n="Add-Request">Rejected Request</div>
                                 </a>
                             </li>
@@ -227,7 +323,7 @@
                                     <div data-i18n="reports.procurement">Procurement Reports</div>
                                 </a>
                             </li>
-                            
+
                             <li class="menu-item">
                                 <a href="{{ route('reports.audit') }}" class="menu-link">
                                     <div data-i18n="Audit-Reports">Audit Reports</div>
@@ -357,7 +453,7 @@
                                     <div data-i18n="audit-logs">Activity Logs</div>
                                 </a>
                             </li>
-                                {{-- @can('admin') --}}
+                            {{-- @can('admin') --}}
                             <li class="menu-item">
                                 <a href="{{ route('settings.backup&restore') }}" class="menu-link">
                                     <div data-i18n="backup">Backup</div>

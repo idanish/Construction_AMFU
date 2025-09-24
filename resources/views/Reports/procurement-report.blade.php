@@ -34,14 +34,19 @@
             <input type="number" step="0.01" name="cost_max" value="{{ request('cost_max') }}" class="form-control">
         </div>
         <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Filter</button>
+            <button type="submit" class="btn btn-primary vip-btn btn-filter">  <I class="bi bi-funnel"></I> Filter
+</button>
         </div>
     </form>
 
     {{-- Export Buttons --}}
     <div class="mb-3">
-        <a href="{{ route('reports.procurement.export.excel') }}" class="btn btn-success">Export to Excel</a>
-        <a href="{{ route('reports.procurement.export.pdf') }}" class="btn btn-danger">Export to PDF</a>
+        <a href="{{ route('reports.procurement.export.excel') }}" class="btn btn-success vip-btn btn-excel">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+        </a>
+        <a href="{{ route('reports.procurement.export.pdf') }}" class="btn btn-danger vip-btn btn-pdf">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+        </a>
     </div>
 
     {{-- Report Table --}}

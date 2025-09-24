@@ -13,7 +13,9 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-primary mb-3">Go Back</a>
+                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-primary mb-3 vip-btn">
+                        <i class="bi bi-arrow-left-circle"></i> Go Back
+                    </a>
                 </div>
             </div>
         </div>
@@ -73,7 +75,7 @@
 
                 {{-- Justification --}}
                 <div class="mb-4">
-                    <label for="justification" class="form-label fw-bold">Justification</label>
+                    <label for="justification" class="form-label fw-bold">Remarks</label>
                     <textarea name="justification" rows="3" class="form-control @error('justification') is-invalid @enderror"
                         placeholder="Provide justification for procurement">{{ old('justification') }}</textarea>
                     @error('justification')
@@ -108,8 +110,12 @@
 
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Procurement</button>
-                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="vip-btn btn-submit">
+                        <i class="bi bi-check-lg"></i> Save
+                    </button>
+                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>

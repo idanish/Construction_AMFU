@@ -27,7 +27,9 @@
                     <p class="card-text"><strong>Comments:</strong></p>
                     <p>{{ $request->comments }}</p>
 
-                    <a href="{{ route('requests.index') }}" class="btn btn-secondary mt-3">Back to List</a>
+                    <a href="{{ route('requests.index') }}" class="btn btn-secondary mt-3">
+                        <i class="bi bi-arrow-left-circle vip-btn"></i> Back to list
+                    </a>
                 </div>
             </div>
         </div>

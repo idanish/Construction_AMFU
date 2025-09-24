@@ -4,8 +4,8 @@
 <div class="container mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Assign Permissions for {{ $user->name }}</h2>
-        <a href="{{ route('users.index') }}" class="text-blue-500 hover:text-blue-700 font-semibold">
-            ← Back to Users
+        <a href="{{ route('users.index') }}" class="text-blue-500 hover:text-blue-700 font-semibold vip-btn">
+           <i class="bi bi-arrow-left-circle"></i> Back to user
         </a>
     </div>
 
@@ -44,7 +44,9 @@
         </div>
         @endforeach
 
-        <button type="submit" class="btn btn-primary mt-4">Update Permissions</button>
+        <button type ="submit"class="btn btn-info text-dark vip-btn">
+      <i class="bi bi-arrow-repeat"></i> Update Permissions
+    </button>
     </form>
 
 

@@ -11,7 +11,9 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.payments.index') }}" class="btn btn-primary mb-3">Go Back</a>
+                    <a href="{{ route('finance.payments.index') }}" class="btn btn-primary mb-3 vip-btn">
+                        <i class="bi bi-arrow-left-circle"></i> Go Back
+                    </a>
                 </div>
             </div>
         </div>
@@ -87,7 +89,7 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-select" required>
                         <option value="partial">Partial Payment</option>
@@ -109,8 +111,13 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Payment</button>
-                    <a href="{{ route('finance.payments.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="vip-btn btn-submit">
+                        <i class="bi bi-check-lg"></i> Submit
+                    </button>
+
+                    <a href="{{ route('finance.payments.index') }}" class="btn btn-secondary vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>

@@ -124,8 +124,12 @@
                 @enderror
             </div>
 
-            <button type="submit" class="btn btn-success">Update Invoice</button>
-            <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-info text-dark vip-btn">
+                <i class="bi bi-arrow-repeat"></i> Update
+            </button>
+            <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary vip-btn">
+                <i class="bi bi-arrow-left-circle"></i> Go Back
+            </a>
         </form>
     </div>
 

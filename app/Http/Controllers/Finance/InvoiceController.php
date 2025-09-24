@@ -22,15 +22,16 @@ class InvoiceController extends Controller
     public function create()
     {
         $user = auth()->user();
-
-        $procurements = Procurement::with('department')
-            ->where('status', 'approved')
-            ->get();
+        $procurements = Procurement::whereDoesntHave('invoice')->get();
+        // $procurements = Procurement::with('department')
+        //     ->where('status', 'approved')
+        //     ->get();
 
         // Invoice number simple logic
         $lastInvoice = Invoice::withTrashed()->latest('id')->first();
         $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;  
-        $invoice_no = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+        $invoice_no = 'INV-' . str_pad(\App\Models\Invoice::max('id') + 1, 4, '0', STR_PAD_LEFT);
+
 
         return view('finance.invoices.create', compact('procurements', 'invoice_no'));
     }

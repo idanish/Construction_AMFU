@@ -14,7 +14,9 @@
                 </div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('admin.register') }}" class="btn btn-primary">+ Add New User</a>
+                <a href="{{ route('admin.register') }}" class="btn btn-primary vip-btn">
+                   <i class="bi bi-plus-circle"></i> Create User
+                </a>
             </div>
         </div>
     </div>
@@ -75,9 +77,9 @@
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
                                         <!-- Edit -->
-                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning"
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm vip-btn"
                                             title="Edit">
-                                            <i class="bx bx-pencil">Edit</i>
+                                            <i class="bi bi-pencil-square"></i> Edit
                                         </a>
 
                                         <!-- Delete -->
@@ -86,15 +88,16 @@
                                             class="d-inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                                                <i class="bx bx-trash">Delete</i>
+                                            <button type="submit" class="btn btn-sm vip-btn" title="Delete">
+                                                <i class="bi bi-trash"></i> Delete
                                             </button>
                                         </form>
 
                                         <!-- Permissions -->
                                         <a href="{{ route('users.edit-permissions', $user) }}"
-                                            class="btn btn-sm btn-primary" title="Assign Permissions">
-                                            <i class="bx bx-user-check">Permission</i>
+                                            class="btn btn-sm vip-btn" title="Assign Permissions">
+                                           <i class="bi bi-shield-lock"></i> Permission
+
                                         </a>
                                     </div>
                                 </td>

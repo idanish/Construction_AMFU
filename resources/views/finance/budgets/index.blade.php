@@ -11,14 +11,16 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.budgets.create') }}" class="btn btn-primary mb-3">Create Budget</a>
+                    <a href="{{ route('finance.budgets.create') }}" class="btn btn-primary mb-3 vip-btn">
+                        <i class="bi bi-plus-circle"></i> Create
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
 
-     <div class="table-responsive-lg ">
+    <div class="table-responsive-lg ">
         <table id="budgetsTable" class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
                 <tr class="text-center align-middle fw-bold ">
@@ -34,45 +36,48 @@
                 </tr>
             </thead>
             <tbody>
-                        @foreach ($budgets as $key => $budget)
-                            <tr>
-                                <td>{{ $key + 1 }}</td>
-                                <td>{{ $budget->department->name ?? 'N/A' }}</td>
-                                <td>{{ $budget->year }}</td>
-                                <td>{{ number_format($budget->allocated) }}</td>
-                                <td>{{ number_format($budget->spent) }}</td>
-                                <td>{{ number_format($budget->balance) }}</td>
-                                <td>{{ ucfirst($budget->status) }}</td>
-                                <td>
-                                    @if ($budget->attachment)
-                                        <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank">View</a>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('finance.budgets.edit', $budget->id) }}"
-                                        class="btn btn-sm btn-warning">Edit</a>
+                @foreach ($budgets as $key => $budget)
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $budget->department->name ?? 'N/A' }}</td>
+                        <td>{{ $budget->year }}</td>
+                        <td>{{ number_format($budget->allocated) }}</td>
+                        <td>{{ number_format($budget->spent) }}</td>
+                        <td>{{ number_format($budget->balance) }}</td>
+                        <td>{{ ucfirst($budget->status) }}</td>
+                        <td>
+                            @if ($budget->attachment)
+                                <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank" class="btn  btn-info vip-btn">
+                                    <i class="bi bi-eye"></i> View</a>
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('finance.budgets.edit', $budget->id) }}"
+                                class="btn  btn-warning vip-btn">
+                               <i class="bi bi-pencil-square"></i> Edit
+                            </a>
 
-                                    <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST"
-                                        class="d-inline-block"
-                                        onsubmit="return confirm('Are you sure you want to delete this budget?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
+                            <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST"
+                                class="d-inline-block"
+                                onsubmit="return confirm('Are you sure you want to delete this budget?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type = "submit" class="btn btn-danger vip-btn">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
 
-                        @if ($budgets->count() == 0)
-                            <tr>
-                                <td colspan="9" class="text-center">No budgets found.</td>
-                            </tr>
-                        @endif
-                    </tbody>
+                @if ($budgets->count() == 0)
+                    <tr>
+                        <td colspan="9" class="text-center">No budgets found.</td>
+                    </tr>
+                @endif
+            </tbody>
         </table>
     </div>
-
-   
 @endsection
