@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 // Activity Logs Files
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -13,7 +14,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Budget extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = ['title', 'department_id', 'attachment', 'year', 'allocated',  'spent', 'balance', 'notes', 'status', 'transaction_no'];
 
@@ -31,6 +32,8 @@ class Budget extends Model
     {
         return "Budget record has been {$eventName}";
     }
+
+    // Activity Log End Here
 
     // Relationships
     public function department()

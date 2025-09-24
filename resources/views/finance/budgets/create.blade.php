@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Create Budget')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -66,7 +66,7 @@
                 </div>
 
                 {{-- Spent --}}
-                <div class="form-group mb-3">
+                <!-- <div class="form-group mb-3">
                     <label for="spent">Spent Amount</label>
                     <input type="number" step="0.01" name="spent" id="spent"
                         class="form-control @error('spent') is-invalid @enderror" value="{{ old('spent') }}">
@@ -80,7 +80,7 @@
                     <label for="balance">Balance</label>
                     <input type="number" id="balance" class="form-control"
                         value="{{ old('balance', max(0, $balance ?? 0)) }}" disabled>
-                </div>
+                </div> -->
 
 
                 {{-- Notes --}}

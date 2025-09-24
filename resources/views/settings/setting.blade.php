@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Settings')
 @section('content')
 
     <div class="card">

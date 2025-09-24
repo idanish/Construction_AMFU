@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Backup and Restore')
 @section('content')
 <div class="container mt-5">
     <div class="card shadow-lg border-0">

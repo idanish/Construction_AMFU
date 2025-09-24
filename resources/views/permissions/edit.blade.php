@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Edit Permissions')
 @section('content')
 <div class="container mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
     <div class="flex justify-between items-center mb-6">

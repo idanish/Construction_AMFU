@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Login')
 @section('content')
 @if (session('success'))
     <div class="alert alert-success text-center mb-3">

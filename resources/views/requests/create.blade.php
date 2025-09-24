@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Create New Request')
 @section('content')
     <div class="container">
         <div class="row">

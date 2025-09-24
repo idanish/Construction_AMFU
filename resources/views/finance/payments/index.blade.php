@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Payments')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -24,9 +24,9 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="table-responsive-lg ">
-        <table class="table table-bordered">
-            <thead>
+<div class="table-responsive-lg">
+        <table class="table table-bordered table-striped">
+            <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
                     <th>No</th>
                     <th>Payment Reference</th>
@@ -78,6 +78,9 @@
                                 </button>
                             </form>
                         </td>
+                    </tr>
+                    <tr>
+                        <td colspan="11" class="text-center">No Payment found.</td>
                     </tr>
                 @endforeach
             </tbody>

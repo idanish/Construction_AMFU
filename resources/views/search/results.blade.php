@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Search Result')
 @section('content')
     <div class="container">
         <h1>Search Results for "{{ $query }}"</h1>

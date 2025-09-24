@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Invoice Details')
 @section('content')
 <div class="container py-4">
     <h2 class="mb-4">Invoice Details</h2>

@@ -47,7 +47,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" />
 
     <!-- SweetAlert2 CSS + JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
 
     <!-- Icons (Bootstrap Icons CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -377,7 +377,7 @@
                     </li>
 
                     <!-- Permissions (Admin Only) -->
-                    <li class="menu-item">
+                    <!-- <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-lock"></i>
                             <div data-i18n="Permissions">Permissions</div>
@@ -389,10 +389,10 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
+                    </li> -->
 
                     <!-- Services (Admin only) -->
-                    {{-- <li class="menu-item">
+                    <!-- {{-- <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-briefcase"></i>
                             <div data-i18n="Services">Work Order</div>
@@ -410,7 +410,7 @@
                                 </a>
                             </li>
                         </ul>
-                    </li> --}}
+                    </li> --}} -->
 
                     <!-- Departments (Admin only) -->
                     <li class="menu-item">
@@ -453,13 +453,13 @@
                                     <div data-i18n="audit-logs">Activity Logs</div>
                                 </a>
                             </li>
-                            {{-- @can('admin') --}}
+                            
                             <li class="menu-item">
                                 <a href="{{ route('settings.backup&restore') }}" class="menu-link">
                                     <div data-i18n="backup">Backup</div>
                                 </a>
                             </li>
-                            {{-- @endcan --}}
+                            
 
                         </ul>
                     </li>
@@ -628,16 +628,7 @@
 
                 <!-- Main Content -->
                 <div class="container mt-4">
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
-
-                    @if (session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                    @endif
-
-
-
+                
                     <div class="col-12 col-lg-12 order-2 order-md-3 order-lg-2 mb-4">
                         <div class="card">
                             <div class="row row-bordered g-0 my-4">
@@ -722,28 +713,28 @@
             Dropzone.autoDiscover = false;
 
             let attachmentDropzone = new Dropzone("#attachmentDropzone", {
-                url: "{{ route('finance.invoices.store') }}", // Laravel store route
-                paramName: "attachment", // input name
-                maxFiles: 1, // ek hi file
+                url: "{{ route('finance.invoices.store') }}", 
+                paramName: "attachment", 
+                maxFiles: 1, 
                 acceptedFiles: ".pdf,.jpg,.jpeg,.png",
                 addRemoveLinks: true,
-                autoProcessQueue: false, // form submit hone par hi process hoga
+                autoProcessQueue: false, 
             });
 
-            // Jab form submit ho
+            
             document.getElementById("invoiceForm").addEventListener("submit", function(e) {
                 e.preventDefault();
 
                 if (attachmentDropzone.getQueuedFiles().length > 0) {
-                    attachmentDropzone.processQueue(); // pehle file upload kar
+                    attachmentDropzone.processQueue(); 
                 } else {
-                    this.submit(); // agar file nahi to seedha form submit kar
+                    this.submit(); /
                 }
             });
 
-            // Jab file successfully upload ho jaye
+            
             attachmentDropzone.on("success", function(file, response) {
-                document.getElementById("invoiceForm").submit(); // ab form submit kar
+                document.getElementById("invoiceForm").submit(); 
             });
         </script>
 </body>

@@ -26,7 +26,7 @@
         </div>
     @endif
 
-    <div class="card">
+    
         <div class="card-body">
             <table class="table table-hover table-bordered align-middle">
                 <thead class="table-light">
@@ -34,8 +34,8 @@
                         <th width="5%">S.NO</th>
                         <th width="20%">Name</th>
                         <th width="35%">Description</th>
-                        <th width="15%">Created At</th>
-                        <th width="15%">Updated At</th>
+                        <!-- <th width="15%">Created At</th>
+                        <th width="15%">Updated At</th> -->
                         <th width="10%" class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -43,10 +43,10 @@
                     @forelse($departments as $key => $dept)
                         <tr>
                             <td>{{ $key + 1 }}</td>
-                            <td class="fw-bold text-primary">{{ $dept->name }}</td>
+                            <td class="">{{ $dept->name }}</td>
                             <td>{{ $dept->description }}</td>
-                            <td>{{ $dept->created_at->format('d-m-Y') }}</td>
-                            <td>{{ $dept->updated_at->format('d-m-Y') }}</td>
+                            <!-- <td>{{ $dept->created_at->format('d-m-Y') }}</td>
+                            <td>{{ $dept->updated_at->format('d-m-Y') }}</td> -->
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="{{ route('departments.edit', $dept->id) }}"
@@ -72,5 +72,5 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    
 @endsection

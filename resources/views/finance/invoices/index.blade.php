@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Invoices')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -17,6 +17,13 @@
         </div>
     </div>
 
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     <div class="table-responsive-lg">
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
@@ -24,12 +31,12 @@
                     <th>No</th>
                     <th>Invoice No</th>
                     <th>Invoice Date</th>
-                    <th>Procurement</th>
+                    <!-- <th>Procurement</th> -->
                     <th>Vendor</th>
                     <th>Due Date</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Notes</th>
+                    <!-- <th class="hidden">Notes</th> -->
                     <th>Attachment</th>
                     <th>Actions</th>
                 </tr>
@@ -40,12 +47,12 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $invoice->invoice_no }}</td>
                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y') }}</td>
-                        <td>{{ $invoice->procurement->item_name ?? '-' }}</td>
+                        <!-- <td>{{ $invoice->procurement->item_name ?? '-' }}</td> -->
                         <td>{{ $invoice->vendor_name ?? '-' }}</td>
                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y') ?? '-' }}</td>
                         <td>{{ number_format($invoice->amount, 2) }}</td>
                         <td>{{ ucfirst($invoice->status) }}</td>
-                        <td>{{ $invoice->notes ?? '-' }}</td>
+                        <!-- <td>{{ $invoice->notes ?? '-' }}</td> -->
                         <td>
                             @if ($invoice->attachment)
                                 <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank" class="btn btn-sm btn-info vip-btn">

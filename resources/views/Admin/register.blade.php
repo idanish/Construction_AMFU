@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'Register New Admin')
+@section('title', 'Add New User')
 
 @section('content')
     <div class="app-page-title">
@@ -10,7 +10,7 @@
                     <i class="pe-7s-add-user icon-gradient bg-mean-fruit"></i>
                 </div>
                 <div>
-                    Register New Admin
+                    Add New User
                 </div>
             </div>
             <div class="page-title-actions">
@@ -125,7 +125,7 @@
                 </div>
 
                 <button type="submit" class="vip-btn btn-submit">
-                    <i class="bi bi-check-lg"></i> Save
+                    <i class="bi bi-check-lg"></i> Create User
                 </button>
             </form>
         </div>

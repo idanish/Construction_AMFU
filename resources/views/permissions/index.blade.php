@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Permissions')
 @section('content')
     <div class="container mt-5">
         <h2>User Roles and Permissions</h2>

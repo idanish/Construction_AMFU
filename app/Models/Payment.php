@@ -16,7 +16,7 @@ class Payment extends Model
 
     protected $fillable = ['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'status', 'transaction_no'];
 
-    // 🔹 Activity Log
+    //  Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -31,7 +31,9 @@ class Payment extends Model
         return "Payment record has been {$eventName}";
     }
 
-    // 🔹 Relationships
+     // Activity Log End Here
+     
+    //  Relationships
     public function invoice()
     {
         return $this->belongsTo(Invoice::class,'invoice_id');

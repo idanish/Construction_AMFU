@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Workflow reports')
 @section('content')
     <div class="container">
         <h2>Workflow Report</h2>

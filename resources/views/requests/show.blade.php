@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Requet Details')
 @section('content')
 <div class="container">
     <div class="row">

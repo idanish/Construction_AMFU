@@ -40,13 +40,13 @@ class RequestModel extends Model implements HasMedia
     // Activity Log End Here
 
 
-// 🔹 Relationship with User
+//  Relationship with User
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // 🔹 Relationship with Department
+    //  Relationship with Department
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id');
@@ -56,8 +56,5 @@ class RequestModel extends Model implements HasMedia
         return $this->belongsTo(User::class, 'requestor_id');
     }
     
-
-
-
 
 }

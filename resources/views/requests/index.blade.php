@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Requets')
 @section('content')
     <div class="container mt-4">
         <div class="app-page-title">

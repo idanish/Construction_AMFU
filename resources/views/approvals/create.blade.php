@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Create Approvals')
 @section('content')
     <div class="container py-4">
         <h3>Approval for Request #{{ $requestModel->id }}</h3>

@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Pending Requets')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -124,7 +124,7 @@
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Title</th>
+                    <th>Department</th>
                     <th>Amount</th>
                     <th>Status</th>
                 </tr>
@@ -145,4 +145,5 @@
             </tbody>
         </table>
     </div>
-@endsection
+
+  @endsection

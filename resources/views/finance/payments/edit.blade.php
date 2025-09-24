@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Edit Payments')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">

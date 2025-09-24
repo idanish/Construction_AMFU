@@ -6,15 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// Activity Logs
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 
 class Procurement extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,  LogsActivity;
 
     protected $fillable = ['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'];
 
-    // 🔹 Activity Log
+    // Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -29,7 +32,9 @@ class Procurement extends Model
         return "Procurement record has been {$eventName}";
     }
 
-    // 🔹 Relationships
+    // Activity Log End Here
+
+    //  Relationships
     public function department()
     {
         return $this->belongsTo(Department::class);

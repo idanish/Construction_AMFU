@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Edit Department')
 @section('content')
     <div class="container">
         <h2 class="mb-4">Edit Department</h2>
