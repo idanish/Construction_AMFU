@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Spatie\Permission\Traits\HasRoles;
 // Activity Logs Files
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -12,7 +12,7 @@ use Spatie\Activitylog\LogOptions;
 
 class ServiceRequest extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, HasRoles ;
 
     // ServiceRequest.php model
 

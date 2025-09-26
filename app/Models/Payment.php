@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Spatie\Permission\Traits\HasRoles;
 // Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class Payment extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
 
     protected $fillable = ['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'status', 'transaction_no'];
 

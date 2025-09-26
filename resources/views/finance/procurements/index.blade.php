@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="main-card mb-3 card">
+    <div class="main-card mb-3">
         <div class="card-body">
             <table class="table table-bordered table-striped">
                 <thead>
@@ -35,9 +35,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($procurements as $procurement)
+                    @foreach ($procurements as $key => $procurement)
                         <tr>
-                            <td>{{ $procurement->id }}</td>
+                            <td>{{ $key + 1 }}</td>
                             <td>{{ $procurement->item_name }}</td>
                             <td>{{ $procurement->quantity }}</td>
                             <td>{{ $procurement->cost_estimate }}</td>
@@ -59,7 +59,7 @@
                                         style="display:inline;">
                                         @csrf
                                         <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="btn btn-danger vip-btn">
+                                        <button type="submit" class="btn btn-dark vip-btn">
                                             <i class="bi bi-x-circle"></i> Reject
                                         </button>
                                     </form>
@@ -75,7 +75,7 @@
                                     style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger vip-btn"
+                                    <button type="submit" class="btn btn-sm btn-danger vip-btn"
                                         onclick="return confirm('Are you sure?')">
                                         <i class="bi bi-trash"></i> Delete
                                     </button>

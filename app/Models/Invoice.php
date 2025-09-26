@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Spatie\Permission\Traits\HasRoles;
 // Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class Invoice extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
 
     protected $fillable = ['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'vendor_name', 'due_date', 'status', 'notes', 'attachment'];
 

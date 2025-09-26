@@ -111,7 +111,7 @@
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
                     <button type="submit" class="vip-btn btn-submit">
-                        <i class="bi bi-check-lg"></i> Save
+                        <i class="bi bi-check-lg"></i> Create
                     </button>
                     <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary vip-btn">
                         <i class="bi bi-x-octagon"></i> Cancel

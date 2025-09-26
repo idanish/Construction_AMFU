@@ -41,5 +41,11 @@ class PermissionController extends Controller
     return redirect()->route('users.index')->with('success', 'Permissions updated successfully.');
 }
 
+// public function __construct()
+// {
+    
+//     $this->middleware('can:manage permissions');
+// }
+
 
 }

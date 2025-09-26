@@ -65,7 +65,7 @@ class ProcurementController extends Controller
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
         'attachment'    => 'nullable|file|max:5120',
-        'status'        => 'required|in:pending,approved,rejected', // include pending if needed
+        'status'        => 'required|in:pending,approved,rejected'
     ]);
 
     $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
@@ -92,10 +92,7 @@ class ProcurementController extends Controller
     // Approved Request
     public function updateStatus(Request $request, $id)
     {
-        // Sabse pehle, request ko validate karein
-        $request->validate([
-            'status' => 'required|in:approved,rejected',
-        ]);
+        $request->validate(['status' => 'required|in:approved,rejected']);
 
         $procurement = Procurement::find($id);
 

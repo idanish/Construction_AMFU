@@ -17,7 +17,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Department</th>
@@ -25,9 +25,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($pendingProcurement as $procurement)
+                @forelse($pendingProcurement as $key => $procurement)
                     <tr class="text-center align-middle">
-                        <td>{{ $procurement->id }}</td>
+                        <td>{{ $key + 1 }}</td>
                         <td>{{ $procurement->item_name }}</td>
                         <td>{{ $procurement->quantity }}</td>
                         <td>{{ $procurement->department->name ?? 'N/A' }}</td>
@@ -65,19 +65,21 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Invoice Number</th>
                     <th>Amount</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($pendingInvoices as $invoice)
+                @forelse($pendingInvoices as $key => $invoice)
                     <tr class="text-center align-middle">
-                        <td>{{ $invoice->id }}</td>
+                        <td>{{ $key + 1 }}</td>
                         <td>{{ $invoice->invoice_number }}</td>
                         <td>{{ number_format($invoice->amount, 2) }}</td>
                         <td>{{ ucfirst($invoice->status) }}</td>
+                        <td></td>
                     </tr>
                 @empty
                     <tr>
@@ -94,19 +96,21 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Payee</th>
                     <th>Amount</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($pendingPayments as $payment)
+                @forelse($pendingPayments as $key => $payment)
                     <tr class="text-center align-middle">
-                        <td>{{ $payment->id }}</td>
+                        <td>{{ $key + 1 }}</td>
                         <td>{{ $payment->payee_name }}</td>
                         <td>{{ number_format($payment->amount, 2) }}</td>
                         <td>{{ ucfirst($payment->status) }}</td>
+                        <td></td>
                     </tr>
                 @empty
                     <tr>
@@ -123,19 +127,44 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Department</th>
                     <th>Amount</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($pendingBudget as $budget)
+                @forelse($pendingBudget as $key => $budget)
                     <tr class="text-center align-middle">
-                        <td>{{ $budget->id }}</td>
-                        <td>{{ $budget->title }}</td>
-                        <td>{{ number_format($budget->amount, 2) }}</td>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $budget->department->name ?? 'N/A' }}</td>
+                        <td>{{ number_format($budget->balance, 2) }}</td>
                         <td>{{ ucfirst($budget->status) }}</td>
+                        <td>
+                        <!-- Status Change Buttons -->
+                         @if ($budget->status === 'pending')
+                            <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
+                                style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="status" value="approved">
+                                <button type="submit"class="btn btn-success vip-btn">
+                                    <i class="bi bi-check-circle"></i> Approve
+                                </button>
+                            </form>
+
+                            <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
+                                style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="status" value="rejected">
+                                <button type="submit" class="btn btn-dark vip-btn">
+                                    <i class="bi bi-x-circle"></i> Reject
+                                </button>
+                            </form>
+                        @endif
+                        <!-- Status Change Buttons -->
+
+                        </td>
                     </tr>
                 @empty
                     <tr>

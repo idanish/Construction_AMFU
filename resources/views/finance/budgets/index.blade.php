@@ -45,6 +45,7 @@
                         <td>{{ number_format($budget->spent) }}</td>
                         <td>{{ number_format($budget->balance) }}</td>
                         <td>{{ ucfirst($budget->status) }}</td>
+                        
                         <td>
                             @if ($budget->attachment)
                                 <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank" class="btn  btn-info vip-btn">
@@ -54,6 +55,30 @@
                             @endif
                         </td>
                         <td>
+
+                        <!-- Status Change Buttons -->
+                        
+                         @if ($budget->status === 'pending')
+                            <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
+                                style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="status" value="approved">
+                                <button type="submit"class="btn btn-success vip-btn">
+                                    <i class="bi bi-check-circle"></i> Approve
+                                </button>
+                            </form>
+
+                            <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
+                                style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="status" value="rejected">
+                                <button type="submit" class="btn btn-dark vip-btn">
+                                    <i class="bi bi-x-circle"></i> Reject
+                                </button>
+                            </form>
+                        @endif
+                        <!-- Status Change Buttons -->
+
                             <a href="{{ route('finance.budgets.edit', $budget->id) }}"
                                 class="btn  btn-warning vip-btn">
                                <i class="bi bi-pencil-square"></i> Edit

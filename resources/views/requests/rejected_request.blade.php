@@ -17,16 +17,16 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Item Name</th>
                     <th>Department</th>
                     <th>Rejection Date</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($rejectedProcurement as $procurement)
+                @forelse($rejectedProcurement as $key => $procurement)
                     <tr class="text-center align-middle">
-                        <td>{{ $procurement->id }}</td>
+                        <td>{{ $key + 1 }}</td>
                         <td>{{ $procurement->item_name }}</td>
                         <td>{{ $procurement->department->name ?? 'N/A' }}</td>
                         <td>{{ \Carbon\Carbon::parse($procurement->updated_at)->format('d-M-Y') }}</td>
@@ -46,16 +46,16 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Invoice Number</th>
                     <th>Amount</th>
                     <th>Rejection Date</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($rejectedInvoices as $invoice)
+                @forelse($rejectedInvoices as $key => $invoice)
                     <tr class="text-center align-middle">
-                        <td>{{ $invoice->id }}</td>
+                        <td>{{ $key + 1 }}</td>
                         <td>{{ $invoice->invoice_number }}</td>
                         <td>{{ number_format($invoice->amount, 2) }}</td>
                         <td>{{ \Carbon\Carbon::parse($invoice->updated_at)->format('d-M-Y') }}</td>
@@ -75,16 +75,16 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Payee</th>
                     <th>Amount</th>
                     <th>Rejection Date</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($rejectedPayments as $payment)
+                @forelse($rejectedPayments as $key => $payment)
                     <tr class="text-center align-middle">
-                        <td>{{ $payment->id }}</td>
+                        <td>{{ $key + 1 }}</td>
                         <td>{{ $payment->payee_name }}</td>
                         <td>{{ number_format($payment->amount, 2) }}</td>
                         <td>{{ \Carbon\Carbon::parse($payment->updated_at)->format('d-M-Y') }}</td>
@@ -104,18 +104,18 @@
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>S.NO.</th>
                     <th>Department</th>
                     <th>Amount</th>
                     <th>Rejection Date</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($rejectedBudget as $budget)
+                @forelse($rejectedBudget as $key => $budget)
                     <tr class="text-center align-middle">
                         <td>{{ $budget->id }}</td>
-                        <td>{{ $budget->title }}</td>
-                        <td>{{ number_format($budget->amount, 2) }}</td>
+                        <td>{{ $budget->department->name ?? 'N/A' }}</td>
+                        <td>{{ number_format($budget->balance, 2) }}</td>
                         <td>{{ \Carbon\Carbon::parse($budget->updated_at)->format('d-M-Y') }}</td>
                     </tr>
                 @empty
