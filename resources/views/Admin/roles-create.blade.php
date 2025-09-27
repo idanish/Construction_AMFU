@@ -20,7 +20,7 @@
                             </div>
 
                             <h5 class="card-title mt-4">Permissions</h5>
-                            <p class="card-subtitle text-muted mb-4">Is role ke liye permissions select karen.</p>
+                            <p class="card-subtitle text-muted mb-4">Select permissions for this role</p>
 
                             @php
                                 $groupedPermissions = $permissions->groupBy(function ($item) {

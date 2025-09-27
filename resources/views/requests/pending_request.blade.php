@@ -12,6 +12,7 @@
     </div>
 
     {{-- Pending Procurements --}}
+    @can('read-procurement')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">🛒 Pending Procurements</h5>
         <table class="table table-bordered table-striped">
@@ -58,8 +59,10 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
     {{-- Pending Invoices --}}
+    @can('read-invoice')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">📑 Pending Invoices</h5>
         <table class="table table-bordered table-striped">
@@ -89,8 +92,10 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
     {{-- Pending Payments --}}
+    @can('read-payment')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">💰 Pending Payments</h5>
         <table class="table table-bordered table-striped">
@@ -120,8 +125,10 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
     {{-- Pending Budget --}}
+    @can('read-budget')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">📊 Pending Budget Requests</h5>
         <table class="table table-bordered table-striped">
@@ -174,5 +181,6 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
   @endsection

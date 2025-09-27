@@ -170,7 +170,7 @@ public function index()
     $budget->year     = $r->year;
     $budget->allocated   = $r->allocated;
     $budget->spent     = $r->spent ?? 0;
-    $budget->balance    = $budget -> allocated - $budget  ->spent;
+    $budget->balance    = $budget->allocated - $budget->spent;
     $budget->notes     = $r->notes;
     $budget->status    = $r->status;
 

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->decimal('amount', 15, 2);
             $table->text('comments')->nullable();
             $table->string('status')->default('pending');
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

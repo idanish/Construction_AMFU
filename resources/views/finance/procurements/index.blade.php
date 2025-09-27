@@ -11,10 +11,11 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
+                    @can('create-procurement')
                     <a href="{{ route('finance.procurements.create') }}" class="btn btn-primary mb-3 vip-btn">
                         <i class="bi bi-plus-circle"></i> Create
-
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -46,6 +47,7 @@
                             <td>
                                 <!-- Status Change Buttons -->
                                 @if ($procurement->status === 'pending')
+                                @can('approve-procurement') 
                                     <form action="{{ route('procurement.updateStatus', $procurement->id) }}" method="POST"
                                         style="display:inline;">
                                         @csrf
@@ -54,7 +56,9 @@
                                             <i class="bi bi-check-circle"></i> Approve
                                         </button>
                                     </form>
+                                    @endcan
 
+                                    @can('reject-procurement')
                                     <form action="{{ route('procurement.updateStatus', $procurement->id) }}" method="POST"
                                         style="display:inline;">
                                         @csrf
@@ -63,23 +67,29 @@
                                             <i class="bi bi-x-circle"></i> Reject
                                         </button>
                                     </form>
+                                    endcan
+                                    <br><br>
                                 @endif
                                 <!-- Status Change Buttons -->
-
+                                 
+                                @can('update-procurement')
                                 <a href="{{ route('finance.procurements.edit', $procurement->id) }}"
                                     class="btn btn-sm btn-primary vip-btn">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
+                                @endcan
 
+                                @can('delete-procurement')
                                 <form action="{{ route('finance.procurements.destroy', $procurement->id) }}" method="POST"
                                     style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger vip-btn"
-                                        onclick="return confirm('Are you sure?')">
+                                        onclick="return confirm('Are you sure?')" >
                                         <i class="bi bi-trash"></i> Delete
                                     </button>
                                 </form>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

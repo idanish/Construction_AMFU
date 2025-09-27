@@ -11,9 +11,11 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
+                    @can('create-budget')
                     <a href="{{ route('finance.budgets.create') }}" class="btn btn-primary mb-3 vip-btn">
                         <i class="bi bi-plus-circle"></i> Create
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -59,6 +61,7 @@
                         <!-- Status Change Buttons -->
                         
                          @if ($budget->status === 'pending')
+                            @can('approve-budget')
                             <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
                                 style="display:inline;">
                                 @csrf
@@ -67,7 +70,9 @@
                                     <i class="bi bi-check-circle"></i> Approve
                                 </button>
                             </form>
+                            @endcan
 
+                            @can('reject-budget')
                             <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
                                 style="display:inline;">
                                 @csrf
@@ -76,14 +81,18 @@
                                     <i class="bi bi-x-circle"></i> Reject
                                 </button>
                             </form>
+                            @endcan
+                            <br><br>
                         @endif
                         <!-- Status Change Buttons -->
-
+                            @can('update-budget')
                             <a href="{{ route('finance.budgets.edit', $budget->id) }}"
                                 class="btn  btn-warning vip-btn">
                                <i class="bi bi-pencil-square"></i> Edit
                             </a>
+                            @endcan
 
+                            @can('delete-budget')
                             <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST"
                                 class="d-inline-block"
                                 onsubmit="return confirm('Are you sure you want to delete this budget?');">
@@ -93,6 +102,7 @@
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
                             </form>
+                            @endcan
                         </td>
                     </tr>
                 @endforeach

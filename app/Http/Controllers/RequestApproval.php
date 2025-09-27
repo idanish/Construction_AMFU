@@ -14,9 +14,9 @@ class RequestApproval extends Controller
     public function pending()
     {
         
-        $pendingPayments = Payment::where('status', 'pending')->get();
+        $pendingPayments = Payment::where('status', ['Unpaid','Partial'])->get();
         $pendingInvoices = Invoice::where('status', 'pending')->get();
-        $pendingProcurement = Procurement::where('status', 'Unpaid' || 'Partial')->get();
+        $pendingProcurement = Procurement::where('status', 'pending')->get();
         $pendingBudget = Budget::where('status', 'pending')->get();
 
         return view('requests.pending_request', compact('pendingPayments', 'pendingInvoices', 'pendingProcurement', 'pendingBudget'));

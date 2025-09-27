@@ -123,12 +123,14 @@
 
 
                                 <!-- Profile Settings -->
+                                @can('view-page-profile-settings')
                                 <li>
                                     <a class="dropdown-item" href="{{ route('profile.settings') }}">
                                         <i class="bx bx-cog me-2"></i>
                                         <span class="align-middle">Profile Settings</span>
                                     </a>
                                 </li>
+                                @endcan
 
                                 <li>
                                     <hr class="dropdown-divider">

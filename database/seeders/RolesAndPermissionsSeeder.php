@@ -20,29 +20,48 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            'create-request', 'approve-request', 'reject-request', 'view-reports',
-            'manage-users', 'view-departments', 'create-departments', 'edit-departments',
-            'delete-departments', 'view-invoices', 'create-invoices', 'edit-invoices',
-            'delete-invoices', 'view-budgets', 'create-budgets', 'edit-budgets',
-            'delete-budgets', 'view-procurements', 'create-procurements',
-            'edit-procurements', 'delete-procurements', 'view-service-requests',
-            'create-service-requests', 'edit-service-requests', 'delete-service-requests',
-            'view-users', 'create-users', 'edit-users', 'delete-users',
-            'view-roles', 'create-roles', 'edit-roles', 'delete-roles',
-            'manage-permissions', 'update-profile-settings', 'manage-site-settings',
-            'manage-backup', 'view-request-reports', 'export-request-reports',
-            'view-finance-reports', 'export-finance-reports', 'view-audit-reports',
-            'export-audit-reports', 'view-activity-logs', 'view-payments',
-            'create-payments', 'edit-payments', 'delete-payments',
-            'view-requests', 'create-requests', 'edit-requests', 'delete-requests',
-            'view-services', 'create-services', 'edit-services', 'delete-services',
+            //User & Role Management
+            'create-user', 'read-user', 'update-user', 'delete-user',
+            'create-role', 'read-role', 'update-role', 'delete-role',
+            'manage-role-permissions',
+
+            //Dashboard/Pages
+            'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 	'view-page-reports-section ','view-page-finance',
+            'view-page-settings', 'view-page-department', 'view-page-user-management','view-page-role', 'view-page-management',
+
+            //Departments
+            'create-department', 'read-department', 'update-department', 'delete-department',
+
+            //Request Management
+            'create-request', 'read-request', 'update-request', 'delete-request', 
+            'approve-request', 'reject-request', 'pending-request',
+
+            //Budget Management
+            'create-budget', 'read-budget', 'update-budget', 'delete-budget', 'approve-budget', 'reject-budget',
+
+            //Invoice Management
+            'create-invoice', 'read-invoice', 'update-invoice', 'delete-invoice', 'view-invoice',
+
+            //Payment Management
+            'create-payment', 'read-payment', 'update-payment', 'delete-payment',
+
+            //Procurement Management
+            'create-procurement', 'read-procurement', 'update-procurement', 'delete-procurement', 'approve-procurement', 'reject-procurement',
+
+            //Report Downloads
+            'request-reports', 'finance-reports', 'procurement-reports', 'audit-reports',
+
+            //System Tools
+           ' backup', 'backup-restore', 'view-activity-log',
+
+            //Personal
+            'view-page-profile-settings'
         ];
 
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission);
         }
 
-        
         $superAdmin = Role::findOrCreate('Super Admin');
         $admin = Role::findOrCreate('Admin');
         $pm = Role::findOrCreate('PM'); // (Project Manager)
@@ -50,47 +69,11 @@ class RolesAndPermissionsSeeder extends Seeder
         $pmo = Role::findOrCreate('PMO'); // (Project Management Officer)
         $cso = Role::findOrCreate('CSO'); // (Chief Security Officer)
 
-        
-        $superAdmin->givePermissionTo(Permission::all()); // Super Admin ko saari permissions den
+        $superAdmin->givePermissionTo(Permission::all());
         $admin->givePermissionTo(Permission::all());
-        
-        $pm->givePermissionTo([
-            'create-requests',
-            'view-requests',
-            'edit-requests',
-            'view-budgets',
-            'view-procurements',
-            'view-services',
-            'update-profile-settings'
-        ]);
-
-        $fco->givePermissionTo([
-            'view-budgets',
-            'edit-budgets',
-            'view-invoices',
-            'create-invoices',
-            'edit-invoices',
-            'view-payments',
-            'create-payments',
-            'edit-payments',
-            'view-finance-reports',
-            'export-finance-reports',
-        ]);
-        
-        $pmo->givePermissionTo([
-            'view-reports',
-            'view-request-reports',
-            'view-requests',
-            'view-users',
-            'view-departments',
-        ]);
-
-        $cso->givePermissionTo([
-            'view-activity-logs',
-            'view-audit-reports',
-            'manage-backup',
-            'manage-users',
-            'manage-permissions',
-        ]);
+        $pm->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
+        $fco->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
+        $pmo->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
+        $cso->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
     }
 }

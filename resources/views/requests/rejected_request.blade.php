@@ -12,6 +12,7 @@
     </div>
 
     {{-- Rejected Procurements --}}
+    @can('read-procurement')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">🛑 Rejected Procurements</h5>
         <table class="table table-bordered table-striped">
@@ -39,8 +40,10 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
     {{-- Rejected Invoices --}}
+    @can('read-invoice')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">📑 Rejected Invoices</h5>
         <table class="table table-bordered table-striped">
@@ -68,8 +71,10 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
     {{-- Rejected Payments --}}
+    @can('read-payment')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">💰 Rejected Payments</h5>
         <table class="table table-bordered table-striped">
@@ -97,8 +102,10 @@
             </tbody>
         </table>
     </div>
+    @endcan
 
     {{-- Rejected Budget Requests --}}
+    @can('read-budget')
     <div class="table-responsive-lg mb-4">
         <h5 class="mb-3">📊 Rejected Budget Requests</h5>
         <table class="table table-bordered table-striped">
@@ -126,4 +133,6 @@
             </tbody>
         </table>
     </div>
+    @endcan
+
 @endsection

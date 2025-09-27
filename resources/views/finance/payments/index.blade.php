@@ -10,9 +10,11 @@
                 <div class="h4 m-0">Payments</div>
             </div>
             <div class="page-title-actions">
+                @can('create-payment')
                 <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3 vip-btn">
                     <i class="bi bi-plus-circle"></i> Create
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -50,7 +52,7 @@
                         <td>{{ number_format($payment->balance, 2) }}</td> <!-- remaining balance -->
                         <td>
                             <span
-                                class="badge bg-{{ $payment->status == 'completed' ? 'success' : ($payment->status == 'partial' ? 'info' : 'warning') }}">
+                                class="badge bg-{{ $payment->status == 'Paid' ? 'success' : ($payment->status == 'partial' ? 'info' : 'warning') }}">
                                 {{ ucfirst($payment->status) }}
                             </span>
                         </td>
@@ -64,23 +66,23 @@
                             @endif
                         </td>
                         <td>
+                            @can('update-payment')
                             <a href="{{ route('finance.payments.edit', $payment->id) }}"
                                 class="btn btn-sm btn-primary vip-btn">
                                 <i class="bi bi-pencil-square"></i> Edit
                             </a>
+                            @endcan
+                            @can('delete-payment')
                             <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST"
                                 style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-
-                                <button type="submit" class="btn btn-danger vip-btn" onclick="return confirm('Are you sure?')">
+                                <button type="submit" class="btn btn-sm btn-danger vip-btn" onclick="return confirm('Are you sure you want to delete this payment?')">
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
                             </form>
+                            @endcan
                         </td>
-                    </tr>
-                    <tr>
-                        <td colspan="11" class="text-center">No Payment found.</td>
                     </tr>
                 @endforeach
             </tbody>

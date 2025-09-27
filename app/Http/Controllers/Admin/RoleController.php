@@ -30,13 +30,13 @@ public function index()
     {
         $request->validate([
             'name' => 'required|unique:roles,name',
-            'permissions' => 'array', // Permissions array ko validate karein
+            'permissions' => 'array', 
         ]);
 
-        // Naya role banayein
+        
         $role = Role::create(['name' => $request->name]);
         
-        // Role ko select ki hui permissions assign karein
+        
         $permissions = $request->input('permissions', []);
         $role->syncPermissions($permissions);
 
@@ -52,12 +52,12 @@ public function edit($id)
 {
     $role = Role::findOrFail($id);
 
-    // Permissions ko category wise group kar rahe hain
+    
     $permissions = Permission::all()->groupBy(function ($permission) {
-        return explode('-', $permission->name)[0]; // "user-create" → "user"
+        return explode('-', $permission->name)[0]; 
     });
 
-    // is role ke assigned permissions ka id array
+    
     $rolePermissions = $role->permissions->pluck('id')->toArray();
 
     return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
