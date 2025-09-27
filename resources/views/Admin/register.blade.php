@@ -10,7 +10,7 @@
                     <i class="pe-7s-add-user icon-gradient bg-mean-fruit"></i>
                 </div>
                 <div>
-                    Add New User
+                    <h2>Add New User</h2>
                 </div>
             </div>
             <div class="page-title-actions">
@@ -41,7 +41,7 @@
         </div>
     @endif
 
-    <div class="main-card mb-3 card">
+    <div class="main-card mb-3 ">
         <div class="card-body">
             <form method="POST" action="{{ route('admin.register.store') }}">
                 @csrf

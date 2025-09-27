@@ -11,6 +11,45 @@
         </div>
     </div>
 
+
+
+    {{-- Rejected Requests --}}
+    @can('read-request')
+    <div class="table-responsive-lg mb-4">
+        <h5 class="mb-3">💰 Rejected Requests</h5>
+        <table class="table table-bordered table-striped">
+            <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
+                <tr>
+                    <th>S.NO.</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Requestor</th>
+                    <th>Amount</th>
+                    <th>Rejection Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($rejectedRequest as $key => $rejectedRequest)
+                    <tr class="text-center align-middle">
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $rejectedRequest->title }}</td>
+                        <td>{{ $rejectedRequest->description }}</td>
+                        <td>{{ $rejectedRequest->title }}</td>
+                        <td>{{ $rejectedRequest->requestor->name ?? 'N/A' }}</td>
+                        <td>{{ \Carbon\Carbon::parse($rejectedRequest->updated_at)->format('d-M-Y') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No rejected request found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    @endcan
+
+
+
     {{-- Rejected Procurements --}}
     @can('read-procurement')
     <div class="table-responsive-lg mb-4">
@@ -42,67 +81,6 @@
     </div>
     @endcan
 
-    {{-- Rejected Invoices --}}
-    @can('read-invoice')
-    <div class="table-responsive-lg mb-4">
-        <h5 class="mb-3">📑 Rejected Invoices</h5>
-        <table class="table table-bordered table-striped">
-            <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
-                <tr>
-                    <th>S.NO.</th>
-                    <th>Invoice Number</th>
-                    <th>Amount</th>
-                    <th>Rejection Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($rejectedInvoices as $key => $invoice)
-                    <tr class="text-center align-middle">
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $invoice->invoice_number }}</td>
-                        <td>{{ number_format($invoice->amount, 2) }}</td>
-                        <td>{{ \Carbon\Carbon::parse($invoice->updated_at)->format('d-M-Y') }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center">No rejected invoices found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    @endcan
-
-    {{-- Rejected Payments --}}
-    @can('read-payment')
-    <div class="table-responsive-lg mb-4">
-        <h5 class="mb-3">💰 Rejected Payments</h5>
-        <table class="table table-bordered table-striped">
-            <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
-                <tr>
-                    <th>S.NO.</th>
-                    <th>Payee</th>
-                    <th>Amount</th>
-                    <th>Rejection Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($rejectedPayments as $key => $payment)
-                    <tr class="text-center align-middle">
-                        <td>{{ $key + 1 }}</td>
-                        <td>{{ $payment->payee_name }}</td>
-                        <td>{{ number_format($payment->amount, 2) }}</td>
-                        <td>{{ \Carbon\Carbon::parse($payment->updated_at)->format('d-M-Y') }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center">No rejected payments found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    @endcan
 
     {{-- Rejected Budget Requests --}}
     @can('read-budget')
@@ -127,7 +105,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center">No rejected budget requests found.</td>
+                        <td colspan="5" class="text-center">No rejected budget requests found.</td>
                     </tr>
                 @endforelse
             </tbody>

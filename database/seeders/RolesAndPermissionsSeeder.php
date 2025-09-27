@@ -27,6 +27,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             //Dashboard/Pages
             'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 	'view-page-reports-section', 'view-page-finance',
+            'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 'view-page-reports-section', 'view-page-finance',
             'view-page-settings', 'view-page-department', 'view-page-user-management','view-page-role', 'view-page-management',
 
             //Departments
@@ -52,7 +53,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'request-reports', 'finance-reports', 'procurement-reports', 'audit-reports',
 
             //System Tools
-           ' backup', 'backup-restore', 'view-activity-log',
+            'backup', 'backup-restore', 'view-activity-log',
 
             //Personal
             'view-page-profile-settings'

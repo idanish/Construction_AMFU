@@ -31,6 +31,7 @@
             @endif
 
             {{-- Backup Section --}}
+            @can('backup')
             <div class="mb-5">
                 <h5 class="fw-bold text-purple"><i class="bi bi-hdd-stack-fill me-2"></i>Create Backup</h5>
                 <p class="text-muted">Generate a full system backup including database and files.</p>
@@ -44,10 +45,11 @@
                     </button>
                 </form>
             </div>
-
+            @endcan
             <hr>
 
             {{-- Restore Section --}}
+            @can('backup-restore')
             <div>
                 <h5 class="fw-bold text-success"><i class="bi bi-arrow-repeat me-2"></i>Restore Backup</h5>
                 <p class="text-muted">Upload a backup file (.SQL) to restore your system data.</p>
@@ -63,6 +65,7 @@
                     </button>
                 </form>
             </div>
+            @endcan
         </div>
     </div>
 </div>

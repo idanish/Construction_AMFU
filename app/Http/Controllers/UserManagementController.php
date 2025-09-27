@@ -53,9 +53,7 @@ class UserManagementController extends Controller
     return redirect()->route('users.index')->with('success', 'User updated successfully!');
 }
 
-
-
-    // ✅ Update status (Active / Inactive)
+    //  Update status (Active / Inactive)
     public function updateStatus(Request $request, User $user)
     {
         $request->validate([

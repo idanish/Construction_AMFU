@@ -77,7 +77,7 @@
                     <th>Invoice Amount</th>
                     <th>Payment</th>
                     <th>Balance</th>
-                    <th>Status</th>
+                    <!-- <th>Status</th> -->
                     <th>Attachment</th>
                     <th>Action</th>
                 </tr>
@@ -91,12 +91,12 @@
                         <td>{{ number_format($payment->invoice_amount, 2) }}</td> <!-- invoice amount -->
                         <td>{{ number_format($payment->amount, 2) }}</td> <!-- payment made -->
                         <td>{{ number_format($payment->balance, 2) }}</td> <!-- remaining balance -->
-                        <td>
+                        <!-- <td>
                             <span
                                 class="badge bg-{{ $payment->status == 'Paid' ? 'success' : ($payment->status == 'partial' ? 'info' : 'warning') }}">
                                 {{ ucfirst($payment->status) }}
                             </span>
-                        </td>
+                        </td> -->
                         <td>
                             @if ($payment->attachment)
                                 <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank"

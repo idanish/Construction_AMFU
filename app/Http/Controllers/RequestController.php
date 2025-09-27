@@ -118,4 +118,24 @@ class RequestController extends Controller
    
 
 
+    // Approved Request
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate(['status' => 'required|in:approved,rejected']);
+
+        $request_item = RequestModel::find($id);
+
+        if ($request_item) {
+            $request_item->status = $request->input('status');
+            $request_item->save();
+            
+            return redirect()->back()->with('success', 'Status updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Request not found!');
+    }
+
+
+
+
 }
