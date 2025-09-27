@@ -63,7 +63,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-
 // Notification Routes
 Route::middleware('auth')->prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
@@ -128,32 +127,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 
-// // Settings - Backup & Restore
-// // Route::prefix('settings')->name('settings.')->group(function () {
-// //     // Settings ka main page (GET)
-// //     Route::get('/', [SettingsController::class, 'index'])->name('backup&restore');
-    
-
-// //     //  // Backup database download
-// //     // Route::get('/backup/download', [SettingsController::class, 'backupDatabase'])->name('backup.download');
-
-// //     // // Restore backup
-// //     // Route::post('/backup/restore', [SettingsController::class, 'restoreBackup'])->name('backup.restore');
-
-// //      // Security
-// //     Route::get('/setting', [SettingsController::class, 'security'])->name('security');   // <- ye zaroori hai
-// //     Route::post('/security/change-password', [SettingsController::class, 'changePassword'])->name('security.changePassword');
-
-//     // Logo
-//     // GET: form show karne ke liye
-    
-//     Route::get('/settings/logo', [SettingsController::class, 'showLogoForm'])->name('settings.logo');
-
-// // POST: logo update karne ke liye
-// Route::post('/update-logo', [SettingsController::class, 'updateLogo'])->name('updateLogo');
-
-// });
-
 // ====== FINANCE MODULES ======
 // Finance Module Routes
 Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function () {
@@ -202,7 +175,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 });
 
-// Department CRUD routes
+// Department routes
 Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::get('/departments/create', [DepartmentController::class, 'create'])->name('departments.create');
 Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
@@ -233,7 +206,7 @@ Route::prefix('services')->name('services.')->group(function () {
 
 // Request Route
 Route::resource('requests', RequestController::class);
-
+Route::post('/requests/{id}/update-status', [RequestController::class, 'updateStatus'])->name('requests.updateStatus');
 
 // ================= Approvals =================
 Route::prefix('approvals')->name('approvals.')->group(function () {

@@ -10,7 +10,7 @@
         </a>
     </div>
 
-    <div class="card">
+    <div class="">
         <div class="card-body">
             <form action="{{ route('departments.store') }}" method="POST">
                 @csrf

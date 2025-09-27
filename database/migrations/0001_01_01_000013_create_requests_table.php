@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('amount', 15, 2);
             $table->text('comments')->nullable();
-            $table->string('status')->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
             $table->softDeletes();
         });
