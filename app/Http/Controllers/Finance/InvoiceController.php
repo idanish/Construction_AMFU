@@ -175,31 +175,31 @@ class InvoiceController extends Controller
     public function index(Request $r)
     {
         // 1. Pagination Setup
-        $perPage = $r->input('per_page', 10); 
+        $perPage = $r->input('per_page', 5);
         if (!in_array($perPage, [10, 25, 50, 100])) {
-            $perPage = 10;
+        $perPage = 10;
         }
 
         $invoicesQuery = Invoice::with('procurement.department')->latest(); 
 
         // 2. Search Logic (Invoice No, Vendor Name par)
-        if ($r->has('search') && !empty($r->search)) {
-            $invoicesQuery->where(function ($query) use ($r) {
-                $query->where('invoice_no', 'like', '%' . $r->search . '%')
-                      ->orWhere('vendor_name', 'like', '%' . $r->search . '%');
-            });
-        }
+        if (!empty($r->search)) {
+        $invoicesQuery->where(function ($query) use ($r) {
+            $query->where('invoice_no', 'like', '%' . $r->search . '%')
+                  ->orWhere('vendor_name', 'like', '%' . $r->search . '%');
+        });
+    }
 
         // 3. Date Range Filter (Invoice Date)
-        if ($r->has('start_date') && $r->has('end_date')) {
-            $invoicesQuery->whereBetween('invoice_date', [$r->start_date, $r->end_date]);
-        } elseif ($r->has('date')) {
-            $invoicesQuery->whereDate('invoice_date', $r->date);
+        if (!empty($r->start_date) && !empty($r->end_date)) {
+        $invoicesQuery->whereBetween('invoice_date', [$r->start_date, $r->end_date]);
+        } elseif (!empty($r->date)) {
+        $invoicesQuery->whereDate('invoice_date', $r->date);
         }
         
         // 4. Status Filter (lowercase values use kiye gaye hain)
-        if ($r->has('status') && in_array($r->status, ['unpaid', 'partial', 'paid'])) {
-            $invoicesQuery->where('status', $r->status);
+        if (!empty($r->status) && in_array($r->status, ['unpaid', 'partial', 'paid'])) {
+        $invoicesQuery->where('status', $r->status);
         }
 
         $invoices = $invoicesQuery->paginate($perPage);
@@ -365,12 +365,22 @@ class InvoiceController extends Controller
     }
 
     // ----------------------------------------------------------------------
-    
-    public function download($id)
-    {
-        $invoice = Invoice::findOrFail($id);
-        $pdf     = Pdf::loadView('finance.invoices.pdf', compact('invoice'));
+    public function show($id)
+{
+    $invoice = Invoice::with('procurement.department')->findOrFail($id);
 
-        return $pdf->download('invoice_' . $invoice->id . '.pdf');
-    }
+    return view('finance.invoices.show', compact('invoice'));
+}
+
+public function download($id)
+{
+    $invoice = Invoice::findOrFail($id);
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('finance.invoices.pdf', compact('invoice'))
+              ->setPaper('A4', 'portrait');
+
+    return $pdf->download('invoice-' . $invoice->invoice_no . '.pdf');
+}
+
+    
 }

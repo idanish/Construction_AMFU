@@ -26,7 +26,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage-role-permissions',
 
             //Dashboard/Pages
-            'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 	'view-page-reports-section ','view-page-finance',
+            'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 	'view-page-reports-section', 'view-page-finance',
             'view-page-settings', 'view-page-department', 'view-page-user-management','view-page-role', 'view-page-management',
 
             //Departments

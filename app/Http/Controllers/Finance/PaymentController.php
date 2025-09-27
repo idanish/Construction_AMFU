@@ -228,7 +228,7 @@ class PaymentController extends Controller
     public function index(Request $r)
     {
         // Filters aur Pagination ka logic
-        $perPage = $r->input('per_page', 10); 
+        $perPage = $r->input('per_page', 5); 
         if (!in_array($perPage, [10, 25, 50, 100])) {
             $perPage = 10;
         }
@@ -245,10 +245,13 @@ class PaymentController extends Controller
         }
 
         // Date Range Filter
-        if ($r->has('start_date') && $r->has('end_date')) {
-            $paymentsQuery->whereBetween('payment_date', [$r->start_date, $r->end_date]);
-        } elseif ($r->has('date')) {
-            $paymentsQuery->whereDate('payment_date', $r->date);
+        if ($r->filled('start_date') && $r->filled('end_date')) {
+        $paymentsQuery->whereBetween('payment_date', [
+        $r->start_date . " 00:00:00", 
+        $r->end_date . " 23:59:59"
+        ]);
+        } elseif ($r->filled('date')) {
+        $paymentsQuery->whereDate('payment_date', $r->date);
         }
         
         $payments = $paymentsQuery->paginate($perPage);

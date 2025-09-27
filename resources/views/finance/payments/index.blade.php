@@ -11,9 +11,9 @@
             </div>
             <div class="page-title-actions">
                 @can('create-payment')
-                <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3 vip-btn">
-                    <i class="bi bi-plus-circle"></i> Create
-                </a>
+                    <a href="{{ route('finance.payments.create') }}" class="btn btn-primary mb-3 vip-btn">
+                        <i class="bi bi-plus-circle"></i> Create
+                    </a>
                 @endcan
             </div>
         </div>
@@ -26,7 +26,48 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-<div class="table-responsive-lg">
+    <form method="GET" action="{{ route('finance.payments.index') }}" class="mb-3">
+        <div class="row g-2">
+            <!-- Search -->
+            <div class="col-md-3">
+                <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                    placeholder="Search Payment Ref">
+            </div>
+
+            <!-- Single Date -->
+            {{-- <div class="col-md-2">
+                <input type="date" name="date" value="{{ request('date') }}" class="form-control">
+            </div> --}}
+
+            <!-- Date Range -->
+            <div class="col-md-2">
+                <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
+            </div>
+
+            <!-- Per Page -->
+            {{-- <div class="col-md-2">
+                <select name="per_page" class="form-control">
+                    @foreach ([10, 25, 50, 100] as $size)
+                        <option value="{{ $size }}" {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                            {{ $size }} per page
+                        </option>
+                    @endforeach
+                </select>
+            </div> --}}
+
+            <!-- Buttons -->
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive-lg">
         <table class="table table-bordered table-striped">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
@@ -58,8 +99,9 @@
                         </td>
                         <td>
                             @if ($payment->attachment)
-                                <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank" class="btn vip-btn">
-                                   <i class="bi bi-eye"></i> View
+                                <a href="{{ asset('storage/payments/' . $payment->attachment) }}" target="_blank"
+                                    class="btn vip-btn">
+                                    <i class="bi bi-eye"></i> View
                                 </a>
                             @else
                                 N/A
@@ -67,25 +109,29 @@
                         </td>
                         <td>
                             @can('update-payment')
-                            <a href="{{ route('finance.payments.edit', $payment->id) }}"
-                                class="btn btn-sm btn-primary vip-btn">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
+                                <a href="{{ route('finance.payments.edit', $payment->id) }}"
+                                    class="btn btn-sm btn-primary vip-btn">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
                             @endcan
                             @can('delete-payment')
-                            <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST"
-                                style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger vip-btn" onclick="return confirm('Are you sure you want to delete this payment?')">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            </form>
+                                <form action="{{ route('finance.payments.destroy', $payment->id) }}" method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger vip-btn"
+                                        onclick="return confirm('Are you sure you want to delete this payment?')">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
                             @endcan
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        <div class="d-flex justify-content-center mt-3">
+            {{ $payments->appends(request()->query())->links() }}
+        </div>
     </div>
 @endsection

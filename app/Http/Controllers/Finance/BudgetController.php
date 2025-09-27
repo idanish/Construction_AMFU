@@ -110,10 +110,36 @@ use App\Models\Budget;
 
 class BudgetController extends Controller
 {
-public function index()
+public function index(Request $r)
 {
-  $budgets = Budget::with('department')->get(); 
-  return view('finance.budgets.index', compact('budgets'));
+    $perPage = $r->input('per_page', 10);
+    if (!in_array($perPage, [10, 25, 50, 100])) {
+        $perPage = 10;
+    }
+
+    $budgetsQuery = \App\Models\Budget::with('department')->latest();
+
+    // 🔹 Department filter
+    if ($r->filled('department_id')) {
+        $budgetsQuery->where('department_id', $r->department_id);
+    }
+
+    // 🔹 Year filter
+    if ($r->filled('year')) {
+        $budgetsQuery->where('year', $r->year);
+    }
+
+    // 🔹 Status filter
+    if ($r->filled('status')) {
+        $budgetsQuery->where('status', $r->status);
+    }
+
+    $budgets = $budgetsQuery->paginate($perPage);
+
+    // Dropdown ke liye departments list
+    $departments = \App\Models\Department::all();
+
+    return view('finance.budgets.index', compact('budgets', 'departments'));
 }
   public function create()
   {
@@ -220,6 +246,3 @@ public function updateStatus(Request $request, $id)
 
 
 }
-
-
-

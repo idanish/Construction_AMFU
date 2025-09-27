@@ -169,13 +169,17 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::post('/budgets/{id}/status', [BudgetController::class, 'updateStatus'])->name('budget.updateStatus');
 
     // Invoices
-    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
-    Route::post('/invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
-    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
-    Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
-    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
-    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('invoices/store', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::put('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+    Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    // ✅ Download Route
+    Route::get('invoices/{id}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+
 
     // Payments
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
