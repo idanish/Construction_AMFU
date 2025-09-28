@@ -72,9 +72,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $superAdmin->givePermissionTo(Permission::all());
         $admin->givePermissionTo(Permission::all());
-        $pm->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
-        $fco->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
-        $pmo->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
-        $cso->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests',]);
+        $pm->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
+        $fco->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
+        $pmo->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
+        $cso->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
     }
 }
