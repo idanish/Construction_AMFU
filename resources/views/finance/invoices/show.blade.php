@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="">
     <div class="card-body">
         <h4>Invoice #{{ $invoice->invoice_no }}</h4>
         <p><strong>Vendor:</strong> {{ $invoice->vendor_name }}</p>
