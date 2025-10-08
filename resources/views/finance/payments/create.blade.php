@@ -101,7 +101,7 @@
                     <label class="form-label">Attachment</label>
                     <div class="upload-box" id="uploadBox">
                         <i class="bi bi-paperclip"></i>
-                        <p>Drag & Drop file here or click to upload</p>
+                        <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
                         <input type="file" name="attachment" id="attachmentInput" hidden>
                     </div>
                     <div id="filePreview" class="mt-2"></div>

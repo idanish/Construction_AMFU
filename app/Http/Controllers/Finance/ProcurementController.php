@@ -53,7 +53,7 @@ class ProcurementController extends Controller
             'cost_estimate' => 'required|numeric|min:0',
             'department_id' => 'nullable|exists:departments,id',
             'justification' => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,xlsx|max:2048',
+            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
@@ -86,7 +86,7 @@ class ProcurementController extends Controller
         'cost_estimate' => 'required|numeric|min:0',
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
-        'attachment'    => 'nullable|file|max:5120',
+        'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         'status'        => 'required|in:pending,approved,rejected'
     ]);
 
