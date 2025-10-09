@@ -55,7 +55,7 @@ public function index(Request $r)
       'spent'     => 'nullable|numeric|min:0|lte:allocated',
       'notes'     => 'nullable|string',
       'status'    => 'required|string',
-      'attachment'  => 'nullable|file|max:5120',
+      'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
 
     $path = $r->file('attachment') ? $r->file('attachment')->store('budgets','public') : null;
@@ -88,7 +88,7 @@ public function index(Request $r)
       'allocated'   => 'required|numeric|min:0',
       'spent'     => 'nullable|numeric|min:0|lte:allocated',
       'status'    => 'required|string',
-      'attachment'  => 'nullable|file|max:5120',
+      'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
 
     $budget->department_id = $r->department_id;

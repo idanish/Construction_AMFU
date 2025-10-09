@@ -77,6 +77,19 @@ Route::middleware('auth')->prefix('notifications')->group(function () {
 Route::get('/admin/user-management', [App\Http\Controllers\UserManagementController::class, 'index'])
         ->name('admin.user-management');
 
+// Deleted Users Page Route
+Route::get('admin/users/deleted', [UserManagementController::class, 'deletedUsers'])
+    ->name('admin.deleted-users');
+
+// User Restore Route
+Route::post('admin/users/{id}/restore', [UserManagementController::class, 'restore'])
+    ->name('admin.users.restore');
+
+// User Permanent Delete Route (POST ya DELETE method zyada secure hai)
+Route::delete('admin/users/{id}/force-delete', [UserManagementController::class, 'forceDelete'])
+    ->name('admin.users.force-delete');
+
+
 Route::patch('/users/{user}/status', [UserManagementController::class, 'updateStatus'])->name('users.update-status');
 
 // Assign Role to User - Protected route for Admin only
@@ -149,8 +162,11 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
     Route::put('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
     Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+    Route::get('finance/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('finance.invoices.download');
 
-    // ✅ Download Route
+
+
+    //  Download Route
     Route::get('invoices/{id}/download', [InvoiceController::class, 'download'])->name('invoices.download');
 
 
