@@ -12,8 +12,10 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-        background: url("{{ asset('assets/img/backgrounds/bg.jpg') }}") no-repeat center center fixed;
+        /* background: url("{{ asset('assets/img/backgrounds/bg.jpg') }}") no-repeat center center fixed; */
+        background: url("{{ 'https://amfu.net/wp-content/uploads/2024/04/construction-silhouette-1.jpg' }}") no-repeat center center fixed;
         background-size: cover;
+        
     }
 
     /* Video Background */
@@ -66,13 +68,13 @@
         padding: 15px;
     }
 
-    .btn-primary {
+    .btn-download {
         background: linear-gradient(135deg, #4a90e2, #357abd);
         border: none;
         transition: 0.3s ease;
     }
 
-    .btn-primary:hover {
+    .btn-download:hover {
         background: linear-gradient(135deg, #357abd, #2b5f94);
     }
 
@@ -146,16 +148,16 @@
                 </div>
 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">{{ __('Login') }}</button>
+                    <button type="submit" class="btn btn-download btn-lg">{{ __('Login') }}</button>
                 </div>
 
-                @if (Route::has('password.request'))
+                <!-- @if (Route::has('password.request'))
                     <div class="text-center mt-3">
                         <a class="text-decoration-none" href="{{ route('password.request') }}">
                             {{ __('Forgot Your Password?') }}
                         </a>
                     </div>
-                @endif
+                @endif -->
             </form>
         </div>
     </div>

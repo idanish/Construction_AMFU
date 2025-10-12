@@ -11,7 +11,7 @@
         </div>
         <div class="page-title-actions">
             @can('create-procurement')
-            <a href="{{ route('finance.procurements.create') }}" class="btn btn-primary mb-3 vip-btn">
+            <a href="{{ route('finance.procurements.create') }}" class="btn btn-download mb-3 vip-btn">
                 <i class="bi bi-plus-circle"></i> Create
             </a>
             @endcan
@@ -19,12 +19,21 @@
     </div>
 </div>
 
+
+{{-- Success Message --}}
 @if (session('success'))
-<div class="alert alert-success">{{ session('success') }}</div>
+<div class="alert alert-success alert-dismissible fade show" role="alert">{{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
 @endif
+
+{{-- Error Message --}}
 @if (session('error'))
-<div class="alert alert-danger">{{ session('error') }}</div>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
 @endif
+
 
 {{-- filter --}}
 <div class="mb-2">
@@ -33,13 +42,15 @@
         <form method="GET" action="{{ route('finance.procurements.index') }}" class="row mb-2">
 
             <!-- Search -->
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label mb-0">Search</label>
                 <input type="text" name="search" class="form-control" placeholder="Search Item"
                     value="{{ request('search') }}">
             </div>
 
             <!-- Department -->
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label mb-0">By Department</label>
                 <select name="department_id" class="form-control">
                     <option value="">-- Select Department --</option>
                     @foreach ($departments as $dept)
@@ -51,7 +62,8 @@
             </div>
 
             <!-- Status -->
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label mb-0">By Status</label>
                 <select name="status" class="form-control">
                     <option value="">-- Select Status --</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -60,11 +72,19 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
+            <!-- Filter Buttons -->
+            <div class="btn-group col-md-2 col-sm-6" role="group" aria-label="First group">
+                <button type="submit" class="btn btn-secondary btn-sm vip-btn btn-filter"><I
+                        class="bi bi-funnel"></I>Filter</button>
+                <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary btn-sm vip-btn"><I
+                        class="bi bi-eraser"></I>Clear</a>
+            </div>
+
+            <!-- <div class="col-md-2 col-sm-6">
                 <button type="submit" class="vip-btn btn-filter">
                     <I class="bi bi-funnel"></I> Filter
                 </button>
-            </div>
+            </div> -->
         </form>
     </div>
 </div>
@@ -73,7 +93,7 @@
     <table class="table table-bordered table-striped">
         <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
             <tr>
-                <th>ID</th>
+                <th>No</th>
                 <th>Item Name</th>
                 <th>Quantity</th>
                 <th>Cost Estimate</th>
@@ -90,8 +110,8 @@
                 <td>{{ $procurements->firstItem() + $key }}</td>
                 <td>{{ $procurement->item_name }}</td>
                 <td>{{ $procurement->quantity }}</td>
-                <td>{{ $procurement->cost_estimate }}</td>
-                <td> {{ $procurement->quantity > 0 
+                <td>${{ $procurement->cost_estimate }}</td>
+                <td>${{ $procurement->quantity > 0 
             ? number_format($procurement->cost_estimate / $procurement->quantity, 2) 
             : 'N/A' }} </td>
                 <td>{{ $procurement->department->name ?? 'N/A' }}</td>
@@ -104,7 +124,7 @@
                     @else
                     N/A
                     @endif
-                    
+
                 </td>
                 <td>{{ ucfirst($procurement->status) }}</td>
                 <td>
@@ -137,7 +157,7 @@
 
                     @can('update-procurement')
                     <a href="{{ route('finance.procurements.edit', $procurement->id) }}"
-                        class="btn btn-sm btn-primary vip-btn">
+                        class="btn btn-sm btn-download vip-btn">
                         <i class="bi bi-pencil-square"></i> Edit
                     </a>
                     @endcan
@@ -148,7 +168,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-danger vip-btn"
-                            onclick="return confirm('Are you sure?')">
+                            onclick="return confirm('Are you sure you want to delete this procurement?')">
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>
@@ -163,7 +183,4 @@
         {{ $procurements->links() }}
     </div>
 </div>
-
-
-
 @endsection

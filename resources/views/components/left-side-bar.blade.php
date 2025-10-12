@@ -2,23 +2,24 @@
 
     <div class="app-brand demo">
         <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
-            <span class="app-brand-logo demo">
-                @if (isset($setting) && $setting->logo)
-                    <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" width="120">
-                @endif
+            <span class="app-brand-logo">
+                    <!-- <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" width="120"> -->
+                    <img src="https://amfu.net/wp-content/uploads/2024/07/cropped-amfu-for-web-new.png" alt="Logo" width="120px">
+               
             </span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">
-                {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }}
+                <img src="https://amfu.net/wp-content/uploads/2024/07/cropped-amfu-for-web-new.png" alt="Logo" width="120px">
+                <!-- {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }} -->
             </span>
         </a>
 
 
-       <!-- 🔹 Collapse Button (Desktop only) -->
+       <!--  Collapse Button (Desktop only) -->
         <a href="javascript:void(0);" id="sidebarToggle" class="menu-link text-large ms-auto d-none d-xl-inline-flex">
             <i class="bx bx-menu bx-sm align-middle"></i>
         </a>
 
-        <!-- 🔹 Mobile Toggle Button -->
+        <!--  Mobile Toggle Button -->
         <a href="javascript:void(0);" id="mobileSidebarToggle" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
         </a>

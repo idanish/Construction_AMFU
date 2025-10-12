@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('admin.register') }}" class="btn btn-primary vip-btn">
+                <a href="{{ route('admin.register') }}" class="btn btn-download vip-btn">
                    <i class="bi bi-plus-circle"></i> Create User
                 </a>
             </div>
@@ -53,9 +53,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($users as $user)
+                        @forelse($users as $key => $user)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $key + 1 }}</td>
                                 <td>{{ $user->username }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
@@ -72,14 +72,14 @@
                                     @if ($user->status == 1)
                                         <span class="badge bg-success">Active</span>
                                     @else
-                                        <span class="badge bg-danger">Inactive</span>
+                                        <span class="badge bg-secondary">Inactive</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex gap-2 justify-content-center">
                                         <!-- Edit -->
                                         @can('update-user')
-                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm vip-btn"
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-download vip-btn"
                                             title="Edit">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </a>
@@ -92,7 +92,7 @@
                                             class="d-inline-block">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm vip-btn" title="Delete">
+                                            <button type="submit" class="btn btn-sm btn-danger vip-btn" title="Delete">
                                                 <i class="bi bi-trash"></i> Delete
                                             </button>
                                         </form>

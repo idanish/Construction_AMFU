@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="mt-2">
-                <button type="submit" class="btn btn-primary vip-btn btn-filter">  <I class="bi bi-funnel"></I> Filter
+                <button type="submit" class="btn btn-download vip-btn btn-filter">  <I class="bi bi-funnel"></I> Filter
 </button>
             </div>
         </form>

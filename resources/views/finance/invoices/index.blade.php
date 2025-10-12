@@ -11,7 +11,7 @@
         </div>
         <div class="page-title-actions">
             @can('create-invoice')
-            <a href="{{ route('finance.invoices.create') }}" class="btn btn-primary mb-3 vip-btn">
+            <a href="{{ route('finance.invoices.create') }}" class="btn btn-download mb-3 vip-btn">
                 <i class="bi bi-plus-circle"></i> Create
             </a>
             @endcan
@@ -19,11 +19,18 @@
     </div>
 </div>
 
+{{-- Success Message --}}
 @if (session('success'))
-<div class="alert alert-success">{{ session('success') }}</div>
+<div class="alert alert-success alert-dismissible fade show" role="alert">{{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
 @endif
+
+{{-- Error Message --}}
 @if (session('error'))
-<div class="alert alert-danger">{{ session('error') }}</div>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
 @endif
 
 <div class="mb-3">
@@ -31,13 +38,15 @@
         <form method="GET" action="{{ route('finance.invoices.index') }}" class="row">
 
             <!-- Search -->
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label mb-0">Invoice No. / Vendor</label>
                 <input type="text" name="search" value="{{ request('search') }}" class="form-control"
                     placeholder="Search Invoice No / Vendor">
             </div>
 
             <!-- Status -->
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label mb-0">By Status</label>
                 <select name="status" class="form-control">
                     <option value="">-- All Status --</option>
                     <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
@@ -47,19 +56,23 @@
             </div>
 
             <!-- Date Range -->
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label mb-0">Date To</label>
                 <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label mb-0">Date From</label>
                 <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
             </div>
 
             <!-- Buttons -->
-            <div class="col-md-2">
-                <button type="submit" class="vip-btn btn-filter">
-                    <I class="bi bi-funnel"></I> Filter
-                </button>
+            <div class="btn-group col-md-2 col-sm-6" role="group" aria-label="First group">
+                <button type="submit" class="btn btn-secondary btn-sm vip-btn btn-filter"><I
+                        class="bi bi-funnel"></I>Filter</button>
+                <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary btn-sm vip-btn"><I
+                        class="bi bi-eraser"></I>Clear</a>
             </div>
+
         </form>
     </div>
 </div>
@@ -83,12 +96,12 @@
         <tbody>
             @forelse($invoices as $key => $invoice)
             <tr class="text-center align-middle">
-                <td>{{ $invoices->firstItem() + $key }}</td>
+                <td>{{ $key + 1 }}</td>
                 <td>{{ $invoice->invoice_no }}</td>
                 <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y') }}</td>
                 <td>{{ $invoice->vendor_name ?? '-' }}</td>
                 <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y') ?? '-' }}</td>
-                <td>{{ number_format($invoice->amount, 2) }}</td>
+                <td>${{ number_format($invoice->amount, 2) }}</td>
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
                     @can('view-invoice')
@@ -125,7 +138,8 @@
                         <i class="bi bi-eye"></i> View
                     </a>
 
-                    <a href="{{ route('finance.invoices.download', $invoice->id) }}" class="btn btn-secondary vip-btn mb-1">
+                    <a href="{{ route('finance.invoices.download', $invoice->id) }}"
+                        class="btn btn-secondary vip-btn mb-1">
                         <i class="bi bi-download"></i> Download
                     </a>
                 </td>

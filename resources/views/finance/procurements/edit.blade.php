@@ -66,7 +66,7 @@
 
             {{-- Justification / Description --}}
             <div class="mb-3">
-                <label for="justification" class="form-label">Remarks</label>
+                <label for="justification" class="form-label">List</label>
                 <textarea name="justification" id="justification" class="form-control" rows="3">{{ old('justification', $procurement->justification) }}</textarea>
                 @error('justification')
                     <small class="text-danger">{{ $message }}</small>

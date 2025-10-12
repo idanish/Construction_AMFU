@@ -2,7 +2,7 @@
 @section('title', 'Backup and Restore')
 @section('content')
 <div class="container mt-5">
-    <div class="card shadow-lg border-0">
+    <div class=" border-0">
         <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center"
              style="background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);">
             <h4 class="mb-0"><i class="bi bi-gear-fill me-2"></i> Backup & Restore</h4>

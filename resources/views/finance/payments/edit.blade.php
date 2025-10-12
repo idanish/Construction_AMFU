@@ -10,7 +10,7 @@
                 <div class="h4 m-0">Edit Payment</div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('finance.payments.index') }}" class="btn btn-primary mb-3 vip-btn">
+                <a href="{{ route('finance.payments.index') }}" class="btn btn-download mb-3 vip-btn">
                     <i class="bi bi-arrow-left-circle"></i> Go Back
                 </a>
             </div>

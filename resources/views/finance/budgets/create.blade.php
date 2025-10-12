@@ -13,7 +13,7 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-primary mb-3 vip-btn">
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary mb-3 vip-btn">
                         <i class="bi bi-arrow-left-circle"></i> Go Back
                     </a>
                 </div>
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="main-card mb-3 card">
+    <div class="main-card mb-3">
         <div class="card-body">
             <form action="{{ route('finance.budgets.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -64,23 +64,6 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-
-                {{-- Spent --}}
-                <!-- <div class="form-group mb-3">
-                    <label for="spent">Spent Amount</label>
-                    <input type="number" step="0.01" name="spent" id="spent"
-                        class="form-control @error('spent') is-invalid @enderror" value="{{ old('spent') }}">
-                    @error('spent')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- Balance (auto-calc, disabled) --}}
-                <div class="form-group mb-3">
-                    <label for="balance">Balance</label>
-                    <input type="number" id="balance" class="form-control"
-                        value="{{ old('balance', max(0, $balance ?? 0)) }}" disabled>
-                </div> -->
 
 
                 {{-- Notes --}}

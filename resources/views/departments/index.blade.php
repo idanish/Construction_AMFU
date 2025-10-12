@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Departments Management</h2>
         @can('create-department')
-        <a href="{{ route('departments.create') }}" class="btn btn-primary vip-btn">
+        <a href="{{ route('departments.create') }}" class="btn btn-download vip-btn">
             <i class="bi bi-plus-circle"></i> Create Department
         </a>
         @endcan
