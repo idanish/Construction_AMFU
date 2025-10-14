@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Budget;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\ProcurementController;
-use App\Models\RequestController;
+use App\Models\User;
+use App\Models\Procurement;
+use App\Models\RequestModel ;
 
 use Spatie\Activitylog\Models\Activity;
 use Maatwebsite\Excel\Facades\Excel;
@@ -30,7 +31,7 @@ class ReportsController extends Controller
         $status     = $request->input('status');
         $fromDate   = $request->input('from_date');
         $toDate     = $request->input('to_date');
-        $perPage    = $request->input('per_page', 25);
+        $perPage    = $request->input('per_page', 10);
 
         $query = Budget::with('department')
             ->when($status, function ($q) use ($status) {
@@ -59,46 +60,6 @@ class ReportsController extends Controller
         $pdf = PDF::loadView('reports.exports.finance-pdf', compact('budgets'));
         return $pdf->download('finance_report.pdf');
     }
-
-
-
-
-
-    // AUDIT REPORT SECTION
-    // public function auditReport(Request $request)
-    // {
-    //     $query = Payment::with(['invoice', 'invoice.request']);
-
-    //     // Filters
-    //     if ($request->filled('status')) {
-    //         $query->where('status', $request->status);
-    //     }
-    //     if ($request->filled('date_from') && $request->filled('date_to')) {
-    //         $query->whereBetween('payment_date', [$request->date_from, $request->date_to]);
-    //     }
-
-    //     // Pagination (25, 50, 100)
-    //     $payments = $query->paginate($request->get('per_page', 25));
-
-    //     return view('reports.audit-report', compact('payments'));
-    // }
-
-    // public function exportAuditExcel()
-    // {
-    //     return Excel::download(new AuditReportExport, 'audit_report.xlsx');
-    // }
-
-    // public function exportAuditPDF()
-    // {
-    //     $payments = Payment::with(['invoice', 'invoice.request'])->get();
-    //     $pdf = Pdf::loadView('reports.exports.audit-pdf', compact('payments'));
-    //     return $pdf->download('audit_report.pdf');
-    // }
-
-
-
-
-
 
 
 public function auditReport(Request $request)
@@ -143,68 +104,9 @@ public function exportAuditPDF()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // PROCUREMENT REPORT SECTION
-// public function procurementReport(Request $request)
-// {
-//     $query = \App\Models\Procurement::with(['supplier', 'items']);
-
-//     // Filters
-//     if ($request->filled('supplier_id')) {
-//         $query->where('supplier_id', $request->supplier_id);
-//     }
-//     if ($request->filled('status')) {
-//         $query->where('status', $request->status);
-//     }
-//     if ($request->filled('date_from') && $request->filled('date_to')) {
-//         $query->whereBetween('procurement_date', [$request->date_from, $request->date_to]);
-//     }
-
-//     // Pagination
-//     $procurements = $query->paginate($request->get('per_page', 25));
-
-//     return view('reports.procurement-report', compact('procurements'));
-// }
-
-// public function exportProcurementExcel()
-// {
-//     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\ProcurementReportExport, 'procurement_report.xlsx');
-// }
-
-// public function exportProcurementPDF()
-// {
-//     $procurements = \App\Models\Procurement::with(['supplier', 'items'])->get();
-//     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.procurement-pdf', compact('procurements'));
-//     return $pdf->download('procurement_report.pdf');
-// }
-
-
-
 public function procurementReport(Request $request)
 {
-    $query = \App\Models\Procurement::with(['department']); // department relation chahiye
+    $query = \App\Models\Procurement::with(['department']);
 
     // Filters
     if ($request->filled('department_id')) {
@@ -218,7 +120,7 @@ public function procurementReport(Request $request)
     }
 
     // Pagination
-    $procurements = $query->paginate($request->get('per_page', 25));
+    $procurements = $query->paginate($request->get('per_page', 10));
 
     return view('reports.procurement-report', compact('procurements'));
 }
@@ -227,19 +129,14 @@ public function procurementReport(Request $request)
 public function exportProcurementExcel()
 {
     return \Maatwebsite\Excel\Facades\Excel::download(
-        new \App\Exports\ProcurementReportExport,
-        'procurement_report.xlsx'
-    );
+        new \App\Exports\ProcurementReportExport, 'procurement_report.xlsx');
 }
 
 
 public function exportProcurementPDF()
 {
     $procurements = \App\Models\Procurement::with('department')->get();
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
-        'reports.exports.procurement-pdf',
-        compact('procurements')
-    );
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.procurement-pdf',compact('procurements'));
     return $pdf->download('procurement_report.pdf');
 }
 
@@ -261,7 +158,7 @@ public function requestReport(Request $request)
         $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
     }
 
-    $requests = $query->paginate($request->get('per_page', 25));
+    $requests = $query->paginate($request->get('per_page', 10));
 
     return view('reports.request-report', compact('requests'));
 }
@@ -279,38 +176,42 @@ public function exportRequestPDF()
 }
 
 
-// WORKFLOW REPORT SECTION
 
-public function workflowReport(Request $request)
-{
-    $query = \App\Models\Workflow::with(['createdBy', 'department']);
 
-    // Filters
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
-    if ($request->filled('department_id')) {
-        $query->where('department_id', $request->department_id);
-    }
-    if ($request->filled('date_from') && $request->filled('date_to')) {
-        $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
-    }
 
-    $workflows = $query->paginate($request->get('per_page', 25));
 
-    return view('reports.workflow-report', compact('workflows'));
-}
+// // WORKFLOW REPORT SECTION
 
-public function exportWorkflowExcel()
-{
-    return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\WorkflowReportExport, 'workflow_report.xlsx');
-}
+// public function workflowReport(Request $request)
+// {
+//     $query = \App\Models\Workflow::with(['createdBy', 'department']);
 
-public function exportWorkflowPDF()
-{
-    $workflows = \App\Models\Workflow::with(['createdBy', 'department'])->get();
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.workflow-pdf', compact('workflows'));
-    return $pdf->download('workflow_report.pdf');
-}
+//     // Filters
+//     if ($request->filled('status')) {
+//         $query->where('status', $request->status);
+//     }
+//     if ($request->filled('department_id')) {
+//         $query->where('department_id', $request->department_id);
+//     }
+//     if ($request->filled('date_from') && $request->filled('date_to')) {
+//         $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
+//     }
+
+//     $workflows = $query->paginate($request->get('per_page', 10));
+
+//     return view('reports.workflow-report', compact('workflows'));
+// }
+
+// public function exportWorkflowExcel()
+// {
+//     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\WorkflowReportExport, 'workflow_report.xlsx');
+// }
+
+// public function exportWorkflowPDF()
+// {
+//     $workflows = \App\Models\Workflow::with(['createdBy', 'department'])->get();
+//     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.workflow-pdf', compact('workflows'));
+//     return $pdf->download('workflow_report.pdf');
+// }
 
 }

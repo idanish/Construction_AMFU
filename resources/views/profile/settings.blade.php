@@ -71,7 +71,7 @@
 
                 {{-- Buttons --}}
                 <div class="d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary vip-btn">
+                    <button type="submit" class="btn btn-download vip-btn">
                         <i class="bi bi-arrow-repeat"></i> Update Profile
                     </button>
                     <a href="{{ url()->previous() }}" class="btn btn-light vip-btn">

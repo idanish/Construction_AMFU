@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold m-0">Roles List</h4>
             @can('create-role')
-            <a href="{{ route('roles.create') }}" class="btn btn-primary vip-btn">
+            <a href="{{ route('roles.create') }}" class="btn btn-download vip-btn">
                <i class="bi bi-plus-circle"></i> Create New Role
             </a>
             @endcan

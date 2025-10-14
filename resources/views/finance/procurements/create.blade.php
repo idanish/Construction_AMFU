@@ -13,7 +13,7 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-primary mb-3 vip-btn">
+                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary mb-3 vip-btn">
                         <i class="bi bi-arrow-left-circle"></i> Go Back
                     </a>
                 </div>
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="main-card mb-3 card shadow-lg">
+    <div class="main-card mb-3">
         <div class="card-body">
             <form action="{{ route('finance.procurements.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -75,9 +75,9 @@
 
                 {{-- Justification --}}
                 <div class="mb-4">
-                    <label for="justification" class="form-label fw-bold">Remarks</label>
+                    <label for="justification" class="form-label fw-bold">List</label>
                     <textarea name="justification" rows="3" class="form-control @error('justification') is-invalid @enderror"
-                        placeholder="Provide justification for procurement">{{ old('justification') }}</textarea>
+                        placeholder="Provide Items List for procurement(s) (If Any)">{{ old('justification') }}</textarea>
                     @error('justification')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

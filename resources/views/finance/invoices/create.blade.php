@@ -11,7 +11,7 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.invoices.index') }}" class="btn btn-primary mb-3 vip-btn">
+                    <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary mb-3 vip-btn">
                        <i class="bi bi-arrow-left-circle"></i> Go Back
                     </a>
                 </div>
@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="main-card mb-3 card">
+    <div class="main-card mb-3">
         <div class="card-body">
             <form action="{{ route('finance.invoices.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf

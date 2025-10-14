@@ -8,7 +8,8 @@
                 @endif
             </span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">
-                {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }}
+                <!-- {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }} -->
+                  <img src="https://amfu.net/wp-content/uploads/2024/07/cropped-amfu-for-web-new.png" alt="Logo" width="160px">
             </span>
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -21,7 +22,7 @@
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
         <li class="menu-item active">
-            <a href="{{ route('admin.dashboard') }}" class="menu-link">
+            <a href="{{ route('admin.dashboard') }}" class="menu-link text-warning">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Dashboard</div>
             </a>

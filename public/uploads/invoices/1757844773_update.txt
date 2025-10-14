@@ -1,9 +1,0 @@
-service m request no auto generate ------->>> Done
-
-
-budget + attachment + blalnce ko - karna h = Allocated-spent ---> edit remainning
-
-invoice + download button
-payment + vendor + attachment + vendor name + vendor amount
-
-procurement + QTY +Amount isme se -  karna h attachment

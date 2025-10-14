@@ -147,7 +147,7 @@
                 <td>{{ number_format($invoice->amount, 2) }}</td>
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
-                    <a href="{{ route('finance.payments.index') }}" class="btn btn-primary vip-btn">
+                    <a href="{{ route('finance.payments.index') }}" class="btn btn-download vip-btn">
                             <div>Payment</div>
                         </a>
                 </td>

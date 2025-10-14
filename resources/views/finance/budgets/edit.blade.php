@@ -136,8 +136,8 @@
             const spent = parseFloat(spentInput.value) || 0;
             const balance = (allocated - spent).toFixed(2);
 
-            balanceInput.value = balance; // visible field update
-            hiddenBalanceInput.value = balance; // hidden field backend ko bheje
+            balanceInput.value = balance;
+            hiddenBalanceInput.value = balance;
         }
 
         allocatedInput.addEventListener('input', updateBalance);

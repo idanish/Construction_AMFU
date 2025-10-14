@@ -10,7 +10,9 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+    <!-- <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" /> -->
+    <!-- <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" /> -->
+    <link rel="icon" type="image/x-icon" href="https://amfu.net/wp-content/uploads/2024/04/cropped-amfu-FAV-32x32.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -115,12 +117,14 @@
 
         /* Submit Button Color */
         .btn-submit {
-            background: linear-gradient(135deg, #36d1dc, #5b86e5);
+            /* background: linear-gradient(135deg, #36d1dc, #5b86e5); */
+            background: linear-gradient(135deg, #ffc80c, #ffc80d);
             color: #fff;
         }
 
         .btn-download {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            /* background: linear-gradient(135deg, #1e3c72, #2a5298); */
+            background: linear-gradient(135deg, #ffc80c, #ffc80d);
             /* Dark Blue Gradient */
             color: #fff;
         }
