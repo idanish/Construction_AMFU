@@ -63,7 +63,8 @@
                 @endcan
 
                 @can('reject-request')
-                <li class="menu-item">                <a href="{{ route('requests.rejected') }}" class="menu-link">
+                <li class="menu-item">
+                    <a href="{{ route('requests.rejected') }}" class="menu-link">
                         <div data-i18n="Add-Request">Rejected Request</div>
                     </a>
                 </li>
