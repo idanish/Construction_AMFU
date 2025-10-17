@@ -13,11 +13,12 @@ return new class extends Migration
             $table->unsignedBigInteger('procurement_id')->nullable();
             $table->string('invoice_no')->unique();
             $table->decimal('amount', 10, 2);
-            $table->dateTime('invoice_date')->nullable();
-            $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
+            $table->dateTime('invoice_date');
+            $table->enum('status', ['unpaid', 'partial','paid'])->default('unpaid');
             $table->text('notes')->nullable();
-            $table->text('due_date')->nullable();
-            $table->text('vendor_name')->nullable();
+            $table->string('attachment')->nullable();
+            $table->dateTime('due_date');
+            $table->text('vendor_name');
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();

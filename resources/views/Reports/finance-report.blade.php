@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Finance Report')
 @section('content')
 <div class="container">
     <h2>Finance Report</h2>
@@ -28,46 +28,56 @@
                 </select>
             </div>
             <div class="col">
-                <button type="submit" class="btn btn-primary">Filter</button>
+                <button type="submit" class="btn btn-download vip-btn btn-filter"> <I class="bi bi-funnel"></I> Filter
+                </button>
             </div>
         </div>
     </form>
 
     <!-- Export buttons -->
     <div class="mb-3">
-        <a href="{{ route('reports.finance.export.excel') }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('reports.finance.export.pdf') }}" class="btn btn-danger">Export PDF</a>
+        <a href="{{ route('reports.finance.export.excel') }}" class="btn btn-success vip-btn btn-excel">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+
+        </a>
+        <a href="{{ route('reports.finance.export.pdf') }}" class="btn btn-danger vip-btn btn-pdf">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+
+        </a>
     </div>
 
     <!-- Table -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Department</th>
-                <th>Allocated</th>
-                <th>Spent</th>
-                <th>Balance</th>
-                <th>Status</th>
-                <th>Transaction</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($budgets as $budget)
-            <tr>
-                <td>{{ $budget->department->name ?? '-' }}</td>
-                <td>{{ $budget->allocated }}</td>
-                <td>{{ $budget->spent }}</td>
-                <td>{{ $budget->balance }}</td>
-                <td>{{ $budget->status }}</td>
-                <td>{{ $budget->transaction_no }}</td>
-                <td>{{ $budget->created_at->format('d-M-Y h:i A') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
+    <div class="table-responsive-lg">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
+                <tr>
+                    <th>S.No</th>
+                    <th>Department</th>
+                    <th>Allocated</th>
+                    <th>Spent</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($budgets as $key => $budget)
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $budget->department->name ?? '-' }}</td>
+                    <td>{{ $budget->allocated }}</td>
+                    <td>{{ $budget->spent }}</td>
+                    <td>{{ $budget->balance }}</td>
+                    <td>{{ $budget->status }}</td>
+                    <td>{{ $budget->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
     <!-- Pagination -->
-    {{ $budgets->links() }}
+    <div>
+        {{ $budgets->links() }}
+    </div>
 </div>
 @endsection

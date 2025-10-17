@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Payment Details')
 @section('content')
 <div class="container py-4">
     <h2 class="mb-4">Payment Details</h2>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="mt-4 d-flex gap-2">
-        <a href="{{ route('finance.payments.edit', $payment->id) }}" class="btn btn-primary">
+        <a href="{{ route('finance.payments.edit', $payment->id) }}" class="btn btn-download">
             <i class="bi bi-pencil-square"></i> Edit
         </a>
         <a href="{{ route('finance.payments.index') }}" class="btn btn-secondary">

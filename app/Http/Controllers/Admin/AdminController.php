@@ -42,6 +42,6 @@ class AdminController extends Controller
         $role = Role::findById($request->role_id);
         $user->assignRole($role);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Admin registered successfully!');
+        return redirect()->route('admin.user-management')->with('success', 'User created successfully!');
     }
 }

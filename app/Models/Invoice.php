@@ -5,19 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Spatie\Permission\Traits\HasRoles;
 // Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class Invoice extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
 
-    protected $fillable = [
-        'procurement_id', 'invoice_no', 'amount', 'invoice_date',
-        'vendor_name', 'due_date', 'status', 'notes', 'attachment'
-    ];
+    protected $fillable = ['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'vendor_name', 'due_date', 'status', 'notes', 'attachment'];
 
     protected $casts = [
         'invoice_date' => 'date',
@@ -28,7 +25,7 @@ class Invoice extends Model
     {
         return LogOptions::defaults()
             ->useLogName('Invoice')
-            ->logOnly(['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'status', 'notes', 'transaction_no'])
+            ->logOnly(['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'vendor_name', 'due_date', 'status', 'notes', 'attachment'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -38,7 +35,9 @@ class Invoice extends Model
         return "Invoice record has been {$eventName}";
     }
 
-    // 🔹 Relationships
+    // Activity Log End Here
+
+    //  Relationships
     public function procurement()
     {
         return $this->belongsTo(Procurement::class);

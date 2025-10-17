@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Edit Invoice')
 @section('content')
     <div class="container py-4">
         <h2 class="mb-4">Edit Invoice</h2>
@@ -76,7 +76,7 @@
             </div>
 
             {{-- Status --}}
-            <div class="mb-3">
+            <div class="mb-3 d-none">
                 <label for="status" class="form-label">Status</label>
                 <select name="status" class="form-select" @if (auth()->user()->role != 'admin') disabled @endif>
                     <option value="Unpaid" {{ old('status', $invoice->status) == 'Unpaid' ? 'selected' : '' }}>Unpaid
@@ -98,7 +98,7 @@
                 <label class="form-label">Attachment</label>
                 <div class="upload-box" id="uploadBox">
                     <i class="bi bi-paperclip"></i>
-                    <p>Drag & Drop file here or click to upload</p>
+                    <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
                     <input type="file" name="attachment" id="attachmentInput" hidden>
                 </div>
 
@@ -124,8 +124,12 @@
                 @enderror
             </div>
 
-            <button type="submit" class="btn btn-success">Update Invoice</button>
-            <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary">Back</a>
+            <button type="submit" class="btn btn-info text-dark vip-btn">
+                <i class="bi bi-arrow-repeat"></i> Update
+            </button>
+            <a href="{{ route('finance.invoices.index') }}" class="btn btn-secondary vip-btn">
+                <i class="bi bi-arrow-left-circle"></i> Go Back
+            </a>
         </form>
     </div>
 

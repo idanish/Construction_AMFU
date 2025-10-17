@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="container">
-        <h2 class="mb-4">✏️ Edit User</h2>
+        <h2 class="mb-4"> Edit User</h2>
 
         {{-- Error Messages --}}
         @if ($errors->any())
@@ -81,8 +81,12 @@
             </div>
             <!-- Buttons -->
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">💾 Update User</button>
-                <a href="{{ route('users.index') }}" class="btn btn-secondary">❌ Cancel</a>
+                <button type="submit" class="btn btn-info text-dark vip-btn">
+                    <i class="bi bi-arrow-repeat"></i> Update
+                </button>
+                <a href="{{ route('users.index') }}" class="btn btn-secondary vip-btn">
+                    <i class="bi bi-x-octagon"></i> Cancel
+                </a>
             </div>
         </form>
     </div>

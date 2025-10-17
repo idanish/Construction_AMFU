@@ -1,10 +1,10 @@
 @extends('master')
-
+@section('title', 'Edit Role')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold m-0">Edit Role</h4>
-            <a href="{{ route('roles.show') }}" class="btn btn-secondary">
+            <a href="{{ route('roles.show') }}" class="btn btn-secondary vip-btn">
                 <i class='bx bx-arrow-back'></i> Back
             </a>
         </div>
@@ -55,8 +55,8 @@
                         </div>
                     @endforeach
                     {{-- Submit Button --}}
-                    <button type="submit" class="btn btn-success">
-                        <i class='bx bx-save'></i> Update Role
+                    <button type="submit" class="btn btn-info text-dark vip-btn">
+                        <i class="bi bi-arrow-repeat"></i> Update
                     </button>
                 </form>
             </div>

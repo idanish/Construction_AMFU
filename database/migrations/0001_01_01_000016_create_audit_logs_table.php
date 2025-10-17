@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

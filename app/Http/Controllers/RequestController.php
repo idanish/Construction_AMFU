@@ -4,35 +4,65 @@ namespace App\Http\Controllers;
 
 use App\Models\RequestModel;
 use App\Models\Department;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
-
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\File;
 
 class RequestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-{
-    // Sab requests fetch karo, relations ke saath
-    $requests = RequestModel::with(['requestor', 'department'])->latest()->get();
 
-    // View me $requests pass karo
-    return view('requests.index', compact('requests'));
-}
+    public function index(Request $r)
+    {
+        // 1. Pagination Setup
+        $perPage = $r->input('per_page', 10); // Default 10 requests per page
+        if (!in_array($perPage, [5, 10, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        
+        $requestsQuery = RequestModel::with(['requestor', 'department'])->latest();
+
+        // 2. Filters Implementation
+
+        // Filter By Requestor (requestor_id)
+        if ($r->filled('requestor_id')) {
+            $requestsQuery->where('requestor_id', $r->requestor_id);
+        }
+
+        // Filter By Status (status)
+        if ($r->filled('status')) {
+            $requestsQuery->where('status', $r->status);
+        }
+
+        // Date Range Filter (start_date and end_date)
+        if ($r->filled('start_date') && $r->filled('end_date')) {
+            $requestsQuery->whereBetween('created_at', [
+                $r->start_date . " 00:00:00", // Start of the start day
+                $r->end_date . " 23:59:59"    // End of the end day
+            ]);
+        }
+
+        // Final Data Fetching
+        $requests = $requestsQuery->paginate($perPage)->withQueryString();
+        
+        
+        $departments = Department::all();
+        $allRequestors = User::orderBy('name')->get(); // Filters
+
+        return view('requests.index', compact('requests', 'departments', 'allRequestors'));
+    }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
 {
-    // Sab departments fetch karo
+
     $departments = Department::all();
 
-    // View ko $departments pass karo
+
     return view('requests.create', compact('departments'));
 }
     /**
@@ -55,18 +85,12 @@ class RequestController extends Controller
     return redirect()->route('requests.index')->with('success', 'Request created successfully.');
 }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $request = RequestModel::with(['requestor', 'department'])->findOrFail($id);
         return view('requests.show', compact('request'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id) 
 {
     $request = RequestModel::findOrFail($id);
@@ -115,7 +139,22 @@ class RequestController extends Controller
         return redirect()->route('requests.index')->with('success', 'Request deleted successfully.');
     }
 
-   
 
+    // Approved Request
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate(['status' => 'required|in:approved,rejected']);
+
+        $request_item = RequestModel::find($id);
+
+        if ($request_item) {
+            $request_item->status = $request->input('status');
+            $request_item->save();
+            
+            return redirect()->back()->with('success', 'Status updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Request not found!');
+    }
 
 }

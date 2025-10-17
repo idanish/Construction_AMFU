@@ -1,6 +1,6 @@
 @extends('master')
 
-@section('title', 'Register New Admin')
+@section('title', 'Add New User')
 
 @section('content')
     <div class="app-page-title">
@@ -10,12 +10,13 @@
                     <i class="pe-7s-add-user icon-gradient bg-mean-fruit"></i>
                 </div>
                 <div>
-                    Register New Admin
+                    <h2>Add New User</h2>
                 </div>
             </div>
             <div class="page-title-actions">
-                <a href="{{ route('users.index') }}" class="btn btn-secondary">
-                    <i class="bx bx-arrow-back"></i> Back
+                <a href="{{ route('users.index') }}" class="btn btn-secondary vip-btn">
+                    <i class="bi bi-arrow-left-circle"></i> Go Back
+
                 </a>
             </div>
         </div>
@@ -40,7 +41,7 @@
         </div>
     @endif
 
-    <div class="main-card mb-3 card">
+    <div class="main-card mb-3 ">
         <div class="card-body">
             <form method="POST" action="{{ route('admin.register.store') }}">
                 @csrf
@@ -123,7 +124,9 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Create User</button>
+                <button type="submit" class="vip-btn btn-submit">
+                    <i class="bi bi-check-lg"></i> Create User
+                </button>
             </form>
         </div>
     </div>

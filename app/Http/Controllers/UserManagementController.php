@@ -20,7 +20,7 @@ class UserManagementController extends Controller
     public function edit(User $user)
 {
     $roles = Role::all();
-    $departments = Department::all(); // sab departments laa lo
+    $departments = Department::all(); 
 
     return view('admin.users-edit', compact('user', 'roles', 'departments'));
 }
@@ -53,9 +53,7 @@ class UserManagementController extends Controller
     return redirect()->route('users.index')->with('success', 'User updated successfully!');
 }
 
-
-
-    // ✅ Update status (Active / Inactive)
+    //  Update status (Active / Inactive)
     public function updateStatus(Request $request, User $user)
     {
         $request->validate([
@@ -68,12 +66,41 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'User status updated successfully!');
     }
 
-    // Delete user
-    public function destroy($id)
+        public function destroy(User $user) 
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $user->delete(); 
 
-        return redirect()->route('admin.user-management')->with('success', 'User deleted successfully!');
+        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }
+
+
+    public function deletedUsers()
+    {
+      
+        $users = User::onlyTrashed()->with('department')->get();
+        return view('admin.users-deleted', compact('users')); 
+    }
+
+    
+    public function restore($id)
+    {
+       
+        $user = User::withTrashed()->findOrFail($id); 
+        $user->restore();
+
+        return redirect()->route('admin.deleted-users')->with('success', 'User restored successfully!');
+    }
+
+        public function forceDelete($id)
+        {
+            $user = User::withTrashed()->findOrFail($id); 
+            
+            $user->forceDelete(); 
+
+            return redirect()->route('admin.deleted-users')->with('success', 'User permanently deleted!');
+        }
+    
 }
+
+
+    

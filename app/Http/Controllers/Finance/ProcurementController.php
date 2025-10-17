@@ -12,10 +12,32 @@ use Illuminate\Support\Facades\DB;
 
 class ProcurementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
 {
-    $procurements = \App\Models\Procurement::with('department')->latest()->get();
-    return view('finance.procurements.index', compact('procurements'));
+    $query = Procurement::with('department');
+
+    // 🔹 Filter by Department
+    if ($request->filled('department_id')) {
+        $query->where('department_id', $request->department_id);
+    }
+
+    // 🔹 Filter by Status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // 🔹 Filter by Item Name (search)
+    if ($request->filled('search')) {
+        $query->where('item_name', 'like', '%' . $request->search . '%');
+    }
+
+    // 🔹 Pagination (10 per page)
+    $procurements = $query->orderBy('id')->paginate(05);
+
+    // Departments dropdown ke liye
+    $departments = \App\Models\Department::all();
+
+    return view('finance.procurements.index', compact('procurements', 'departments'));
 }
    public function create()
     {
@@ -31,7 +53,7 @@ class ProcurementController extends Controller
             'cost_estimate' => 'required|numeric|min:0',
             'department_id' => 'nullable|exists:departments,id',
             'justification' => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,xlsx|max:2048',
+            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
@@ -64,8 +86,8 @@ class ProcurementController extends Controller
         'cost_estimate' => 'required|numeric|min:0',
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
-        'attachment'    => 'nullable|file|max:5120',
-        'status'        => 'required|in:pending,approved,rejected', // include pending if needed
+        'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+        'status'        => 'required|in:pending,approved,rejected'
     ]);
 
     $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
@@ -92,10 +114,7 @@ class ProcurementController extends Controller
     // Approved Request
     public function updateStatus(Request $request, $id)
     {
-        // Sabse pehle, request ko validate karein
-        $request->validate([
-            'status' => 'required|in:approved,rejected',
-        ]);
+        $request->validate(['status' => 'required|in:approved,rejected']);
 
         $procurement = Procurement::find($id);
 

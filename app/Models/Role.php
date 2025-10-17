@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 // Activity Logs Files
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -10,7 +11,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Role extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SoftDeletes;
     protected $fillable = ['name'];
 
     // Activity Log Start Here

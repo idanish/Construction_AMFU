@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Add New Procurement')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -13,13 +13,15 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-primary mb-3">Go Back</a>
+                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary mb-3 vip-btn">
+                        <i class="bi bi-arrow-left-circle"></i> Go Back
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="main-card mb-3 card shadow-lg">
+    <div class="main-card mb-3">
         <div class="card-body">
             <form action="{{ route('finance.procurements.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -73,9 +75,9 @@
 
                 {{-- Justification --}}
                 <div class="mb-4">
-                    <label for="justification" class="form-label fw-bold">Justification</label>
+                    <label for="justification" class="form-label fw-bold">List</label>
                     <textarea name="justification" rows="3" class="form-control @error('justification') is-invalid @enderror"
-                        placeholder="Provide justification for procurement">{{ old('justification') }}</textarea>
+                        placeholder="Provide Items List for procurement(s) (If Any)">{{ old('justification') }}</textarea>
                     @error('justification')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -86,7 +88,7 @@
                     <label class="form-label">Attachment</label>
                     <div class="upload-box" id="uploadBox">
                         <i class="bi bi-paperclip"></i>
-                        <p>Drag & Drop file here or click to upload</p>
+                        <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
                         <input type="file" name="attachment" id="attachmentInput" hidden>
                     </div>
                     <div id="filePreview" class="mt-2"></div>
@@ -108,8 +110,12 @@
 
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Procurement</button>
-                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="vip-btn btn-submit">
+                        <i class="bi bi-check-lg"></i> Create
+                    </button>
+                    <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>

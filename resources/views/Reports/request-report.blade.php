@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Request reports')
 @section('content')
 <div class="container">
     <h2>Requests Report</h2>
@@ -11,9 +11,9 @@
                 <label>Status</label>
                 <select name="status" class="form-control">
                     <option value="">All</option>
-                    <option value="approved" {{ request('status')=='approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="rejected" {{ request('status')=='rejected' ? 'selected' : '' }}>Rejected</option>
+                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -30,40 +30,48 @@
             </div>
         </div>
         <div class="mt-2">
-            <button class="btn btn-primary">Filter</button>
+            <button type="submit" class="btn btn-download vip-btn btn-filter"> <I class="bi bi-funnel"></I> Filter
+            </button>
         </div>
     </form>
 
     <!-- Export Buttons -->
     <div class="mb-3">
-        <a href="{{ route('reports.requests.export.excel') }}" class="btn btn-success">Export Excel</a>
-        <a href="{{ route('reports.requests.export.pdf') }}" class="btn btn-danger">Export PDF</a>
+        <a href="{{ route('reports.requests.export.excel') }}" class="btn btn-success vip-btn btn-excel">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+
+        </a>
+        <a href="{{ route('reports.requests.export.pdf') }}" class="btn btn-danger vip-btn btn-pdf">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+
+        </a>
     </div>
 
     <!-- Table -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Department</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($requests as $req)
-            <tr>
-                <td>{{ $req->id }}</td>
-                <td>{{ $req->user->name ?? 'N/A' }}</td>
-                <td>{{ $req->department->name ?? 'N/A' }}</td>
-                <td>{{ ucfirst($req->status) }}</td>
-                <td>{{ $req->created_at->format('d-M-Y h:i A') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
+    <div class="table-responsive-lg">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
+                <tr>
+                    <th>S.No</th>
+                    <th>User</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($requests as $key => $req)
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $req->user->name ?? 'N/A' }}</td>
+                    <td>{{ $req->department->name ?? 'N/A' }}</td>
+                    <td>{{ ucfirst($req->status) }}</td>
+                    <td>{{ $req->created_at->format('d-M-Y h:i A') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
     <!-- Pagination -->
     <div>
         {{ $requests->appends(request()->query())->links() }}

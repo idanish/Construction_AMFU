@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Create New Request')
 @section('content')
     <div class="container">
         <div class="row">
@@ -31,7 +31,9 @@
                         <input type="number" name="amount" id="amount" class="form-control" step="0.01" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                    <button type="submit" class="vip-btn btn-submit">
+                        <i class="bi bi-check-lg"></i> Submit
+                    </button>
                 </form>
 
             </div>

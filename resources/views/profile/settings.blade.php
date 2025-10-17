@@ -71,10 +71,12 @@
 
                 {{-- Buttons --}}
                 <div class="d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bx bx-save"></i> Update Profile
+                    <button type="submit" class="btn btn-download vip-btn">
+                        <i class="bi bi-arrow-repeat"></i> Update Profile
                     </button>
-                    <a href="{{ url()->previous() }}" class="btn btn-light">Cancel</a>
+                    <a href="{{ url()->previous() }}" class="btn btn-light vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>

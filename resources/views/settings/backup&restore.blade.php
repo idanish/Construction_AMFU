@@ -1,8 +1,8 @@
 @extends('master')
-
+@section('title', 'Backup and Restore')
 @section('content')
 <div class="container mt-5">
-    <div class="card shadow-lg border-0">
+    <div class=" border-0">
         <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center"
              style="background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);">
             <h4 class="mb-0"><i class="bi bi-gear-fill me-2"></i> Backup & Restore</h4>
@@ -31,6 +31,7 @@
             @endif
 
             {{-- Backup Section --}}
+            @can('backup')
             <div class="mb-5">
                 <h5 class="fw-bold text-purple"><i class="bi bi-hdd-stack-fill me-2"></i>Create Backup</h5>
                 <p class="text-muted">Generate a full system backup including database and files.</p>
@@ -44,10 +45,11 @@
                     </button>
                 </form>
             </div>
-
+            @endcan
             <hr>
 
             {{-- Restore Section --}}
+            @can('backup-restore')
             <div>
                 <h5 class="fw-bold text-success"><i class="bi bi-arrow-repeat me-2"></i>Restore Backup</h5>
                 <p class="text-muted">Upload a backup file (.SQL) to restore your system data.</p>
@@ -63,6 +65,7 @@
                     </button>
                 </form>
             </div>
+            @endcan
         </div>
     </div>
 </div>

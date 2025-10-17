@@ -16,6 +16,7 @@ return new class extends Migration
             $table->enum('status', ['pending','approved','rejected'])->default('pending');
             $table->unsignedBigInteger('transaction_no')->default(0); // already added but ensured
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

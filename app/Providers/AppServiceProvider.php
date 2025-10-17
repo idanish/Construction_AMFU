@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Budget;
 use App\Observers\BaseObserver;
 use App\Observers\UserObserver;
+use Illuminate\Pagination\Paginator; 
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
         Department::observe(BaseObserver::class);
         Budget::observe(BaseObserver::class);
         User::observe(UserObserver::class);
+        Paginator::useBootstrapFive();
     }
 }

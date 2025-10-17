@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes; // Yeh line add karein
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-
+use Spatie\Permission\Traits\HasRoles;
 // Activity Logs Files
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -15,7 +15,7 @@ use Spatie\Activitylog\LogOptions;
 
 class RequestModel extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes;
+    use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes, HasRoles ;
 
     protected $table = 'requests';
 
@@ -40,13 +40,14 @@ class RequestModel extends Model implements HasMedia
     // Activity Log End Here
 
 
-// 🔹 Relationship with User
+//  Relationship with User
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        // return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'requestor_id');
     }
 
-    // 🔹 Relationship with Department
+    //  Relationship with Department
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id');
@@ -56,8 +57,5 @@ class RequestModel extends Model implements HasMedia
         return $this->belongsTo(User::class, 'requestor_id');
     }
     
-
-
-
 
 }

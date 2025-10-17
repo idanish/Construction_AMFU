@@ -29,9 +29,7 @@ public function assignRole(Request $request, $id) {
 public function index()
 {
     $users = \App\Models\User::with(['roles', 'department'])->get();
-    // dd($users->toArray()); // 👈 yahan dump karke check karo
     return view('users.index', compact('users'));
 }
-
 
 }

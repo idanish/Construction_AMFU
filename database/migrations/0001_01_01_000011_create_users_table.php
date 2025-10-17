@@ -22,9 +22,10 @@ return new class extends Migration
             $table->string('password');
             $table->string('profile_picture')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
-            $table->boolean('status')->default(false);
+            $table->boolean('status')->default(true);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
  
 });
         Schema::create('password_reset_tokens', function (Blueprint $table) {

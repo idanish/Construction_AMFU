@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Create Budget')
 @section('content')
     <div class="app-page-title">
         <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -13,13 +13,15 @@
             </div>
             <div class="page-title-actions">
                 <div class="d-inline-block">
-                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-primary mb-3">Go Back</a>
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary mb-3 vip-btn">
+                        <i class="bi bi-arrow-left-circle"></i> Go Back
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="main-card mb-3 card">
+    <div class="main-card mb-3">
         <div class="card-body">
             <form action="{{ route('finance.budgets.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -63,23 +65,6 @@
                     @enderror
                 </div>
 
-                {{-- Spent --}}
-                <div class="form-group mb-3">
-                    <label for="spent">Spent Amount</label>
-                    <input type="number" step="0.01" name="spent" id="spent"
-                        class="form-control @error('spent') is-invalid @enderror" value="{{ old('spent') }}">
-                    @error('spent')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- Balance (auto-calc, disabled) --}}
-                <div class="form-group mb-3">
-                    <label for="balance">Balance</label>
-                    <input type="number" id="balance" class="form-control"
-                        value="{{ old('balance', max(0, $balance ?? 0)) }}" disabled>
-                </div>
-
 
                 {{-- Notes --}}
                 <div class="form-group mb-3">
@@ -95,7 +80,7 @@
                     <label class="form-label">Attachment</label>
                     <div class="upload-box" id="uploadBox">
                         <i class="bi bi-paperclip"></i>
-                        <p>Drag & Drop file here or click to upload</p>
+                        <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
                         <input type="file" name="attachment" id="attachmentInput" hidden>
                     </div>
                     <div id="filePreview" class="mt-2"></div>
@@ -119,8 +104,12 @@
                 </div>
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Budget</button>
-                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="vip-btn btn-submit">
+                        <i class="bi bi-check-lg"></i> save
+                    </button>
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn">
+                        <i class="bi bi-x-octagon"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>

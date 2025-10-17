@@ -1,5 +1,5 @@
 @extends('master')
-
+@section('title', 'Approvals')
 @section('content')
 <div class="container">
     <h2>All Approvals</h2>
