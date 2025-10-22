@@ -104,7 +104,7 @@
                 <td>${{ number_format($invoice->amount, 2) }}</td>
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
-                    @can('view-invoice')
+                    @can('view attachment')
                     @if ($invoice->attachment)
                     <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank"
                         class="btn btn-sm btn-info vip-btn">
@@ -137,11 +137,12 @@
                     <a href="{{ route('finance.invoices.show', $invoice->id) }}" class="btn btn-info vip-btn mb-1">
                         <i class="bi bi-eye"></i> View
                     </a>
-
+@can('view-invoice')
                     <a href="{{ route('finance.invoices.download', $invoice->id) }}"
                         class="btn btn-secondary vip-btn mb-1">
                         <i class="bi bi-download"></i> Download
                     </a>
+                    @endcan
                 </td>
 
             </tr>

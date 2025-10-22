@@ -118,6 +118,7 @@
                 <td>{{ ucfirst($budget->status) }}</td>
 
                 <td>
+                    @can('view attachment')
                     @if ($budget->attachment)
                     <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank"
                         class="btn  btn-info vip-btn">
@@ -125,6 +126,7 @@
                     @else
                     -
                     @endif
+                    @endcan
                 </td>
                 <td>
 

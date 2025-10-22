@@ -1,165 +1,148 @@
 @extends('layouts.app')
 @section('title', 'Login')
 @section('content')
-@if (session('success'))
-    <div class="alert alert-success text-center mb-3">
-        {{ session('success') }}
-    </div>
-@endif
 
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-        /* background: url("{{ asset('assets/img/backgrounds/bg.jpg') }}") no-repeat center center fixed; */
-        background: url("{{ 'https://amfu.net/wp-content/uploads/2024/04/construction-silhouette-1.jpg' }}") no-repeat center center fixed;
-        background-size: cover;
-        
+body {
+    background-color: #f8f9fa;
+}
+
+.image-column {
+    background: url("https://amfu.net/wp-content/uploads/2024/04/construction-silhouette-1.jpg") no-repeat center center fixed;
+    /* background: url("{{ asset('assets/img/backgrounds/bg.jpg') }}") no-repeat center center fixed; */
+    background-size: cover;
+    height: 100vh;
+    padding: 0;
+    display: none;
+}
+
+.login-form-column {
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .image-column {
+        display: block;
     }
 
-    /* Video Background */
-    .video-background {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: -1;
+    .login-form-column {
+        height: 100vh;
     }
+}
 
-    /* Dark overlay */
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 0;
-    }
+.login-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-    .login-container {
-        position: relative;
-        z-index: 1;
-        min-height: 100vh;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        padding-right: 80px;
-    }
+.login-form-card {
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    background-color: transparent;
+}
 
-    .card {
-        width: 400px;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-        animation: fadeIn 0.8s ease-in-out;
-        background: rgba(255, 255, 255, 0.95);
-    }
+.card-wrapper {
+    max-width: 450px;
+    width: 90%;
+}
 
-    .card-header {
-        background: linear-gradient(135deg, #4a90e2, #357abd);
-        color: #fff;
-        font-size: 1.3rem;
-        font-weight: 600;
-        text-align: center;
-        padding: 15px;
-    }
 
-    .btn-download {
-        background: linear-gradient(135deg, #4a90e2, #357abd);
-        border: none;
-        transition: 0.3s ease;
-    }
+.btn-custom {
+    background-color: #ffab00;
+    border-color: #ffab00;
+    color: #212529;
+}
 
-    .btn-download:hover {
-        background: linear-gradient(135deg, #357abd, #2b5f94);
-    }
+.btn-custom:hover {
+    background-color: #e69a00;
+    border-color: #e69a00;
+    color: #212529;
+}
 
-    .form-label {
-        font-weight: 500;
-        color: #333;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateX(40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @media (max-width: 991px) {
-        .video-background {
-            display: none;
-        }
-
-        .login-container {
-            justify-content: center;
-            padding: 0 20px;
-        }
-    }
+.form-control:focus {
+    border-color: #ffab00;
+    box-shadow: 0 0 0 0.25rem rgba(255, 171, 0, 0.25);
+}
 </style>
 
-<!-- Video Background -->
-{{-- <video autoplay muted loop class="video-background">
-    <source src="{{ asset('assets/img/backgrounds/video.mp4') }}" type="video/mp4">
-    Your browser does not support the video tag.
-</video> --}}
-<div class="overlay"></div>
+<div class="row g-0">
 
-<!-- Login Form -->
-<div class="login-container">
-    <div class="card">
-        <div class="card-header">{{ __('Welcome Back! Login Your Account') }}</div>
-        <div class="card-body">
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
+    <div class="col-md-8 image-column">
 
-                <div class="mb-3">
-                    <label for="email" class="form-label">{{ __('Email Address') }}</label>
-                    <input id="email" type="email"
-                        class="form-control @error('email') is-invalid @enderror"
-                        name="email" value="{{ old('email') }}" required autofocus>
-                    @error('email')
-                        <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
-                    @enderror
+    </div>
+
+    <div class="col-12 col-md-4 login-form-column">
+
+        <!-- Login Form -->
+        <div class="card-wrapper">
+            <div class="card login-form-card px-4">
+                <div class="card-body">
+
+                    <img src="https://amfu.net/wp-content/uploads/2024/07/cropped-amfu-for-web-new.png" alt="Logo"
+                        class="card-image text-center mb-5" width="160px">
+
+                    <h2 class="card-title text-center mb-5" style="color: #ffab00;">Login to your Account</h2>
+
+                    <form id="loginForm" method="POST" action="{{ route('login') }}">
+                        @csrf
+                        <div class="mb-4">
+
+                            <label for="email" class="form-label">{{ __('Email Address') }}</label>
+                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                                name="email" value="{{ old('email') }}" required autofocus
+                                placeholder="name@example.com">
+                            @error('email')
+                            <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label for="password" class="form-label">{{ __('Password') }}</label>
+                            <input id="password" type="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                placeholder="Enter your password" name="password" required>
+                            @error('password')
+                            <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember"
+                                {{ old('remember') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="remember">{{ __('Remember Me') }}</label>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-custom btn-lg">{{ __('Login') }}</button>
+                        </div>
+
+
+                        @if (Route::has('password.request'))
+                        <div class="text-center mt-4">
+                            <a class="text-decoration-none" href="{{ route('password.request') }}"
+                                style="color: #ffab00;">
+                                {{ __('Forgot Your Password?') }}
+                            </a>
+                        </div>
+                        @endif
+
+                        @if (session('success'))
+                        <div class="alert mt-4 d-none" id="alertMessage" role="alert">{{ session('success') }}
+                        </div>
+                        @endif
+                    </form>
+
                 </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">{{ __('Password') }}</label>
-                    <input id="password" type="password"
-                        class="form-control @error('password') is-invalid @enderror"
-                        name="password" required>
-                    @error('password')
-                        <span class="invalid-feedback d-block"><strong>{{ $message }}</strong></span>
-                    @enderror
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="remember" name="remember"
-                        {{ old('remember') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="remember">{{ __('Remember Me') }}</label>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-download btn-lg">{{ __('Login') }}</button>
-                </div>
-
-                <!-- @if (Route::has('password.request'))
-                    <div class="text-center mt-3">
-                        <a class="text-decoration-none" href="{{ route('password.request') }}">
-                            {{ __('Forgot Your Password?') }}
-                        </a>
-                    </div>
-                @endif -->
-            </form>
+            </div>
         </div>
+
     </div>
 </div>
 @endsection

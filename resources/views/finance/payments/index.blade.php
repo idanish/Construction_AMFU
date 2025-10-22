@@ -114,6 +114,7 @@
                 <td>${{ number_format($payment->amount, 2) }}</td>
                 <td>${{ number_format($payment->balance, 2) }}</td>
                 <td>
+                    @can('view attachment')
                     @if ($payment->attachment)
                     <a href="{{ asset('storage/' . $payment->attachment) }}" target="_blank"
                         class="btn btn-sm btn-info vip-btn">
@@ -122,6 +123,7 @@
                     @else
                     N/A
                     @endif
+                    @endcan
                 </td>
                 <td>
                     @can('update-payment')

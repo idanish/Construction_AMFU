@@ -116,6 +116,7 @@
             : 'N/A' }} </td>
                 <td>{{ $procurement->department->name ?? 'N/A' }}</td>
                 <td>
+                    @can('view attachment')
                     @if ($procurement->attachment)
                     <a href="{{ asset('storage/' . $procurement->attachment) }}" target="_blank"
                         class="btn btn-sm btn-info vip-btn">
@@ -124,6 +125,7 @@
                     @else
                     N/A
                     @endif
+                    @endcan
 
                 </td>
                 <td>{{ ucfirst($procurement->status) }}</td>
