@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -7,6 +6,8 @@ use App\Models\Budget;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Procurement;
+use App\Models\Department;
+use App\Models\RequestModel;
 
 class ViewController extends Controller
 {
@@ -29,23 +30,26 @@ class ViewController extends Controller
 
     public function adminDashboard()
     {
-        // Example values (aap apne hisaab se adjust karenge)
-        $totalBudgets = Budget::count();
+        // Top Cards
+        $totalBudgets = Budget::sum('allocated');
         $totalInvoices = Invoice::count();
         $totalPayments = Payment::sum('amount');
         $totalProcurements = Procurement::count();
 
-        // Agar aapko monthly bhi chahiye
-        $monthlyPayments = Payment::whereMonth('created_at', now()->month)->sum('amount');
+
+        // Pending Request
+        $pendingRequest = RequestModel::where('status', 'pending')->take(5)->get();
+        $pendingInvoices = Invoice::where('status', 'unpaid')->take(5)->get();
+        $pendingProcurement = Procurement::where('status', 'pending')->take(5)->get();
+        $pendingBudget = Budget::where('status', 'pending')->take(5)->get();
 
         return view('Admin.dashboard', compact(
             'totalBudgets',
             'totalInvoices',
             'totalPayments',
-            'monthlyPayments',
-            'totalProcurements'
+            'totalProcurements',
+            'pendingRequest','pendingInvoices', 'pendingProcurement', 'pendingBudget'
         ));
     }
+
 }
-
-

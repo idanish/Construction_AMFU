@@ -33,8 +33,8 @@
                 <td>{{ $key + 1 }}</td>
                 <td>{{ $pendingRequest->title }}</td>
                 <td>{{ $pendingRequest->description }}</td>
-                <td>{{ $pendingRequest->title }}</td>
                 <td>{{ $pendingRequest->requestor->name ?? 'N/A' }}</td>
+                <td>${{ number_format($pendingRequest->amount) }}</td>
                 <td>
                     @can('approve-request')
                     <form action="{{ route('requests.updateStatus', $pendingRequest->id) }}" method="POST"

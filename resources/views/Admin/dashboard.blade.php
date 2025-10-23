@@ -1,8 +1,9 @@
 @extends('../master')
 
-@section('title', Auth::user()->roles->pluck('name')->first() . ' Dashboard')
+@section('title', ' Dashboard - ' . Auth::user()->roles->pluck('name')->first() )
 
 @section('content')
+
 <div class="text-center mt-10">
     <h1 class="text-2xl font-bold text-green-600">
         {{ Auth::user()->roles->pluck('name')->first() }} Dashboard
@@ -10,105 +11,103 @@
     <p>Hi {{ Auth::user()->name }}! Welcome Back</p>
 </div>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-2">
     <!-- Top Cards -->
-    <div class="row">
+    <div class="row g-4">
+
+        @can('read-budget')
         <!-- Total Budgets -->
-        <div class="col-sm-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-semibold d-block text-muted">💰 Total Budgets</h5>
-                    <h3 class="card-text mt-2 text-success">${{ number_format($totalBudgets ?? 0, 2) }}</h3>
-                </div>
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="p-4 bg-white rounded shadow-sm border-bottom border-5 border-warning">
+                <p class="text-muted mb-1">Total Budgets</p>
+                <h3 class="fw-bold text-warning">${{ number_format($totalBudgets ?? 0, 2) }}</h3>
             </div>
         </div>
+        @endcan
 
-        <!-- Total Invoices -->
-        <div class="col-sm-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-semibold d-block text-muted">🧾 Total Invoices</h5>
-                    <h3 class="card-text mt-2 text-success">{{ $totalInvoices ?? 0 }}</h3>
-                </div>
-            </div>
-        </div>
-
+        @can('read-payment')
         <!-- Monthly Payments -->
-        <div class="col-sm-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-semibold d-block text-muted">💳 Payments</h5>
-                    <!-- <p class="text-muted">(This Month)</p> -->
-                    <h3 class="card-text mt-2 text-success">${{ number_format($monthlyPayments ?? 0, 2) }}</h3>
-                </div>
+        <div class="col-md-6 col-lg-3 col-sm-12 ">
+            <div class="p-4 bg-white rounded shadow-sm border-bottom border-5 border-success">
+                <p class="text-muted mb-1">Payments</p>
+                <h3 class="fw-bold text-success">${{ number_format($monthlyPayments ?? 0, 2) }}</h3>
             </div>
         </div>
+        @endcan
 
+        @can('read-invoice')
+        <!-- Total Invoices -->
+        <div class="col-md-6 col-lg-3 col-sm-12 ">
+            <div class="p-4 bg-white rounded shadow-sm border-bottom border-5 border-danger">
+                <p class="text-muted mb-1">Total Invoices</p>
+                <h3 class="fw-bold text-danger">{{ $totalInvoices ?? 0 }}</h3>
+            </div>
+        </div>
+        @endcan
+
+        @can('read-procurement')
         <!-- Procurements -->
-        <div class="col-sm-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title fw-semibold d-block text-muted">📦 Procurements</h5>
-                    <h3 class="card-text mt-2 text-success">{{ $totalProcurements ?? 0 }}</h3>
-                </div>
+        <div class="col-md-6 col-lg-3 col-sm-12 ">
+            <div class="p-4 bg-white rounded shadow-sm border-bottom border-5 border-info">
+                <p class="text-muted mb-1">Total Procurements</p>
+                <h3 class="fw-bold text-info">{{ $totalProcurements ?? 0 }}</h3>
             </div>
         </div>
     </div>
+    @endcan
 
-
-    <!-- Graphs -->
-    <!-- <div class="row g-4 mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-light fw-bold">📈 Monthly Revenue (Payments)</div>
-                <div class="card-body">
-                    <canvas id="revenueChart" height="150"></canvas>
-                </div>
+    <div class="row mt-4">
+        @can('read-budget')
+        <!-- Recent budgets -->
+        <div class="col-md-6 col-sm-12">
+            <div class="p-4 bg-white rounded shadow-sm">
+                <h4>Pending Budgets</h4>
+                @foreach($pendingBudget as $key => $budget)
+                <a href="{{ route('finance.budgets.index') }}" class="menu-link">
+                    <p>{{ $key + 1 }}. The budget from {{ $budget->department->name ?? 'N/A' }} is Currently
+                        {{ ucfirst($budget->status) }}
+                        with a amount of ${{ number_format($budget->balance, 2) }} </p>
+                </a>
+                @endforeach
             </div>
         </div>
-    </div> -->
+        @endcan
 
+        @can('read-invoice')
+        <!-- Recent Payments -->
+        <div class="col-md-6 col-sm-12">
+            <div class="p-4 bg-white rounded shadow-sm">
+                <h4>Unpaid Invoices</h4>
+
+                @foreach($pendingInvoices as $key => $invoice)
+                <a href="{{ route('finance.invoices.index') }}" class="menu-link">
+                    <p>{{ $key + 1 }}. The {{ $invoice->invoice_no }} is Currently
+                        {{ ucfirst($invoice->status) }}
+                        with a amount of ${{ number_format($invoice->amount, 2) }} </p>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endcan
+    </div>
+
+    @can('read-request')
     <!-- Tables -->
-   
-
-
-
-    <!-- Alerts -->
-    <div class="card shadow-sm border-0 my-4">
-        <div class="card-header bg-light fw-bold">⚠️ Alerts</div>
-        <div class="card-body">
-            <ul>
-                <!-- Unpaid Invoices -->
-                @foreach ($unpaidInvoices ?? [] as $inv)
-                <li>🧾 Unpaid Invoice #{{ $inv->id }} due on {{ $inv->due_date->format('d M Y') }}</li>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="p-4 bg-white rounded shadow-sm">
+                <h4>Pending Requests</h4>
+                @foreach($pendingRequest as $key => $pendingRequest)
+                <a href="{{ route('requests.index') }}" class="menu-link">
+                    <p>{{ $key + 1 }}. The {{ $pendingRequest->title }} is Currently
+                        {{ ucfirst($pendingRequest->status) }}
+                        with a amount of ${{ number_format($pendingRequest->amount) }} </p>
+                </a>
                 @endforeach
-
-                <!-- Unpaid Payments -->
-                @foreach ($unpaidPayments ?? [] as $pay)
-                <li>💳 Unpaid Payment #{{ $pay->id }} of {{ number_format($pay->amount, 2) }}
-                    (Due: {{ $pay->payment_date ? $pay->payment_date->format('d M Y') : 'N/A' }})
-                </li>
-                @endforeach
-            </ul>
+            </div>
         </div>
     </div>
-
-    {{-- <script>
-    const monthlyRevenues = @json($monthlyRevenues);
-
-    new Chart(document.getElementById('revenueChart'), {
-        type: 'line',
-        data: {
-            labels: Object.keys(monthlyRevenues).map(m => 'Month ' + m),
-            datasets: [{
-                label: 'Revenue',
-                data: Object.values(monthlyRevenues),
-                borderColor: 'green',
-                fill: false
-            }]
-        }
-    });
-</script> --}}
-
+</div>
+@endcan
 
 @endsection
