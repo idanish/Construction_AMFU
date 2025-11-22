@@ -16,14 +16,18 @@ class Budget extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
 
-    protected $fillable = ['title', 'department_id', 'attachment', 'year', 'allocated',  'spent', 'balance', 'notes', 'status', 'transaction_no'];
+    protected $fillable = ['title', 'department_id', 'attachment', 'year', 'allocated',  'requested_budget', 'budget_type', 'spent', 'balance', 'notes', 'status', 'transaction_no'];
+
+    protected $casts = [
+        'attachment' => 'array',
+    ];
 
     // 🔹 Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Budget')
-            ->logOnly(['title', 'department_id', 'attachment', 'year', 'allocated',  'spent', 'balance', 'notes', 'status', 'transaction_no'])
+            ->logOnly(['title', 'department_id', 'attachment', 'year', 'allocated',  'requested_budget', 'budget_type', 'spent', 'balance', 'notes', 'status', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

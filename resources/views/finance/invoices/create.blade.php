@@ -108,8 +108,8 @@
                     <label class="form-label">Attachment</label>
                     <div class="upload-box" id="uploadBox">
                         <i class="bi bi-paperclip"></i>
-                        <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
-                        <input type="file" name="attachment" id="attachmentInput" hidden>
+                        <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB each</p>
+                        <input type="file" name="attachment[]" id="attachmentInput" hidden multiple>
                     </div>
                     <div id="filePreview" class="mt-2"></div>
                     @error('attachment')
@@ -188,18 +188,31 @@
         const filePreview = document.getElementById('filePreview'); // Previews file name
 
         // 1. Click Event Handler
-        uploadBox.addEventListener('click', function() {
-            attachmentInput.click(); // Hidden file input ko click karega
+        uploadBox.addEventListener('click', function() { attachmentInput.click(); filePreview.innerHTML = ''; });
+
+        // 2. Display file names when selected
+        uploadBox.addEventListener('drop', function(e){
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) { attachmentInput.files = e.dataTransfer.files; showFileNames(attachmentInput.files); }
+            uploadBox.style.background = '#f8f9fa';
         });
 
-        // 2. Display file name when selected (optional but helpful)
         attachmentInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                filePreview.textContent = 'Selected File: ' + this.files[0].name;
-            } else {
-                filePreview.textContent = '';
-            }
+            if (this.files.length > 0) showFileNames(this.files); else filePreview.innerHTML = '';
         });
+
+        function showFileNames(files) {
+            if (!files || files.length === 0) { filePreview.innerHTML = ''; return; }
+            let html = '<ul class="list-unstyled mb-0">';
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                const sizeKb = Math.round(f.size / 1024);
+                html += `<li>📎 ${f.name} <small class="text-muted">(${sizeKb} KB)</small></li>`;
+                if (i >= 9) { html += '<li class="text-muted">...and more</li>'; break; }
+            }
+            html += '</ul>';
+            filePreview.innerHTML = html;
+        }
     </script>
 
 

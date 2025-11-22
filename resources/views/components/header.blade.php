@@ -149,6 +149,33 @@
         }
     </style>
 
+    <style>
+        /* Ensure page can scroll if content grows */
+        html, body, .layout-page {
+            overflow: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Smaller VIP button variant when using btn-sm */
+        .vip-btn.btn-sm, .vip-btn.small {
+            padding: 6px 10px !important;
+            border-radius: 18px !important;
+            font-size: 0.9rem !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12) !important;
+        }
+
+        /* Constrain upload box so it can scroll if file list grows */
+        .upload-box {
+            max-height: 160px;
+            overflow: auto;
+        }
+
+        /* Make the main-card not exceed viewport width on smaller screens */
+        .main-card.w-75 {
+            max-width: 980px;
+        }
+    </style>
+
 </head>
 
 <body>

@@ -115,14 +115,22 @@
                 <td>${{ number_format($payment->balance, 2) }}</td>
                 <td>
                     @can('view attachment')
-                    @if ($payment->attachment)
-                    <a href="{{ asset('storage/' . $payment->attachment) }}" target="_blank"
-                        class="btn btn-sm btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-                    @else
-                    N/A
-                    @endif
+                        @if ($payment->attachment)
+                            @php
+                                $atts = is_array($payment->attachment) ? $payment->attachment : (json_decode($payment->attachment, true) ?? [$payment->attachment]);
+                            @endphp
+                            @foreach($atts as $att)
+                                @php
+                                    $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                    $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                                @endphp
+                                <a href="{{ asset('storage/' . $attPath) }}" target="_blank" class="btn btn-sm btn-info vip-btn mb-1">
+                                    <i class="bi bi-eye"></i> {{ \Illuminate\Support\Str::limit($attName, 20) }}
+                                </a>
+                            @endforeach
+                        @else
+                            N/A
+                        @endif
                     @endcan
                 </td>
                 <td>

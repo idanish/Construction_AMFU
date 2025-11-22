@@ -15,6 +15,10 @@ return new class extends Migration
             $table->string('attachment')->nullable();
             $table->integer('year');
             $table->decimal('allocated', 12, 2);
+             // New columns
+            $table->decimal('requested_budget', 12, 2)->nullable();
+            $table->enum('budget_type', ['monthly', 'weekly'])->nullable();
+
             $table->decimal('spent', 12, 2)->default(0);
             $table->decimal('balance', 12, 2)->default(0);
             $table->string('notes')->nullable();

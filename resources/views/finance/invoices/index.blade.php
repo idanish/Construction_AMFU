@@ -105,14 +105,22 @@
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
                     @can('view attachment')
-                    @if ($invoice->attachment)
-                    <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank"
-                        class="btn btn-sm btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-                    @else
-                    N/A
-                    @endif
+                        @if ($invoice->attachment)
+                            @php
+                                $atts = is_array($invoice->attachment) ? $invoice->attachment : (json_decode($invoice->attachment, true) ?? [$invoice->attachment]);
+                            @endphp
+                            @foreach($atts as $att)
+                                @php
+                                    $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                    $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                                @endphp
+                                <a href="{{ asset('storage/' . $attPath) }}" target="_blank" class="btn btn-sm btn-info vip-btn mb-1">
+                                    <i class="bi bi-eye"></i> {{ \Illuminate\Support\Str::limit($attName, 20) }}
+                                </a>
+                            @endforeach
+                        @else
+                            N/A
+                        @endif
                     @endcan
                 </td>
                 <td>

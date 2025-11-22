@@ -148,6 +148,7 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
     Route::post('/budgets/store', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::post('/budgets/request-override', [BudgetController::class, 'requestOverride'])->name('budgets.requestOverride');
     Route::get('/budgets/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
     Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
     Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');

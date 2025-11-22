@@ -117,14 +117,22 @@
                 <td>{{ $procurement->department->name ?? 'N/A' }}</td>
                 <td>
                     @can('view attachment')
-                    @if ($procurement->attachment)
-                    <a href="{{ asset('storage/' . $procurement->attachment) }}" target="_blank"
-                        class="btn btn-sm btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-                    @else
-                    N/A
-                    @endif
+                        @if ($procurement->attachment)
+                            @php
+                                $atts = is_array($procurement->attachment) ? $procurement->attachment : (json_decode($procurement->attachment, true) ?? [$procurement->attachment]);
+                            @endphp
+                            @foreach($atts as $att)
+                                @php
+                                    $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                    $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                                @endphp
+                                <a href="{{ asset('storage/' . $attPath) }}" target="_blank" class="btn btn-sm btn-info vip-btn mb-1">
+                                    <i class="bi bi-eye"></i> {{ \Illuminate\Support\Str::limit($attName, 20) }}
+                                </a>
+                            @endforeach
+                        @else
+                            N/A
+                        @endif
                     @endcan
 
                 </td>

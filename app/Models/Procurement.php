@@ -17,6 +17,10 @@ class Procurement extends Model
 
     protected $fillable = ['item_name', 'quantity', 'cost_estimate', 'department_id', 'remarks', 'status', 'attachment'];
 
+    protected $casts = [
+        'attachment' => 'array',
+    ];
+
     // Activity Log
     public function getActivitylogOptions(): LogOptions
     {

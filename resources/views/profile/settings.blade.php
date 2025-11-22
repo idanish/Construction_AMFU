@@ -17,18 +17,28 @@
 
     <div class="card">
         <div class="card-body">
+            @php use Illuminate\Support\Str; @endphp
             <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                 @csrf
 
                 {{-- Profile Picture --}}
                 <div class="text-center mb-4">
-                    <img src="{{ Auth::user()->profile_picture
-                        ? asset('uploads/profile_pictures/' . Auth::user()->profile_picture)
-                        : asset('assets/img/avatars/1.png') }}"
-                        alt="Profile Picture" class="rounded-circle border" width="120" height="120">
+                    @php
+                        $pic = Auth::user()->profile_picture;
+                        $picUrl = asset('assets/img/avatars/1.png');
+                        if ($pic) {
+                            // allow absolute URLs
+                            if (Str::startsWith($pic, ['http://', 'https://'])) {
+                                $picUrl = $pic;
+                            } else {
+                                $picUrl = asset('storage/' . $pic);
+                            }
+                        }
+                    @endphp
+
+                    <img src="{{ $picUrl }}" alt="Profile Picture" class="rounded-circle border" width="120" height="120">
                     <div class="mt-2">
-                        <input type="file" name="profile_picture"
-                            class="form-control @error('profile_picture') is-invalid @enderror">
+                        <input type="file" name="profile_picture" class="form-control @error('profile_picture') is-invalid @enderror">
                         @error('profile_picture')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

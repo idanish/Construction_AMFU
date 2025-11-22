@@ -16,6 +16,10 @@ class Payment extends Model
 
     protected $fillable = ['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'attachment', 'transaction_no'];
 
+    protected $casts = [
+        'attachment' => 'array',
+    ];
+
     //  Activity Log
     public function getActivitylogOptions(): LogOptions
     {

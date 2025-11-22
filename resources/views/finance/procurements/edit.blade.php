@@ -78,15 +78,26 @@
                 <label class="form-label">Attachment</label>
                 <div class="upload-box" id="uploadBox">
                     <i class="bi bi-paperclip"></i>
-                    <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
-                    <input type="file" name="attachment" id="attachmentInput" hidden>
+                    <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB each</p>
+                    <input type="file" name="attachment[]" id="attachmentInput" hidden multiple>
                 </div>
-                <div id="filePreview" class="mt-2">
-                    @if ($procurement->attachment)
-                        📎 Current File: <a href="{{ asset('storage/' . $procurement->attachment) }}"
-                            target="_blank">{{ basename($procurement->attachment) }}</a>
+                <div id="filePreview" class="mt-2"></div>
+
+                <div id="existingAttachments" class="mt-2">
+                    @if($procurement->attachment)
+                        @php
+                            $attachments = is_array($procurement->attachment) ? $procurement->attachment : (json_decode($procurement->attachment, true) ?? [$procurement->attachment]);
+                        @endphp
+                        @foreach($attachments as $att)
+                            @php
+                                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                            @endphp
+                            <div>📎 <a href="{{ asset('storage/' . $attPath) }}" target="_blank">{{ $attName }}</a></div>
+                        @endforeach
                     @endif
                 </div>
+
                 @error('attachment')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
@@ -155,7 +166,7 @@
         const attachmentInput = document.getElementById('attachmentInput');
         const filePreview = document.getElementById('filePreview');
 
-        uploadBox.addEventListener('click', () => attachmentInput.click());
+        uploadBox.addEventListener('click', () => { attachmentInput.click(); filePreview.innerHTML = ''; });
         uploadBox.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadBox.style.background = '#dee2e6';
@@ -167,21 +178,25 @@
             e.preventDefault();
             if (e.dataTransfer.files.length > 0) {
                 attachmentInput.files = e.dataTransfer.files;
-                showFileName(attachmentInput.files[0]);
+                showFileNames(attachmentInput.files);
             }
             uploadBox.style.background = '#f8f9fa';
         });
-
         attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) {
-                showFileName(attachmentInput.files[0]);
-            }
+            if (attachmentInput.files.length > 0) showFileNames(attachmentInput.files);
         });
 
-        function showFileName(file) {
-            if (file) {
-                filePreview.textContent = "📎 " + file.name + " attached";
+        function showFileNames(files) {
+            if (!files || files.length === 0) { filePreview.innerHTML = ''; return; }
+            let html = '<ul class="list-unstyled mb-0">';
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                const sizeKb = Math.round(f.size / 1024);
+                html += `<li>📎 ${f.name} <small class="text-muted">(${sizeKb} KB)</small></li>`;
+                if (i >= 9) { html += '<li class="text-muted">...and more</li>'; break; }
             }
+            html += '</ul>';
+            filePreview.innerHTML = html;
         }
     </script>
 @endsection

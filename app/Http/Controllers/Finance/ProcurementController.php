@@ -53,12 +53,18 @@ class ProcurementController extends Controller
             'cost_estimate' => 'required|numeric|min:0',
             'department_id' => 'nullable|exists:departments,id',
             'justification' => 'nullable|string',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachment'     => 'nullable|array|max:10',
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
         if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('procurements', 'public');
+            $paths = [];
+            foreach ($request->file('attachment') as $file) {
+                $stored = $file->store('procurements', 'public');
+                $paths[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
+            }
+            $data['attachment'] = $paths;
         }
 
         Procurement::create($data);
@@ -86,14 +92,20 @@ class ProcurementController extends Controller
         'cost_estimate' => 'required|numeric|min:0',
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
-        'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+        'attachment'     => 'nullable|array|max:10',
+        'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         'status'        => 'required|in:pending,approved,rejected'
     ]);
 
     $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
 
     if ($r->hasFile('attachment')) {
-        $data['attachment'] = $r->file('attachment')->store('procurements', 'public');
+        $existing = is_array($proc->attachment) ? $proc->attachment : ($proc->attachment ? (json_decode($proc->attachment, true) ?? [$proc->attachment]) : []);
+        foreach ($r->file('attachment') as $file) {
+            $stored = $file->store('procurements', 'public');
+            $existing[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
+        }
+        $data['attachment'] = $existing;
     }
 
     $proc->update($data);
@@ -106,6 +118,17 @@ class ProcurementController extends Controller
     public function destroy($id)
     {
         $proc = Procurement::findOrFail($id);
+        // delete stored attachments if any
+        if ($proc->attachment) {
+            $atts = is_array($proc->attachment) ? $proc->attachment : (json_decode($proc->attachment, true) ?? [$proc->attachment]);
+            foreach ($atts as $att) {
+                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                if (\Storage::disk('public')->exists($attPath)) {
+                    \Storage::disk('public')->delete($attPath);
+                }
+            }
+        }
+
         $proc->delete();
 
         return redirect()->route('finance.procurements.index')->with('success','Procurement deleted successfully!');

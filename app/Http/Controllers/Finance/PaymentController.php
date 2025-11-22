@@ -100,7 +100,8 @@ class PaymentController extends Controller
             'amount'       => 'required|numeric|min:0',
             'method'       => 'required|in:Cash,Bank,Online,Card',
             'transaction_no' => 'nullable|numeric',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachment'     => 'nullable|array|max:10',
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         $invoice = Invoice::findOrFail($r->invoice_id);
@@ -129,11 +130,18 @@ class PaymentController extends Controller
         $data = $r->only('payment_ref','invoice_id','payment_date','amount','method','transaction_no');
 
       
-         // Handle attachment
-    if ($r->hasFile('attachment')) {
-        $path = $r->file('attachment')->store('payments', 'public');
-        $data['attachment'] = $path; 
-    }
+            // Handle attachments (multiple)
+        if ($r->hasFile('attachment')) {
+            $paths = [];
+            foreach ($r->file('attachment') as $file) {
+                $stored = $file->store('payments', 'public');
+                $paths[] = [
+                    'path' => $stored,
+                    'name' => $file->getClientOriginalName(),
+                ];
+            }
+            $data['attachment'] = $paths;
+        }
 
         // Create payment
         $payment = Payment::create($data);
@@ -154,19 +162,39 @@ class PaymentController extends Controller
             'amount'         => 'required|numeric|min:0',
             'method'         => 'required|in:Cash,Bank,Online,Card',
             'transaction_no' => 'nullable|numeric',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048', 
+            'attachment'     => 'nullable|array|max:10', 
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048', 
         ]);
         
         $invoice = Invoice::findOrFail($r->invoice_id);
         $data = $r->only('payment_ref', 'invoice_id','payment_date','amount','method','transaction_no');
+
+        // Calculate remaining amount for the target invoice.
+        // If user is keeping the same invoice, add back the current payment amount
+        // so the user can re-submit the same amount without being blocked.
+        $paidTotal = $invoice->payments()->sum('amount');
+        if ($payment->invoice_id == $r->invoice_id) {
+            $remaining = $invoice->amount - ($paidTotal - $payment->amount);
+        } else {
+            // Moving payment to a different invoice; current payment not part of that invoice
+            $remaining = $invoice->amount - $paidTotal;
+        }
+
+        if ($r->amount > $remaining) {
+            return back()->withInput()->withErrors(['amount' => "Payment cannot exceed remaining invoice amount ($remaining)."]);
+        }
         
         if ($r->hasFile('attachment')) {
-            if ($payment->attachment) {
-                Storage::disk('public')->delete($payment->attachment);
+            $existing = is_array($payment->attachment) ? $payment->attachment : ($payment->attachment ? (json_decode($payment->attachment, true) ?? [$payment->attachment]) : []);
+            foreach ($r->file('attachment') as $file) {
+                $stored = $file->store('payments', 'public');
+                $existing[] = [
+                    'path' => $stored,
+                    'name' => $file->getClientOriginalName(),
+                ];
             }
-            $path = $r->file('attachment')->store('payments', 'public');
-            $data['attachment'] = $path; 
-        } 
+            $data['attachment'] = $existing;
+        }
         
         $payment->update($data);
 
@@ -181,9 +209,15 @@ class PaymentController extends Controller
     public function destroy(Payment $payment)
     {
         // Attachment delete logic
-       if ($payment->attachment && Storage::disk('public')->exists($payment->attachment)) {
-        Storage::disk('public')->delete($payment->attachment);
-    }
+       if ($payment->attachment) {
+           $atts = is_array($payment->attachment) ? $payment->attachment : (json_decode($payment->attachment, true) ?? [$payment->attachment]);
+           foreach ($atts as $att) {
+               $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+               if (Storage::disk('public')->exists($attPath)) {
+                   Storage::disk('public')->delete($attPath);
+               }
+           }
+       }
 
         $invoice = Invoice::find($payment->invoice_id);
         

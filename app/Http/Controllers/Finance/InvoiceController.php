@@ -81,7 +81,8 @@ class InvoiceController extends Controller
             'vendor_name'    => 'required|string|max:255',
             'due_date'       => 'required|date|after_or_equal:invoice_date', // CRITICAL: Due date validation
             'notes'          => 'nullable|string|max:65535',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachment'     => 'nullable|array|max:10',
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         // Invoice Number generation (last ID including soft deleted)
@@ -100,9 +101,14 @@ class InvoiceController extends Controller
             'notes'          => $r->notes ?? null,
         ];
 
-        // Handle attachment
+        // Handle attachments (multiple)
         if ($r->hasFile('attachment')) {
-            $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+            $paths = [];
+            foreach ($r->file('attachment') as $file) {
+                $stored = $file->store('invoices', 'public');
+                $paths[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
+            }
+            $data['attachment'] = $paths;
         }
 
         Invoice::create($data);
@@ -135,7 +141,8 @@ class InvoiceController extends Controller
             'vendor_name'    => 'required|string|max:255',
             'due_date'       => 'required|date|after_or_equal:invoice_date', // Date validation
             'notes'          => 'nullable|string|max:65535',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachment'     => 'nullable|array|max:10',
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         $data = [
@@ -148,12 +155,14 @@ class InvoiceController extends Controller
             // Status update PaymentController se hoga
         ];
 
-        // File Upload (replace old if exists)
+        // File Upload (merge with existing attachments)
         if ($r->hasFile('attachment')) {
-            if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
-                Storage::disk('public')->delete($invoice->attachment);
+            $existing = is_array($invoice->attachment) ? $invoice->attachment : ($invoice->attachment ? (json_decode($invoice->attachment, true) ?? [$invoice->attachment]) : []);
+            foreach ($r->file('attachment') as $file) {
+                $stored = $file->store('invoices', 'public');
+                $existing[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
             }
-            $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+            $data['attachment'] = $existing;
         }
 
         // Amount change hone se pehle update kar dein
@@ -179,9 +188,15 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice)
     {
-        // Attachment delete
-        if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
-            Storage::disk('public')->delete($invoice->attachment);
+        // Delete stored attachments if present
+        if ($invoice->attachment) {
+            $atts = is_array($invoice->attachment) ? $invoice->attachment : (json_decode($invoice->attachment, true) ?? [$invoice->attachment]);
+            foreach ($atts as $att) {
+                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                if (Storage::disk('public')->exists($attPath)) {
+                    Storage::disk('public')->delete($attPath);
+                }
+            }
         }
 
         // Soft Delete (payments bhi cascade delete ya soft delete ho sakti hain, depending on relationship)

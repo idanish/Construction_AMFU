@@ -18,6 +18,7 @@ class Invoice extends Model
 
     protected $casts = [
         'invoice_date' => 'date',
+        'attachment' => 'array',
     ];
 
     //  Activity Log

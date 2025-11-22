@@ -24,7 +24,16 @@
         <div class="mb-3">
             <strong>Attachment:</strong>
             @if($procurement->attachment)
-                <a href="{{ asset('storage/' . $procurement->attachment) }}" target="_blank" class="btn btn-sm btn-outline-info">View File</a>
+                @php
+                    $atts = is_array($procurement->attachment) ? $procurement->attachment : (json_decode($procurement->attachment, true) ?? [$procurement->attachment]);
+                @endphp
+                @foreach($atts as $att)
+                    @php
+                        $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                        $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                    @endphp
+                    <a href="{{ asset('storage/' . $attPath) }}" target="_blank" class="btn btn-sm btn-outline-info mb-1">{{ $attName }}</a>
+                @endforeach
             @else
                 <span class="text-muted">No File</span>
             @endif

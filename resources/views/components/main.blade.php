@@ -99,10 +99,21 @@
                                 data-bs-toggle="dropdown">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-online">
-                                        <img src="{{ Auth::user()->profile_picture
-                                            ? asset('storage/' . Auth::user()->profile_picture)
-                                            : asset('assets/img/avatars/1.png') }}"
-                                            alt="User Avatar" class="w-px-40 h-auto rounded-circle" />
+                                        @php
+                                            use Illuminate\Support\Str;
+                                            $pic = Auth::user()->profile_picture ?? null;
+                                            $picUrl = asset('assets/img/avatars/1.png');
+                                            if ($pic) {
+                                                if (Str::startsWith($pic, ['http://', 'https://'])) {
+                                                    $picUrl = $pic;
+                                                } elseif (Str::startsWith($pic, 'storage/')) {
+                                                    $picUrl = asset($pic);
+                                                } else {
+                                                    $picUrl = asset('storage/' . ltrim($pic, '/'));
+                                                }
+                                            }
+                                        @endphp
+                                        <img src="{{ $picUrl }}" alt="User Avatar" class="navbar-avatar" />
                                     </div>
                                 </div>
                             </a>
@@ -155,6 +166,17 @@
 
 
             <!-- / Navbar -->
+
+            <style>
+                .navbar-avatar {
+                    width: 40px !important;
+                    height: 40px !important;
+                    display: block;
+                    object-fit: cover;
+                    object-position: center;
+                    border-radius: 50%;
+                }
+            </style>
 
             <!-- Main Content -->
             <div class="container mt-4">
