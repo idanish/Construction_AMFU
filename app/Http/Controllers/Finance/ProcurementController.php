@@ -67,7 +67,11 @@ class ProcurementController extends Controller
             $data['attachment'] = $paths;
         }
 
-        Procurement::create($data);
+        $data['current_approval_step'] = 'PM';
+        $procurement = Procurement::create($data);
+
+        // Create approvals for the procurement (sequential 5-step workflow)
+        \App\Http\Controllers\ApprovalController::createApprovalsForModel($procurement);
 
         return redirect()->route('finance.procurements.index')
                          ->with('success', 'Procurement created successfully!');

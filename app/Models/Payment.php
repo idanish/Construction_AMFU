@@ -9,14 +9,16 @@ use Spatie\Permission\Traits\HasRoles;
 // Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\HasApprovals;
 
 class Payment extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
+    use HasFactory, SoftDeletes, LogsActivity, HasRoles, HasApprovals;
 
-    protected $fillable = ['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'attachment', 'transaction_no'];
+    protected $fillable = ['payment_ref', 'invoice_id', 'payment_date', 'amount', 'method', 'current_approval_step', 'revert_reason', 'approved_at', 'attachment', 'transaction_no'];
 
     protected $casts = [
+        'approved_at' => 'datetime',
         'attachment' => 'array',
     ];
 

@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('notes')->nullable();
             $table->enum('status', ['approved', 'pending', 'rejected'])->default('pending');
             $table->unsignedBigInteger('transaction_no')->default(0);
+            $table->string('current_approval_step')->default('PM');
+            $table->text('revert_reason')->nullable();
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

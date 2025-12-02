@@ -91,11 +91,11 @@
                 {{-- Status --}}
                 <div class="mb-3" hidden>
                     <label class="form-label">Status</label>
-                    <select name="status" class="form-select" @if (auth()->user()->role != 'admin') disabled @endif>
+                    <select name="status" class="form-select" @if (auth()->check() && auth()->user()->role != 'admin') disabled @endif>
                         <option value="Unpaid" {{ old('status', 'Unpaid') == 'Unpaid' ? 'selected' : '' }}>Unpaid</option>
                         <option value="Paid" {{ old('status') == 'Paid' ? 'selected' : '' }}>Paid</option>
                     </select>
-                    @if (auth()->user()->role != 'admin')
+                    @if (auth()->check() && auth()->user()->role != 'admin')
                         <input type="hidden" name="status" value="Unpaid">
                     @endif
                     @error('status')

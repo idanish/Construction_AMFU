@@ -144,7 +144,11 @@ class PaymentController extends Controller
         }
 
         // Create payment
+        $data['current_approval_step'] = 'PM';
         $payment = Payment::create($data);
+
+        // Create approvals for the payment (sequential 5-step workflow)
+        \App\Http\Controllers\ApprovalController::createApprovalsForModel($payment);
 
         // 3. Invoice Status Update
         $this->updateInvoiceStatus($invoice);

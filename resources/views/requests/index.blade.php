@@ -101,9 +101,9 @@
                 <th>S.No</th>
                 <th>Title</th>
                 <th>Requestor</th>
-                <th>Description</th>
                 <th>Amount</th>
                 <th>Status</th>
+                <th>Current Step</th>
                 <th>Date</th>
                 <th>Action</th>
             </tr>
@@ -114,45 +114,34 @@
                 <td>{{ $key + 1 }}</td>
                 <td>{{ $request->title }}</td>
                 <td>{{ $request->requestor->name ?? 'N/A' }}</td>
-                <td>{{ $request->description}}</td>
                 <td>${{ number_format($request->amount) }}</td>
-                <td>{{ ucfirst($request->status) }}</td>
+                <td>
+                    @if($request->status === 'approved')
+                        <span class="badge bg-success">Approved</span>
+                    @elseif($request->status === 'reverted')
+                        <span class="badge bg-danger">Reverted</span>
+                    @else
+                        <span class="badge bg-warning">Pending</span>
+                    @endif
+                </td>
+                <td><span class="badge bg-info">{{ $request->current_approval_step ?? 'N/A' }}</span></td>
                 <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
                 <td>
+                    <a href="{{ route('requests.show', $request->id) }}" class="btn btn-sm btn-primary vip-btn">
+                        <i class="bi bi-eye"></i> View
+                    </a>
 
-                    <!-- Status Change Buttons -->
-                    @if ($request->status === 'Pending' || $request->status === 'pending')
-                    @can('approve-request')
-                    <form action="{{ route('requests.updateStatus', $request->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button type="submit" class="btn btn-success vip-btn">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-                    @endcan
-
-                    @can('reject-request')
-                    <form action="{{ route('requests.updateStatus', $request->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-dark vip-btn">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
-                    @endcan
-                    <br><br>
-                    @endif
-
-                    @can('update-request')
+                    @if($request->status === 'reverted' && $request->requestor_id === auth()->id())
+                    <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-warning vip-btn">
+                        <i class="bi bi-pencil-square"></i> Resubmit
+                    </a>
+                    @elseif($request->status !== 'approved')
                     <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
                         <i class="bi bi-pencil-square"></i> Edit
                     </a>
-                    @endcan
+                    @endif
 
-                    @can('delete-request')
+                    @if(auth()->id() === $request->requestor_id && $request->status !== 'approved')
                     <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline-block"
                         onsubmit="return confirm('Are you sure you want to delete this request?');">
                         @csrf
@@ -161,7 +150,7 @@
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>
-                    @endcan
+                    @endif
                 </td>
             </tr>
             @empty

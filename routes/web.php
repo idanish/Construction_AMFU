@@ -190,6 +190,30 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::delete('/procurements/{procurement}', [ProcurementController::class, 'destroy'])->name('procurements.destroy');
 });
 
+// Temporary debug/fallback route to help diagnose invoice create 404 issues
+Route::middleware('auth')->get('/finance/invoices/create-fixed', function () {
+    try {
+        $procurements = \App\Models\Procurement::where('status', 'approved')
+            ->whereDoesntHave('invoice')
+            ->get();
+
+        $lastInvoice = \App\Models\Invoice::withTrashed()->latest('id')->first();
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $invoice_no = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+        \Log::info('Accessed create-fixed by user: ' . auth()->id());
+        return view('finance.invoices.create', compact('procurements', 'invoice_no'));
+    } catch (\Exception $e) {
+        \Log::error('Error in create-fixed route: ' . $e->getMessage());
+        abort(500, 'Debug route failed. Check logs.');
+    }
+})->name('finance.invoices.create_fixed');
+
+// Very small public debug route to check routing/webserver
+Route::get('/debug/invoice-create', function () {
+    return response('OK', 200);
+});
+
 // User Management Routes
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::resource('users', UserManagementController::class);
@@ -239,6 +263,10 @@ Route::prefix('approvals')->name('approvals.')->group(function () {
 
     // Store new approval
     Route::post('/store', [ApprovalController::class, 'store'])->name('store');
+
+    // Actions: approve / reject
+    Route::post('/{approval}/approve', [ApprovalController::class, 'approve'])->name('approve');
+    Route::post('/{approval}/reject', [ApprovalController::class, 'reject'])->name('reject');
 });
 
 

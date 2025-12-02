@@ -103,7 +103,7 @@ public function index(Request $r)
         }
     }
 
-   Budget::create([
+   $budget = Budget::create([
     'department_id' => $r->department_id,
     'year' => $r->year,
     'allocated' => (float)$r->allocated,
@@ -113,9 +113,12 @@ public function index(Request $r)
     'balance' => (float)($r->allocated - ($r->spent ?? 0)),
     'notes' => $r->notes,
     'status' => $r->status,
+    'current_approval_step' => 'PM',
     'attachment' => $paths,
 ]);
 
+    // Create approvals for the budget (sequential 5-step workflow)
+    \App\Http\Controllers\ApprovalController::createApprovalsForModel($budget);
 
     return redirect()->route('finance.budgets.index')->with('success','Budget created successfully!');
 }

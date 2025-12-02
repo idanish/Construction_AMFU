@@ -19,7 +19,7 @@ class RequestModel extends Model implements HasMedia
 
     protected $table = 'requests';
 
-    protected $fillable = ['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status'];
+    protected $fillable = ['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_approval_step', 'revert_reason', 'approved_at'];
 
     // Activity Log Start Here
 
@@ -56,6 +56,41 @@ class RequestModel extends Model implements HasMedia
     public function requestor() {
         return $this->belongsTo(User::class, 'requestor_id');
     }
-    
+
+    public function approvals()
+    {
+        return $this->hasMany(\App\Models\Approval::class, 'request_id');
+    }
+
+    public function approvers()
+    {
+        return $this->belongsToMany(User::class, 'approvals', 'request_id', 'approver_id')->withPivot('status', 'note', 'acted_at', 'approval_step', 'revert_reason');
+    }
+
+    // Get the current pending approval for this request
+    public function currentApproval()
+    {
+        return $this->approvals()->where('status', 'pending')->orderBy('step_order')->first();
+    }
+
+    // Get all approved steps
+    public function approvedSteps()
+    {
+        return $this->approvals()->where('status', 'approved')->get();
+    }
+
+    // Get all rejected steps
+    public function rejectedSteps()
+    {
+        return $this->approvals()->where('status', 'rejected')->get();
+    }
+
+    // Check if request is fully approved
+    public function isFullyApproved()
+    {
+        $totalSteps = $this->approvals()->count();
+        $approvedCount = $this->approvals()->where('status', 'approved')->count();
+        return $totalSteps > 0 && $totalSteps === $approvedCount;
+    }
 
 }

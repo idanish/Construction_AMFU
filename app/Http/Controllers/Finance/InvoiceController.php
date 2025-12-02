@@ -55,8 +55,8 @@ class InvoiceController extends Controller
 
     public function create()
     {
-
-        $procurements = Procurement::where('status', 'approved')
+        // Fetch procurements that are approved or pending approval (in any approval step) and don't have an invoice yet
+        $procurements = Procurement::whereIn('status', ['approved', 'pending'])
             ->whereDoesntHave('invoice')
             ->get();
         
@@ -111,7 +111,10 @@ class InvoiceController extends Controller
             $data['attachment'] = $paths;
         }
 
-        Invoice::create($data);
+        $invoice = Invoice::create($data);
+
+        // Create approvals for the invoice (sequential 5-step workflow)
+        \App\Http\Controllers\ApprovalController::createApprovalsForModel($invoice);
 
         return redirect()->route('finance.invoices.index')->with('success', 'Invoice created successfully!');
     }
@@ -120,8 +123,8 @@ class InvoiceController extends Controller
 
     public function edit(Invoice $invoice)
     {
-
-        $procurements = Procurement::where('status', 'approved')
+        // Fetch procurements that are approved or pending approval, OR the current invoice's procurement
+        $procurements = Procurement::whereIn('status', ['approved', 'pending'])
             ->orWhere('id', $invoice->procurement_id) 
             ->get();
 

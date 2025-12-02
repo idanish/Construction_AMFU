@@ -18,6 +18,9 @@ return new class extends Migration
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('attachment')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
+            $table->string('current_approval_step')->default('PM');
+            $table->text('revert_reason')->nullable();
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

@@ -4,6 +4,9 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\WelcomeNotification;
 
 class UserObserver
 {
@@ -17,6 +20,23 @@ class UserObserver
             'message' => 'your account has been created.',
             'is_read' => false,
         ]);
+
+        // Send welcome email to new user
+        try {
+            $loginUrl = url('/login');
+            $temporaryPassword = null;
+
+            if ($user->email) {
+                Mail::to($user->email)->send(new WelcomeNotification(
+                    $user->name,
+                    $user->email,
+                    $loginUrl,
+                    $temporaryPassword
+                ));
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send welcome email to user ' . $user->email . ': ' . $e->getMessage());
+        }
     }
     // Jab user update ho
     public function updated(User $user)

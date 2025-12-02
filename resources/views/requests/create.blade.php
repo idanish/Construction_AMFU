@@ -31,6 +31,10 @@
                         <input type="number" name="amount" id="amount" class="form-control" step="0.01" required>
                     </div>
 
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> This request will automatically be sent to your department's PM Manager for approval, then through PMO, FCO, CSO, and finally Admin.
+                    </div>
+
                     <button type="submit" class="vip-btn btn-submit">
                         <i class="bi bi-check-lg"></i> Submit
                     </button>
