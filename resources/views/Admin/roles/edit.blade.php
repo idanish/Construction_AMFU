@@ -20,7 +20,7 @@
             </div>
         @endif
 
-        <div class="card">
+        <div class="">
             <div class="card-body">
                 <form action="{{ route('roles.update', $role->id) }}" method="POST">
                     @csrf

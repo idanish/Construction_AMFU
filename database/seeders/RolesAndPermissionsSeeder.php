@@ -21,14 +21,14 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $permissions = [
             //User & Role Management
-            'create-user', 'read-user', 'update-user', 'delete-user',
+            'create-user', 'read-user', 'update-user', 'delete-user', 'Log-deleted-user',
             'create-role', 'read-role', 'update-role', 'delete-role',
             'manage-role-permissions',
 
             //Dashboard/Pages
-            'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 	'view-page-reports-section', 'view-page-finance',
-            'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 'view-page-reports-section', 'view-page-finance',
-            'view-page-settings', 'view-page-department', 'view-page-user-management','view-page-role', 'view-page-management',
+            // 'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 	'view-page-reports-section', 'view-page-finance',
+            // 'view-page-requests', 'view-page-procurements', 'view-page-invoices', 'view-page-payments', 'view-page-budgets', 'view-page-pending-requests', 'view-page-rejected-requests', 'view-page-reports-section', 'view-page-finance',
+            // 'view-page-settings', 'view-page-department', 'view-page-user-management','view-page-role', 'view-page-management',
 
             //Departments
             'create-department', 'read-department', 'update-department', 'delete-department',
@@ -56,7 +56,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'backup', 'backup-restore', 'view-activity-log',
 
             //Personal
-            'view-page-profile-settings'
+            'profile-settings',
+            
+            //Attachments
+            'view attachment'
         ];
 
         foreach ($permissions as $permission) {
@@ -72,9 +75,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $superAdmin->givePermissionTo(Permission::all());
         $admin->givePermissionTo(Permission::all());
-        $pm->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
-        $fco->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
-        $pmo->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
-        $cso->givePermissionTo(['create-request', 'read-request', 'view-page-profile-settings','view-page-requests', 'view-page-settings']);
+        $pm->givePermissionTo(['create-request', 'read-request']);
+        $fco->givePermissionTo(['create-request', 'read-request']);
+        $pmo->givePermissionTo(['create-request', 'read-request']);
+        $cso->givePermissionTo(['create-request', 'read-request']);
     }
 }
