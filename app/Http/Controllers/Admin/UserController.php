@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Department;
+use App\Models\ApprovalLevel;
 use Illuminate\Http\Request;
 
 class UserController extends Controller

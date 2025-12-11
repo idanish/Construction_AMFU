@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+
 
 class NotificationController extends Controller
 {
@@ -17,7 +19,7 @@ class NotificationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $role = $user->roles->pluck('name')->first(); // Agar multiple roles ho to adjust karo
+        $role = $user->roles->pluck('name')->first(); 
 
         $notifications = Notification::where(function($q) use ($user, $role) {
             $q->where('user_id', $user->id)
@@ -26,7 +28,8 @@ class NotificationController extends Controller
               });
         })
         ->orderBy('created_at', 'desc')
-        ->get();
+        // ->get();
+        ->paginate(20);
 
         return view('notifications.index', compact('notifications'));
     }
@@ -96,4 +99,39 @@ class NotificationController extends Controller
 
         return $notification;
     }
+
+// for email notification
+public function store(Request $request)
+{
+    $request->validate([
+        'title'   => 'required|string',
+        'message' => 'required|string',
+        'user_id' => 'nullable|exists:users,id',
+        'role'    => 'nullable|string',
+    ]);
+
+    $notification = Notification::create([
+        'title'   => $request->title,
+        'message' => $request->message,
+        'user_id' => $request->user_id,
+        'role'    => $request->role,
+        'is_read' => false,
+    ]);
+
+    if ($notification->user_id) {
+        $user = \App\Models\User::find($notification->user_id);
+
+        if ($user && $user->email) {
+            Mail::raw($notification->message, function ($mail) use ($user, $notification) {
+                $mail->to($user->email)
+                     ->subject($notification->title);
+            });
+        }
+    }
+
+    return back()->with('success', 'Notification + Email sent successfully');
+}
+
+
+
 }

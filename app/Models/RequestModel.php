@@ -19,7 +19,7 @@ class RequestModel extends Model implements HasMedia
 
     protected $table = 'requests';
 
-    protected $fillable = ['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status'];
+    protected $fillable = ['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_level'];
 
     // Activity Log Start Here
 
@@ -27,7 +27,7 @@ class RequestModel extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('RequestModel')
-            ->logOnly(['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status'])
+            ->logOnly(['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_level'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -56,6 +56,9 @@ class RequestModel extends Model implements HasMedia
     public function requestor() {
         return $this->belongsTo(User::class, 'requestor_id');
     }
-    
 
+    public function approvals()
+    {
+        return $this->hasMany(Approval::class, 'request_id');
+    }
 }

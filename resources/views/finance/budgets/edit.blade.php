@@ -80,12 +80,11 @@
             {{-- Attachment --}}
             <div class="mb-3">
                 <label for="attachment" class="form-label">Attachment (Optional)</label>
-                <input type="file" name="attachment" id="attachment" class="form-control"
-                    accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx">
+                <input type="file" name="attachment" id="attachment" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx">
+                <!-- <input type="file" id="attachmentInput" name="attachments[]" multiple hidden> -->
                 @if ($budget->attachment)
                     <p class="mt-2">
-                        Current File: <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank">View /
-                            Download</a>
+                        Current File: <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank">View / Download</a>
                     </p>
                 @endif
                 @error('attachment')

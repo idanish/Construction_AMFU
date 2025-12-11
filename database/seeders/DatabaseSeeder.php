@@ -51,26 +51,26 @@ class DatabaseSeeder extends Seeder
         // );
         // $user->assignRole('PM');
 
-        // //  Default Department
-        // Department::updateOrCreate(
-        //     ['name' => 'Project Management Department'],
-        //     ['transaction_no' => 1],
-        // );
+        //  Default Department
+        Department::updateOrCreate(
+            ['name' => 'Project Management Department'],
+            ['transaction_no' => 1],
+        );
         
-        // Department::updateOrCreate(
-        //     ['name' => 'Finance & Commercial Department'],
-        //     ['transaction_no' => 2],
-        // );
+        Department::updateOrCreate(
+            ['name' => 'Finance & Commercial Department'],
+            ['transaction_no' => 2],
+        );
 
-        // Department::updateOrCreate(
-        //     ['name' => 'Security & Administration Department'],
-        //     ['transaction_no' => 3]
-        // );
+        Department::updateOrCreate(
+            ['name' => 'Security & Administration Department'],
+            ['transaction_no' => 3]
+        );
 
-        // Department::updateOrCreate(
-        //     ['name' => 'Project Management Department'],
-        //     ['transaction_no' => 1],
-        // );
+        Department::updateOrCreate(
+            ['name' => 'Project Management Department'],
+            ['transaction_no' => 1],
+        );
 
         // Default Budget
         // Budget::updateOrCreate(

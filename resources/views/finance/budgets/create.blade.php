@@ -82,12 +82,14 @@
                         <i class="bi bi-paperclip"></i>
                         <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
                         <input type="file" name="attachment" id="attachmentInput" hidden>
+                        <!-- <input type="file" id="attachmentInput" name="attachments[]" multiple hidden> -->
                     </div>
                     <div id="filePreview" class="mt-2"></div>
                     @error('attachment')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
+
                 {{-- Status --}}
                 <div class="form-group mb-3" hidden>
                     <label for="status">Status</label>
@@ -105,7 +107,7 @@
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
                     <button type="submit" class="vip-btn btn-submit">
-                        <i class="bi bi-check-lg"></i> save
+                        <i class="bi bi-check-lg"></i> Add Budget
                     </button>
                     <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn">
                         <i class="bi bi-x-octagon"></i> Cancel

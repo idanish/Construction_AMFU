@@ -16,6 +16,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->enum('method', ['Cash', 'Bank', 'Online']);
             $table->string('attachment')->nullable();
+            // $table->json('attachments')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();

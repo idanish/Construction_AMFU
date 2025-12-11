@@ -292,3 +292,20 @@ Route::post('/settings/restore', [BackupController::class, 'restore'])->name('se
 
 // approvals
 Route::post('/procurement/{id}/update-status', [ProcurementController::class, 'updateStatus'])->name('procurement.updateStatus');
+
+use App\Http\Controllers\ApprovalLevelController;
+
+Route::middleware(['auth'])->group(function () {
+
+    // Approval Levels
+    Route::get('/admin/approval-levels', [ApprovalLevelController::class, 'index'])->name('approval.levels.index');
+    Route::get('/admin/approval-levels/create', [ApprovalLevelController::class, 'create'])->name('approval.levels.create');
+    Route::post('/admin/approval-levels', [ApprovalLevelController::class, 'store'])->name('approval.levels.store');
+    Route::get('/admin/approval-levels/{id}/edit', [ApprovalLevelController::class, 'edit'])->name('approval.levels.edit');
+    Route::post('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'update'])->name('approval.levels.update');
+    Route::delete('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'destroy'])->name('approval.levels.destroy');
+
+});
+
+Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+// Route::get('/approvals', [ApprovalController::class, 'create'])->name('approvals.create');

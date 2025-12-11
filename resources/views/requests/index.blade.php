@@ -1,5 +1,5 @@
 @extends('master')
-@section('title', 'Requets')
+@section('title', 'Requests')
 @section('content')
 
 <div class="app-page-title">
@@ -96,80 +96,87 @@
 
 <div class="table-responsive-lg">
     <table class="table table-bordered table-striped">
-        <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
-            <tr>
-                <th>S.No</th>
-                <th>Title</th>
-                <th>Requestor</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($requests as $key => $request)
-            <tr class="text-center align-middle">
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $request->title }}</td>
-                <td>{{ $request->requestor->name ?? 'N/A' }}</td>
-                <td>{{ $request->description}}</td>
-                <td>${{ number_format($request->amount) }}</td>
-                <td>{{ ucfirst($request->status) }}</td>
-                <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
-                <td>
+        <thead>
+<tr>
+    <th>S.No</th>
+    <th>Title</th>
+    <th>Requestor</th>
+    <th>Description</th>
+    <th>Amount</th>
+    <th>Status</th>
+    <th>Attachments</th> {{-- NEW --}}
+    <th>Date</th>
+    <th>Action</th>
+</tr>
+</thead>
 
-                    <!-- Status Change Buttons -->
-                    @if ($request->status === 'Pending' || $request->status === 'pending')
-                    @can('approve-request')
-                    <form action="{{ route('requests.updateStatus', $request->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button type="submit" class="btn btn-success vip-btn">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-                    @endcan
+<tbody>
+@forelse ($requests as $key => $request)
+<tr class="text-center align-middle">
+    <td>{{ $key + 1 }}</td>
+    <td>{{ $request->title }}</td>
+    <td>{{ $request->requestor->name ?? 'N/A' }}</td>
+    <td>{{ $request->description }}</td>
+    <td>${{ number_format($request->amount) }}</td>
+    <td>{{ ucfirst($request->status) }}</td>
 
-                    @can('reject-request')
-                    <form action="{{ route('requests.updateStatus', $request->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-dark vip-btn">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
-                    @endcan
-                    <br><br>
-                    @endif
+    {{-- Attachments Column --}}
+    <td>
+        @foreach($request->getMedia('attachments') as $media)
+            <a href="{{ $media->getUrl() }}" target="_blank">{{ $media->file_name }}</a><br>
+        @endforeach
+    </td>
 
-                    @can('update-request')
-                    <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a>
-                    @endcan
+    <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
 
-                    @can('delete-request')
-                    <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline-block"
-                        onsubmit="return confirm('Are you sure you want to delete this request?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger vip-btn">
-                            <i class="bi bi-trash"></i> Delete
-                        </button>
-                    </form>
-                    @endcan
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="8" class="text-center">No requests found.</td>
-            </tr>
-            @endforelse
-        </tbody>
+    <td>
+        @if ($request->status === 'pending')
+            @can('approve-request')
+            <form action="{{ route('requests.updateStatus', $request->id) }}" method="POST" style="display:inline;">
+                @csrf
+                <input type="hidden" name="status" value="approved">
+                <button type="submit" class="btn btn-success vip-btn">
+                    <i class="bi bi-check-circle"></i> Approve
+                </button>
+            </form>
+            @endcan
+
+            @can('reject-request')
+            <form action="{{ route('requests.updateStatus', $request->id) }}" method="POST" style="display:inline;">
+                @csrf
+                <input type="hidden" name="status" value="rejected">
+                <button type="submit" class="btn btn-dark vip-btn">
+                    <i class="bi bi-x-circle"></i> Reject
+                </button>
+            </form>
+            @endcan
+            <br><br>
+        @endif
+
+        @can('update-request')
+        <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
+            <i class="bi bi-pencil-square"></i> Edit
+        </a>
+        @endcan
+
+        @can('delete-request')
+        <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline-block"
+              onsubmit="return confirm('Are you sure you want to delete this request?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-sm btn-danger vip-btn">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+        </form>
+        @endcan
+    </td>
+</tr>
+@empty
+<tr>
+    <td colspan="9" class="text-center">No requests found.</td>
+</tr>
+@endforelse
+
     </table>
     <!-- Pagination -->
     <div>

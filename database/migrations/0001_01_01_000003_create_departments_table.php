@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id(); // auto increment primary key
             $table->string('name');
             $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps(); // created_at and updated_at
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->softDeletes(); // merged here

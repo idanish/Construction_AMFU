@@ -47,7 +47,8 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
-                            {{-- <th>Department</th> --}}
+                            <th>Department</th>
+                            <th>Level</th>
                             <th>Status</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -64,8 +65,8 @@
                                         {{ $user->roles->pluck('name')->implode(', ') ?: 'No Role' }}
                                     </span>
                                 </td>
-                                {{-- <td>{{ $user->department?->name ?? '-' }}</td> --}}
-
+                                <td>{{ $user->department?->name ?? '-' }}</td>
+                                <td>{{ $user->approval_level_id }}</td>
 
 
                                 <td>

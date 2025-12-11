@@ -15,7 +15,7 @@ class Approval extends Model
 {
     use HasFactory, LogsActivity, HasRoles, SoftDeletes;
 
-    protected $fillable = ['request_id', 'approver_id', 'status', 'comments'];
+    protected $fillable = ['request_id', 'approver_id', 'level', 'status', 'comments'];
 
 
     // Activity Log Start Here
@@ -24,7 +24,7 @@ class Approval extends Model
     {
         return LogOptions::defaults()
             ->useLogName('Approval')
-            ->logOnly(['request_id', 'approver_id', 'status', 'comments'])
+            ->logOnly(['request_id', 'approver_id', 'level', 'status', 'comments'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -35,9 +35,6 @@ class Approval extends Model
     }
 
     // Activity Log End Here
-
-
-
 
 
     public function request()

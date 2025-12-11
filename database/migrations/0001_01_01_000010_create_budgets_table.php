@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->unsignedBigInteger('department_id');
             $table->string('attachment')->nullable();
+            // $table->json('attachments')->nullable();
             $table->integer('year');
             $table->decimal('allocated', 12, 2);
             $table->decimal('spent', 12, 2)->default(0);

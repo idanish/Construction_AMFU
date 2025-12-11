@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('status', ['unpaid', 'partial','paid'])->default('unpaid');
             $table->text('notes')->nullable();
             $table->string('attachment')->nullable();
+            // $table->json('attachments')->nullable();
             $table->dateTime('due_date');
             $table->text('vendor_name');
             $table->unsignedBigInteger('transaction_no')->default(0);

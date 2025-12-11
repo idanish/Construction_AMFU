@@ -363,6 +363,37 @@
         </li>
         @endcanany
 
+
+<!-- Approvals -->
+        @canany(['read-role', 'create-role'])
+        <li class="menu-item list-unstyled {{ $isRolesActive ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle {{ $isRolesActive ? 'text-warning' : '' }}">
+                <i class="menu-icon tf-icons bx bx-box"></i>
+                <div data-i18n="Approvals">Approvals</div>
+            </a>
+            <ul class="menu-sub">
+                @can('read-role')
+                <li class="menu-item  {{ Route::is('approval.levels.index') ? 'active' : '' }}">
+                    <a href="{{ route('approval.levels.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bi bi-file-person"></i>
+                        <div data-i18n="All-Roles">Approvals</div>
+                    </a>
+                </li>
+                @endcan
+
+                @can('create-role')
+                <li class="menu-item  {{ Route::is('approval.levels.create') ? 'active' : '' }}">
+                    <a href="{{ route('approval.levels.create') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bi bi-person-badge-fill"></i>
+                        <div data-i18n="Role-create">Create Level</div>
+                    </a>
+                </li>
+                @endcan
+            </ul>
+        </li>
+        @endcanany
+
+
         <!-- Departments -->
         @canany(['read-department', 'create-department'])
         <li class="menu-item list-unstyled {{ $isDepartmentsActive ? 'active open' : '' }}">

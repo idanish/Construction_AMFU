@@ -151,37 +151,59 @@
 
     {{-- Script --}}
     <script>
-        const uploadBox = document.getElementById('uploadBox');
-        const attachmentInput = document.getElementById('attachmentInput');
-        const filePreview = document.getElementById('filePreview');
+// ----------------------------------------------------------------------
+// Attachments
+// ----------------------------------------------------------------------
 
-        uploadBox.addEventListener('click', () => attachmentInput.click());
-        uploadBox.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadBox.style.background = '#dee2e6';
-        });
-        uploadBox.addEventListener('dragleave', () => {
-            uploadBox.style.background = '#f8f9fa';
-        });
-        uploadBox.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (e.dataTransfer.files.length > 0) {
-                attachmentInput.files = e.dataTransfer.files;
-                showFileName(attachmentInput.files[0]);
-            }
-            uploadBox.style.background = '#f8f9fa';
-        });
+const uploadBox = document.getElementById('uploadBox');
+const attachmentInput = document.getElementById('attachmentInput');
+const filePreview = document.getElementById('filePreview');
 
-        attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) {
-                showFileName(attachmentInput.files[0]);
-            }
-        });
+let selectedFiles = [];
 
-        function showFileName(file) {
-            if (file) {
-                filePreview.textContent = "📎 " + file.name + " attached";
-            }
-        }
-    </script>
+uploadBox.addEventListener('click', function() {
+    attachmentInput.click();
+});
+
+attachmentInput.addEventListener('change', function() {
+    selectedFiles = Array.from(this.files);
+    renderFileList();
+});
+
+function renderFileList() {
+    filePreview.innerHTML = '';
+
+    selectedFiles.forEach((file, index) => {
+        const div = document.createElement('div');
+        div.style.marginBottom = '5px';
+
+
+        div.innerHTML = `
+        ${index + 1}. ${file.name} (${Math.round(file.size/1024)} KB)
+        <button type="button" style="margin-left:10px;color:red;border:none;background:none;cursor:pointer;" onclick="removeFile(${index})">
+            ✖
+        </button>
+        `;
+
+        filePreview.appendChild(div);
+    });
+
+    updateInputFiles();
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    renderFileList();
+}
+
+function updateInputFiles() {
+    const dataTransfer = new DataTransfer();
+
+    selectedFiles.forEach(file => {
+        dataTransfer.items.add(file);
+    });
+
+    attachmentInput.files = dataTransfer.files;
+}
+</script>
 @endsection

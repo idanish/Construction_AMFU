@@ -11,13 +11,28 @@
                     <p class="card-text"><strong>Requestor:</strong> {{ $request->requestor->name }}</p>
                     <p class="card-text"><strong>Department:</strong> {{ $request->department->name }}</p>
                     <p class="card-text"><strong>Amount:</strong> {{ $request->amount }}</p>
-                    <p class="card-text"><strong>Status:</strong> 
-                        @if($request->status == 'pending')
-                            <span class="badge bg-warning">Pending</span>
-                        @elseif($request->status == 'approved')
-                            <span class="badge bg-success">Approved</span>
+
+                    <p class="card-text">
+                        <strong>Attachments:</strong>
+                        @if($request->attachments && count($request->attachments) > 0)
+                        @foreach($request->attachments as $file)
+                        <a href="{{ asset('storage/' . $file) }}" target="_blank"
+                            class="btn btn-sm btn-outline-info mb-1">
+                            {{ basename($file) }}
+                        </a>
+                        @endforeach
                         @else
-                            <span class="badge bg-danger">Rejected</span>
+                        <span class="text-muted">No File</span>
+                        @endif
+                    </p>
+
+                    <p class="card-text"><strong>Status:</strong>
+                        @if($request->status == 'pending')
+                        <span class="badge bg-warning">Pending</span>
+                        @elseif($request->status == 'approved')
+                        <span class="badge bg-success">Approved</span>
+                        @else
+                        <span class="badge bg-danger">Rejected</span>
                         @endif
                     </p>
                     <hr>

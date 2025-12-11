@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('Remarks')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('attachment')->nullable();
+            // $table->json('attachments')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();

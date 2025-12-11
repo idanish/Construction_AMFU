@@ -57,6 +57,39 @@
                     ->count();
                     @endphp
 
+<!-- @auth // <--- Check karein ke user authenticated hai
+    @php
+        // Line 38 ab yahan hogi
+        $user = auth()->user();
+        
+        // Yeh line sirf tab chalegi jab $user null nahi hoga
+        $role = $user->roles->pluck('name')->first(); 
+
+        // Notification ki logic
+        $notifications = \App\Models\Notification::where(function ($q) use ($user, $role) {
+            $q->where('user_id', $user->id)->orWhere(function ($q2) use ($role) {
+                $q2->whereNotNull('role')->where('role', $role);
+            });
+        })
+        ->latest()
+        ->take(5)
+        ->get();
+
+        $unreadCount = \App\Models\Notification::where(function ($q) use ($user, $role) {
+            $q->where('user_id', $user->id)->orWhere(function ($q2) use ($role) {
+                $q2->whereNotNull('role')->where('role', $role);
+            });
+        })
+        ->where('is_read', false)
+        ->count();
+    @endphp
+@else
+    @php
+        // Agar user logged out hai, toh notifications aur count ko empty set karein
+        $notifications = collect([]);
+        $unreadCount = 0;
+    @endphp
+@endauth -->
                     <button class="btn btn-sm position-relative" type="button" data-bs-toggle="dropdown">
                         <i class="bx bx-bell fs-4"></i>
                         @if ($unreadCount > 0)

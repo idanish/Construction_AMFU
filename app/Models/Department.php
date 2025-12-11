@@ -15,7 +15,25 @@ class Department extends BaseModel
 {
     use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
 
-    protected $fillable = ['name', 'description','transaction_no'];
+    protected $fillable = ['name','description','transaction_no'];
+
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(RequestModel::class);
+    }
+
+    public function approvalLevels()
+    {
+        return $this->hasMany(ApprovalLevel::class);
+    }
+
+
 
     
     // Activity Log Start Here
@@ -24,7 +42,7 @@ class Department extends BaseModel
     {
         return LogOptions::defaults()
             ->useLogName('Department')
-            ->logOnly(['name', 'description','transaction_no'])
+            ->logOnly(['name','description','transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -35,5 +53,9 @@ class Department extends BaseModel
     }
 
     // Activity Log End Here
+
+
+
+
 
 }
