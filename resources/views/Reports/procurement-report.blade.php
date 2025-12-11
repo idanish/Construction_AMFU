@@ -60,6 +60,7 @@
                     <th>Cost Estimate</th>
                     <th>Unit Price</th>
                     <th>Department</th>
+                    <th>Status</th>
                     <th>Remarks</th>
                     <th>Date & Time</th>
                 </tr>
@@ -75,6 +76,7 @@
             ? number_format($procurement->cost_estimate / $procurement->quantity, 2) 
             : 'N/A' }} </td>
                     <td>{{ optional($procurement->department)->name ?? 'N/A' }}</td>
+                    <td>{{ $procurement->status }}</td>
                     <td>{{ $procurement->justification ?? '-' }}</td>
                     <td>{{ $procurement->created_at->format('d-M-Y h:i A') }}</td>
                 </tr>

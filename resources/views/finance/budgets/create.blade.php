@@ -44,17 +44,41 @@
                     @enderror
                 </div>
 
+
+                {{-- Month --}}
+                <div class="form-group mb-3">
+                    <label for="month">Month</label>
+                    <select name="month" id="month" class="form-control @error('month') is-invalid @enderror" required>
+                        <option value="">Select Month</option>
+                        @php
+                            $months = [
+                                1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 
+                                5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 
+                                9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+                            ];
+                        @endphp
+                        @foreach ($months as $key => $name)
+                            <option value="{{ $key }}" {{ old('month') == $key ? 'selected' : '' }}>
+                                {{ $name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('month')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 {{-- Year --}}
                 <div class="form-group mb-3">
                     <label for="year">Year</label>
                     <input type="number" name="year" id="year"
-                        class="form-control @error('year') is-invalid @enderror" value="{{ old('year') }}" required>
+                        class="form-control @error('year') is-invalid @enderror" value="{{ old('year', date('Y')) }}" required>
                     @error('year')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                {{-- Allocated --}}
+                {{-- Allocated (Budget Amount) --}}
                 <div class="form-group mb-3">
                     <label for="allocated">Allocated Amount</label>
                     <input type="number" step="0.01" name="allocated" id="allocated"
@@ -65,7 +89,6 @@
                     @enderror
                 </div>
 
-
                 {{-- Notes --}}
                 <div class="form-group mb-3">
                     <label for="notes">Notes</label>
@@ -75,35 +98,33 @@
                     @enderror
                 </div>
 
-                {{-- Attachment --}}
+                {{-- Attachment (Multiple Files) --}}
                 <div class="mb-3">
-                    <label class="form-label">Attachment</label>
+                    <label class="form-label">Attachment (Multiple Optional)</label>
                     <div class="upload-box" id="uploadBox">
                         <i class="bi bi-paperclip"></i>
-                        <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
-                        <input type="file" name="attachment" id="attachmentInput" hidden>
-                        <!-- <input type="file" id="attachmentInput" name="attachments[]" multiple hidden> -->
+                        <p>Drag & Drop files here or click to upload </br> Multiple files supported (Max 2MB each)</p>
+                        <input type="file" id="attachmentInput" name="attachments[]" multiple hidden>
                     </div>
                     <div id="filePreview" class="mt-2"></div>
-                    @error('attachment')
-                        <div class="text-danger">{{ $message }}</div>
+                    @error('attachments.*')
+                        <div class="text-danger mt-1">File upload error: {{ $message }}</div>
                     @enderror
                 </div>
 
-                {{-- Status --}}
+                {{-- Status (Hidden field with default Pending) --}}
                 <div class="form-group mb-3" hidden>
-                    <label for="status">Status</label>
                     @if (auth()->check() && auth()->user()->role === 'admin')
                         <select name="status" id="status" class="form-control">
-                            <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="Approved" {{ old('status') == 'Approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="Rejected" {{ old('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="approved" {{ old('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                         </select>
                     @else
-                        <input type="text" class="form-control" value="Pending" disabled>
-                        <input type="hidden" name="status" value="Pending">
+                        <input type="hidden" name="status" value="pending">
                     @endif
                 </div>
+                
                 {{-- Submit --}}
                 <div class="d-flex gap-2">
                     <button type="submit" class="vip-btn btn-submit">
@@ -156,32 +177,35 @@
         uploadBox.addEventListener('dragleave', () => {
             uploadBox.style.background = '#f8f9fa';
         });
+        
+        // Drag and Drop files ko sahi se set karna
         uploadBox.addEventListener('drop', (e) => {
             e.preventDefault();
             if (e.dataTransfer.files.length > 0) {
                 attachmentInput.files = e.dataTransfer.files;
-                showFileName(attachmentInput.files[0]);
+                showFileNames(attachmentInput.files); // Updated function call
             }
             uploadBox.style.background = '#f8f9fa';
         });
+        
+        // Input change par file names display karna
         attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) showFileName(attachmentInput.files[0]);
+            if (attachmentInput.files.length > 0) showFileNames(attachmentInput.files);
         });
 
-        function showFileName(file) {
-            if (file) filePreview.textContent = "📎 " + file.name + " attached";
+        // Multiple file names display karne ke liye updated function
+        function showFileNames(files) {
+            let previewHtml = '';
+            if (files.length > 0) {
+                for(let i = 0; i < files.length; i++) {
+                    previewHtml += `<div>📎 ${files[i].name} (${(files[i].size / 1024 / 1024).toFixed(2)} MB)</div>`;
+                }
+                filePreview.innerHTML = previewHtml;
+            } else {
+                filePreview.textContent = '';
+            }
         }
-
-        const allocatedInput = document.getElementById('allocated');
-        const spentInput = document.getElementById('spent');
-        const balanceInput = document.getElementById('balance');
-
-        function updateBalance() {
-            const allocated = parseFloat(allocatedInput.value) || 0;
-            const spent = parseFloat(spentInput.value) || 0;
-            balanceInput.value = (allocated - spent).toFixed(2);
-        }
-        allocatedInput.addEventListener('input', updateBalance);
-        spentInput.addEventListener('input', updateBalance);
+        
+        // Spent aur Balance ke scripts hata diye gaye.
     </script>
 @endsection

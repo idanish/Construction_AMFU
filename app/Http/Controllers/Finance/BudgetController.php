@@ -28,6 +28,11 @@ public function index(Request $r)
         $budgetsQuery->where('year', $r->year);
     }
 
+     // 🔹 Month filter
+    if ($r->filled('month')) {
+            $budgetsQuery->where('month', $r->month);
+        }
+
     // 🔹 Status filter
     if ($r->filled('status')) {
         $budgetsQuery->where('status', $r->status);
@@ -38,6 +43,12 @@ public function index(Request $r)
     // Dropdown ke liye departments list
     $departments = \App\Models\Department::all();
 
+    $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
+
     return view('finance.budgets.index', compact('budgets', 'departments'));
 }
   public function create()
@@ -47,32 +58,46 @@ public function index(Request $r)
   }
 
   public function store(Request $r)
-  {
-    $r->validate([
-      'department_id' => 'required|integer|exists:departments,id',
-      'year'     => 'required|integer',
-      'allocated'   => 'required|numeric|min:0',
-      'spent'     => 'nullable|numeric|min:0|lte:allocated',
-      'notes'     => 'nullable|string',
-      'status'    => 'required|string',
-      'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+{
+    // 1. Validation (Thoda sa clean up)
+    $validatedData = $r->validate([
+        'department_id' => 'required|integer|exists:departments,id',
+        'year'          => 'required|integer',
+        'month'         => 'required|integer|min:1|max:12',
+        'allocated'     => 'required|numeric|min:0',
+        // Spent field create form mein nahi hai, lekin validation mein rakha ja sakta hai agar form mein hidden ho.
+        'spent'         => 'nullable|numeric|min:0|lte:allocated', 
+        'notes'         => 'nullable|string',
+        'status'        => 'required|string',
+        'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx|max:2048', // xlsx add kiya
     ]);
 
-    $path = $r->file('attachment') ? $r->file('attachment')->store('budgets','public') : null;
+    // Create ke waqt Spent ko default 0 aur Balance ko calculate karein
+    $spent = $r->spent ?? 0;
 
-    Budget::create([
-      'department_id' => $r->department_id,
-      'year'     => $r->year,
-      'allocated'   => $r->allocated,
-      'spent'     => $r->spent ?? 0,
-      'balance'    => $r->allocated - $r->spent,
-      'notes'     => $r->notes,
-      'status'    => $r->status,
-      'attachment'  => $path,
-    ]);
+    // 2. Budget Record Banana aur $budget mein save karna
+    $budget = Budget::create([
+        'department_id' => $r->department_id,
+        'year'          => $r->year,
+        'month'         => $r->month,
+        'allocated'     => $r->allocated,
+        'spent'         => $spent,
+        'balance'       => $r->allocated - $spent, // Allocated - Spent
+        'notes'         => $r->notes,
+        'status'        => $r->status,
+    ]); 
+    // ^^^ YAHAN AB $budget DEFINE HO GAYA HAI ^^^
+    
+    // 3. Attachments ko $budget record par attach karna
+    if ($r->hasFile('attachments')) {
+        
+        foreach ($r->file('attachments') as $file) {
+            $budget->addMedia($file)->toMediaCollection('attachments');
+        }
+    }
 
     return redirect()->route('finance.budgets.index')->with('success','Budget created successfully!');
-  }
+}
 
   public function edit(Budget $budget)
   {
@@ -85,26 +110,29 @@ public function index(Request $r)
     $r->validate([
       'department_id' => 'required|integer|exists:departments,id',
       'year'     => 'required|integer',
+      'month'         => 'required|integer|min:1|max:12',
       'allocated'   => 'required|numeric|min:0',
       'spent'     => 'nullable|numeric|min:0|lte:allocated',
       'status'    => 'required|string',
-      'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+      'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+      // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
 
     $budget->department_id = $r->department_id;
     $budget->year     = $r->year;
+    $budget->month         = $r->month;
     $budget->allocated   = $r->allocated;
     $budget->spent     = $r->spent ?? 0;
     $budget->balance    = $budget->allocated - $budget->spent ?? 0;
     $budget->notes     = $r->notes;
     $budget->status    = $r->status;
 
-    if ($r->hasFile('attachment')) {
-      $budget->attachment = $r->file('attachment')->store('budgets','public');
-    }
-
-
-
+    // Attachments handling via Spatie Media Library
+    if ($r->hasFile('attachments')) {
+            foreach ($r->file('attachments') as $file) {
+                $budget->addMedia($file)->toMediaCollection('attachments');
+            }
+        }
 
     $budget->save();
 
@@ -113,9 +141,11 @@ public function index(Request $r)
 
   public function destroy(Budget $budget)
   {
-    if ($budget->attachment && \Storage::disk('public')->exists($budget->attachment)) {
-      \Storage::disk('public')->delete($budget->attachment);
-    }
+    // if ($budget->attachment && \Storage::disk('public')->exists($budget->attachment)) {
+    //   \Storage::disk('public')->delete($budget->attachment);
+    // }
+
+    $budget->clearMediaCollection('attachments');
     $budget->delete();
 
     return redirect()->route('finance.budgets.index')->with('success','Budget deleted successfully!');

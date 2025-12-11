@@ -59,6 +59,8 @@
                 <input type="number" name="year" class="form-control" placeholder="Year" value="{{ request('year') }}">
             </div>
 
+            
+
             <!-- Status -->
             <div class="col-md-3 col-sm-6">
                 <label class="form-label mb-0">By Status</label>
@@ -91,12 +93,14 @@
         </form>
     </div>
 </div>
+
 <div class="table-responsive-lg ">
     <table id="budgetsTable" class="table table-bordered table-striped">
         <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
             <tr class="text-center align-middle fw-bold ">
                 <th>No</th>
                 <th>Department</th>
+                <th>Month</th>
                 <th>Year</th>
                 <th>Allocated</th>
                 <th>Spent</th>
@@ -106,26 +110,28 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+       <tbody>
             @foreach ($budgets as $key => $budget)
             <tr>
-                <td>{{ $key + 1 }}</td>
+                <td>{{ $key + $budgets->firstItem() }}</td>
                 <td>{{ $budget->department->name ?? 'N/A' }}</td>
+                <td>{{ \Carbon\Carbon::create()->month($budget->month)->format('F') }}</td> 
                 <td>{{ $budget->year }}</td>
-                <td>${{ number_format($budget->allocated) }}</td>
-                <td>${{ number_format($budget->spent) }}</td>
-                <td>${{ number_format($budget->balance) }}</td>
+                <td>${{ number_format($budget->allocated, 2) }}</td>
+                <td>${{ number_format($budget->spent, 2) }}</td>
+                <td>${{ number_format($budget->balance, 2) }}</td>
                 <td>{{ ucfirst($budget->status) }}</td>
 
                 <td>
                     @can('view attachment')
-                    @if ($budget->attachment)
-                    <a href="{{ asset('storage/' . $budget->attachment) }}" target="_blank"
-                        class="btn  btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View</a>
-                    @else
-                    -
-                    @endif
+
+                    
+                        @forelse($budget->getMedia('attachments') as $media)
+                            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
+                                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+                        @empty
+                            N/A
+                        @endforelse
                     @endcan
                 </td>
                 <td>
@@ -180,7 +186,7 @@
 
             @if ($budgets->count() == 0)
             <tr>
-                <td colspan="9" class="text-center">No budgets found.</td>
+                <td colspan="10" class="text-center">No budgets found.</td>
             </tr>
             @endif
         </tbody>

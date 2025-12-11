@@ -104,7 +104,7 @@
     <th>Description</th>
     <th>Amount</th>
     <th>Status</th>
-    <th>Attachments</th> {{-- NEW --}}
+    <th>Attachments</th>
     <th>Date</th>
     <th>Action</th>
 </tr>
@@ -123,7 +123,8 @@
     {{-- Attachments Column --}}
     <td>
         @foreach($request->getMedia('attachments') as $media)
-            <a href="{{ $media->getUrl() }}" target="_blank">{{ $media->file_name }}</a><br>
+            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
+                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
         @endforeach
     </td>
 

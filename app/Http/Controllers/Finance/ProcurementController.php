@@ -53,18 +53,23 @@ class ProcurementController extends Controller
             'cost_estimate' => 'required|numeric|min:0',
             'department_id' => 'nullable|exists:departments,id',
             'justification' => 'nullable|string',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
-        if ($request->hasFile('attachment')) {
-            $data['attachment'] = $request->file('attachment')->store('procurements', 'public');
+        // if ($request->hasFile('attachment')) {
+        //     $data['attachment'] = $request->file('attachment')->store('procurements', 'public');
+        // }
+        $procurement = Procurement::create($data);
+
+    if ($request->hasFile('attachments')) {
+        foreach ($request->file('attachments') as $file) {
+            $procurement->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
         }
+    }
 
-        Procurement::create($data);
 
-        return redirect()->route('finance.procurements.index')
-                         ->with('success', 'Procurement created successfully!');
+        return redirect()->route('finance.procurements.index')->with('success', 'Procurement created successfully!');
     }
 
    
@@ -86,20 +91,33 @@ class ProcurementController extends Controller
         'cost_estimate' => 'required|numeric|min:0',
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
-        'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+        // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         'status'        => 'required|in:pending,approved,rejected'
     ]);
 
     $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
 
-    if ($r->hasFile('attachment')) {
-        $data['attachment'] = $r->file('attachment')->store('procurements', 'public');
+    // if ($r->hasFile('attachment')) {
+    //     $data['attachment'] = $r->file('attachment')->store('procurements', 'public');
+    // }
+
+     // Handling attachments
+    if ($r->hasFile('attachments')) {
+
+        // Optional: Remove existing attachments if "replace all" logic
+        if ($r->input('replace_attachments')) {
+            $proc->clearMediaCollection('attachments');
+        }
+
+        foreach ($r->file('attachments') as $file) {
+            $proc->addMedia($file)->toMediaCollection('attachments');
+        }
     }
+
 
     $proc->update($data);
 
-    return redirect()->route('finance.procurements.index')
-                     ->with('success','Procurement updated successfully!');
+    return redirect()->route('finance.procurements.index')->with('success','Procurement updated successfully!');
 }
 
 

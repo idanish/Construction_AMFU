@@ -130,13 +130,22 @@ class PaymentController extends Controller
 
       
          // Handle attachment
-    if ($r->hasFile('attachment')) {
-        $path = $r->file('attachment')->store('payments', 'public');
-        $data['attachment'] = $path; 
-    }
+    // if ($r->hasFile('attachment')) {
+    //     $path = $r->file('attachment')->store('payments', 'public');
+    //     $data['attachment'] = $path; 
+    // }
 
         // Create payment
         $payment = Payment::create($data);
+
+    if ($r->hasFile('attachments')) {
+        foreach ($r->file('attachments') as $file) {
+            $payment->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
+        }
+    }
+
+
+        
 
         // 3. Invoice Status Update
         $this->updateInvoiceStatus($invoice);
@@ -160,13 +169,27 @@ class PaymentController extends Controller
         $invoice = Invoice::findOrFail($r->invoice_id);
         $data = $r->only('payment_ref', 'invoice_id','payment_date','amount','method','transaction_no');
         
-        if ($r->hasFile('attachment')) {
-            if ($payment->attachment) {
-                Storage::disk('public')->delete($payment->attachment);
+        // if ($r->hasFile('attachment')) {
+        //     if ($payment->attachment) {
+        //         Storage::disk('public')->delete($payment->attachment);
+        //     }
+        //     $path = $r->file('attachment')->store('payments', 'public');
+        //     $data['attachment'] = $path; 
+        // } 
+
+          // Handling attachments
+        if ($r->hasFile('attachments')) {
+
+            // Optional: Remove existing attachments if "replace all" logic
+            if ($r->input('replace_attachments')) {
+                $payment->clearMediaCollection('attachments');
             }
-            $path = $r->file('attachment')->store('payments', 'public');
-            $data['attachment'] = $path; 
-        } 
+
+            foreach ($r->file('attachments') as $file) {
+                $payment->addMedia($file)->toMediaCollection('attachments');
+            }
+        }
+
         
         $payment->update($data);
 
@@ -180,10 +203,6 @@ class PaymentController extends Controller
 
     public function destroy(Payment $payment)
     {
-        // Attachment delete logic
-       if ($payment->attachment && Storage::disk('public')->exists($payment->attachment)) {
-        Storage::disk('public')->delete($payment->attachment);
-    }
 
         $invoice = Invoice::find($payment->invoice_id);
         

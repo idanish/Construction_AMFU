@@ -44,7 +44,7 @@
 
         </a>
         <a href="{{ route('reports.audit.export.pdf') }}" class="btn btn-danger vip-btn btn-pdf">
-            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
 
         </a>
     </div>

@@ -18,8 +18,9 @@ return new class extends Migration
             $table->text('comments')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->unsignedInteger('current_level')->default(1);
-            $table->unsignedInteger('max_level')->nullable();
-            $table->timestamp('approved_at')->nullable();
+            // $table->unsignedInteger('max_level')->nullable();
+            $table->foreignId('assigned_to')->nullable()->constrained('users');
+            // $table->timestamp('approved_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; // Yeh line add karein
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
@@ -15,7 +16,7 @@ use Spatie\Activitylog\LogOptions;
 
 class RequestModel extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, LogsActivity, SoftDeletes, HasRoles ;
+    use HasFactory, Notifiable, InteractsWithMedia, LogsActivity, SoftDeletes, HasRoles ;
 
     protected $table = 'requests';
 

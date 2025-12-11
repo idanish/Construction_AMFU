@@ -57,16 +57,6 @@
                 @enderror
             </div>
 
-            {{-- Due Date --}}
-            <div class="mb-3">
-                <label class="form-label">Due Date</label>
-                <input type="date" name="due_date" class="form-control @error('due_date') is-invalid @enderror"
-                    value="{{ old('due_date') }}" required>
-                @error('due_date')
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
             {{-- Amount --}}
             <div class="mb-3">
                 <label class="form-label">Amount</label>
@@ -77,7 +67,7 @@
                 @enderror
             </div>
 
-            {{-- Invoice Date --}}
+{{-- Invoice Date --}}
             <div class="mb-3">
                 <label class="form-label">Invoice Date</label>
                 <input type="date" name="invoice_date" class="form-control @error('invoice_date') is-invalid @enderror"
@@ -86,6 +76,17 @@
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
+
+            {{-- Due Date --}}
+            <div class="mb-3">
+                <label class="form-label">Due Date</label>
+                <input type="date" name="due_date" class="form-control @error('due_date') is-invalid @enderror"
+                    value="{{ old('due_date') }}" required>
+                @error('due_date')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
 
             {{-- Status --}}
             <div class="mb-3" hidden>
@@ -102,6 +103,12 @@
                 @enderror
             </div>
 
+            {{-- Notes --}}
+            <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+            </div>
+            
             {{-- Attachment --}}
             <div class="mb-3">
                 <label class="form-label">Attachment</label>
@@ -117,11 +124,7 @@
                 @enderror
             </div>
 
-            {{-- Notes --}}
-            <div class="mb-3">
-                <label class="form-label">Notes</label>
-                <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
-            </div>
+            
 
             {{-- Submit --}}
             <div class="d-flex gap-2">

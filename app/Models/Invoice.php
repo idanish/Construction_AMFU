@@ -4,21 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 // Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class Invoice extends Model
+class Invoice extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, LogsActivity, HasRoles ;
+    use HasFactory, Notifiable, InteractsWithMedia,  SoftDeletes, LogsActivity, HasRoles ;
 
     protected $fillable = ['procurement_id', 'invoice_no', 'amount', 'invoice_date', 'vendor_name', 'due_date', 'status', 'notes', 'attachment'];
 
     protected $casts = [
         'invoice_date' => 'date',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('attachments');
+    }
+
 
     //  Activity Log
     public function getActivitylogOptions(): LogOptions

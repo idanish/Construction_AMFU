@@ -16,6 +16,8 @@ return new class extends Migration
         $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
         $table->string('name');
         $table->unsignedInteger('sequence');
+        $table->string('role_name')->nullable();  // Using Spatie roles
+        // $table->foreignId('user_id')->nullable(); // Specific person approval
         $table->timestamps();
         });
 

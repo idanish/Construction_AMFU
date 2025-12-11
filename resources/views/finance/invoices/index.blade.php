@@ -105,14 +105,18 @@
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
                     @can('view attachment')
-                    @if ($invoice->attachment)
+                    <!-- @if ($invoice->attachment)
                     <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank"
                         class="btn btn-sm btn-info vip-btn">
                         <i class="bi bi-eye"></i> View
                     </a>
                     @else
                     N/A
-                    @endif
+                    @endif -->
+                    @foreach($invoice->getMedia('attachments') as $media)
+            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
+                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+        @endforeach
                     @endcan
                 </td>
                 <td>

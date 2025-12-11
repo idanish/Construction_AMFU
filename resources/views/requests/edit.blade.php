@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <h1>Edit Request</h1>
-            <form action="{{ route('requests.update', $request->id) }}" method="POST">
+            <form action="{{ route('requests.update', $request->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="requestor_id" value="{{ $request->requestor_id }}">
                 @method('PUT')

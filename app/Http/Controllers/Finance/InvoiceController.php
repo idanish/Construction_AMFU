@@ -101,11 +101,17 @@ class InvoiceController extends Controller
         ];
 
         // Handle attachment
-        if ($r->hasFile('attachment')) {
-            $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
-        }
+        // if ($r->hasFile('attachment')) {
+        //     $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+        // }
 
-        Invoice::create($data);
+        $InvoiceCr = Invoice::create($data);
+
+         if ($r->hasFile('attachments')) {
+        foreach ($r->file('attachments') as $file) {
+            $InvoiceCr->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
+        }
+    }
 
         return redirect()->route('finance.invoices.index')->with('success', 'Invoice created successfully!');
     }
@@ -149,12 +155,29 @@ class InvoiceController extends Controller
         ];
 
         // File Upload (replace old if exists)
-        if ($r->hasFile('attachment')) {
-            if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
-                Storage::disk('public')->delete($invoice->attachment);
+        // if ($r->hasFile('attachment')) {
+        //     if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
+        //         Storage::disk('public')->delete($invoice->attachment);
+        //     }
+        //     $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+        // }
+
+
+
+        // Handling attachments
+        if ($r->hasFile('attachments')) {
+
+            // Optional: Remove existing attachments if "replace all" logic
+            if ($r->input('replace_attachments')) {
+                $invoice->clearMediaCollection('attachments');
             }
-            $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+
+            foreach ($r->file('attachments') as $file) {
+                $invoice->addMedia($file)->toMediaCollection('attachments');
+            }
         }
+
+
 
         // Amount change hone se pehle update kar dein
         $invoice->update($data); 
@@ -179,10 +202,6 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice)
     {
-        // Attachment delete
-        if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
-            Storage::disk('public')->delete($invoice->attachment);
-        }
 
         // Soft Delete (payments bhi cascade delete ya soft delete ho sakti hain, depending on relationship)
         $invoice->delete();

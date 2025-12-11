@@ -13,18 +13,18 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->unsignedBigInteger('department_id');
             $table->string('attachment')->nullable();
-            // $table->json('attachments')->nullable();
             $table->integer('year');
+            $table->integer('month');
             $table->decimal('allocated', 12, 2);
             $table->decimal('spent', 12, 2)->default(0);
             $table->decimal('balance', 12, 2)->default(0);
             $table->string('notes')->nullable();
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
             $table->enum('status', ['approved', 'pending', 'rejected'])->default('pending');
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
         });
     }
 

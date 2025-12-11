@@ -309,3 +309,5 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
 // Route::get('/approvals', [ApprovalController::class, 'create'])->name('approvals.create');
+
+Route::View('Approvals-page','approval.levels.index');
