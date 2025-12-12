@@ -20,7 +20,7 @@ class ApprovalLevelController extends Controller
                     ->orderBy('sequence')
                     ->get();
 
-        return view('approval-levels.index', compact('levels'));
+        return view('admin.approval-levels.index', compact('levels'));
     }
 
     /**
@@ -29,7 +29,7 @@ class ApprovalLevelController extends Controller
     public function create()
     {
         $departments = Department::orderBy('name')->get();
-        return view('approval-levels.create', compact('departments'));
+        return view('admin.approval-levels.create', compact('departments'));
     }
 
     /**

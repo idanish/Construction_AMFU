@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 use App\Models\Department;
+use App\Models\ApprovalLevel;
+use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
@@ -16,6 +18,62 @@ class UserManagementController extends Controller
     return view('admin.user-management', compact('users'));
 }
 
+    public function create()
+    {
+        $departments = Department::orderBy('name')->get();
+        
+        // Fetch all approval levels with their department to show context in the dropdown
+        $approvalLevels = ApprovalLevel::with('department')
+            ->orderBy('department_id')
+            ->orderBy('sequence')
+            ->get();
+
+        // Assuming roles are fetched correctly
+        $roles = \Spatie\Permission\Models\Role::all(); // Example fetching roles
+
+        return view('admin.register', compact('departments', 'roles', 'approvalLevels'));
+    }
+
+    public function store(Request $request)
+    {
+
+        $request->validate([
+                'name'              => 'required|string|max:255',
+                'username'          => 'required|string|unique:users,username',
+                // 'email'  => 'required|email|unique:users,email,' . $user->id,
+                'email'             => 'required|email|unique:users,email',
+                'password'          => 'required|string|min:8|confirmed',
+                // 'role'              => 'required|exists:roles,name',
+                'role_id'           => 'required|exists:roles,id',
+                'approval_level_id' => 'nullable|exists:approval_levels,id',
+                'department_id'     => 'nullable|exists:departments,id',
+                // 'status'            => 'required|boolean',
+            ]);
+
+        // 1. User Create karna
+        $user = \App\Models\User::create([
+            'name'          => $request->name,
+            'username'      => $request->username,
+            'email'         => $request->email,
+            // 'password'      => $request->password,
+            'password'      => Hash::make($request->password),
+            'department_id' => $request->department_id,
+            'approval_level_id' => $request->approval_level_id,
+            // 'status'        => $request->status,
+        ]);
+
+        // 2. Role assign karna (Spatie package use karte hue)
+        $role = \Spatie\Permission\Models\Role::find($request->role_id);
+        if ($role) {
+            $user->assignRole($role);
+        }
+        
+       createNotification('Admin', "New user {$user->name} created by ".auth()->user()->name);
+    
+    return redirect()->route('admin.user-management')->with('success', 'User created successfully and role assigned.');
+    }
+
+    
     // Show edit form for a user
     public function edit(User $user)
 {
@@ -27,31 +85,35 @@ class UserManagementController extends Controller
 
     // Update user info + role
     public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
+    {
+        $user = User::findOrFail($id);
 
-    $request->validate([
-        'name'         => 'required|string|max:255',
-        'username'     => 'required|string|max:255',
-        'email'        => 'required|email|unique:users,email,' . $user->id,
-        'role'         => 'required|exists:roles,name',
-        'department_id'=> 'nullable|exists:departments,id',
-        'status'       => 'required|boolean',
-    ]);
+        $request->validate([
+            'name'         => 'required|string|max:255',
+            'username'     => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email,' . $user->id,
+            // 'role'         => 'required|exists:roles,name',
+            'role_id'       => 'required|exists:roles,id',
+            'approval_level_id' => 'nullable|exists:approval_levels,id',
+            'department_id'=> 'nullable|exists:departments,id',
+            'status'       => 'required|boolean',
+        ]);
 
-    $user->update([
-        'name'          => $request->name,
-        'username'      => $request->username,
-        'email'         => $request->email,
-        'department_id' => $request->department_id,
-        'status'        => $request->status,
-    ]);
+        $user->update([
+            'name'          => $request->name,
+            'username'      => $request->username,
+            'email'         => $request->email,
+            'department_id' => $request->department_id,
+            'approval_level_id' => $request->approval_level_id,
+            'status'        => $request->status,
+        ]);
 
-    // Role Update
-    $user->syncRoles([$request->role]);
+        // Role Update
+        // $user->syncRoles([$request->role]);
+        $user->syncRoles([$request->role_id]);
 
-    return redirect()->route('users.index')->with('success', 'User updated successfully!');
-}
+        return redirect()->route('admin.user-management')->with('success', 'User updated successfully!');
+    }
 
     //  Update status (Active / Inactive)
     public function updateStatus(Request $request, User $user)
@@ -70,7 +132,7 @@ class UserManagementController extends Controller
     {
         $user->delete(); 
 
-        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+        return redirect()->route('admin.user-management')->with('success', 'User deleted successfully!');
     }
 
 

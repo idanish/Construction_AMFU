@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('request_id')->constrained('requests')->onDelete('cascade');
             $table->foreignId('approver_id')->constrained('users')->onDelete('cascade');
             $table->unsignedInteger('level');
-            $table->enum('status', ['pending','approved','rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'draft', 'need revision'])->default('pending');
             $table->text('comments')->nullable();
             $table->timestamps();
             $table->softDeletes();

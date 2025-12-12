@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 // Activity Logs Files
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -20,7 +22,7 @@ class RequestModel extends Model implements HasMedia
 
     protected $table = 'requests';
 
-    protected $fillable = ['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_level'];
+    protected $fillable = ['requestor_id','type', 'assigned_to_user_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_level'];
 
     // Activity Log Start Here
 
@@ -28,7 +30,7 @@ class RequestModel extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('RequestModel')
-            ->logOnly(['requestor_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_level'])
+            ->logOnly(['requestor_id','type', 'assigned_to_user_id', 'department_id', 'title', 'description', 'amount', 'comments', 'status', 'current_level'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

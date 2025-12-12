@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Approval;
+use App\Models\ApprovalLevel;
+use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class PaymentController extends Controller
 {
@@ -129,11 +136,6 @@ class PaymentController extends Controller
         $data = $r->only('payment_ref','invoice_id','payment_date','amount','method','transaction_no');
 
       
-         // Handle attachment
-    // if ($r->hasFile('attachment')) {
-    //     $path = $r->file('attachment')->store('payments', 'public');
-    //     $data['attachment'] = $path; 
-    // }
 
         // Create payment
         $payment = Payment::create($data);
@@ -142,10 +144,7 @@ class PaymentController extends Controller
         foreach ($r->file('attachments') as $file) {
             $payment->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
         }
-    }
-
-
-        
+    } 
 
         // 3. Invoice Status Update
         $this->updateInvoiceStatus($invoice);
@@ -217,6 +216,10 @@ class PaymentController extends Controller
         return redirect()->route('finance.payments.index')->with('success', 'Payment deleted successfully.');
     }
 
+    public function show($id)
+    {
+        return view('finance.payments.show', compact('id'));
+    }
 
 
 /**

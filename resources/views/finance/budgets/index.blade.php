@@ -59,7 +59,7 @@
                 <input type="number" name="year" class="form-control" placeholder="Year" value="{{ request('year') }}">
             </div>
 
-            
+
 
             <!-- Status -->
             <div class="col-md-3 col-sm-6">
@@ -110,12 +110,12 @@
                 <th>Action</th>
             </tr>
         </thead>
-       <tbody>
+        <tbody>
             @foreach ($budgets as $key => $budget)
             <tr>
                 <td>{{ $key + $budgets->firstItem() }}</td>
                 <td>{{ $budget->department->name ?? 'N/A' }}</td>
-                <td>{{ \Carbon\Carbon::create()->month($budget->month)->format('F') }}</td> 
+                <td>{{ \Carbon\Carbon::create()->month($budget->month)->format('F') }}</td>
                 <td>{{ $budget->year }}</td>
                 <td>${{ number_format($budget->allocated, 2) }}</td>
                 <td>${{ number_format($budget->spent, 2) }}</td>
@@ -125,43 +125,97 @@
                 <td>
                     @can('view attachment')
 
-                    
-                        @forelse($budget->getMedia('attachments') as $media)
-                            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
-                                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
-                        @empty
-                            N/A
-                        @endforelse
+
+                    @forelse($budget->getMedia('attachments') as $media)
+                    <a href="{{ $media->getUrl() }}" target="_blank" title="{{ $media->file_name }}">
+                        <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+                    @empty
+                    N/A
+                    @endforelse
                     @endcan
                 </td>
                 <td>
 
-                    <!-- Status Change Buttons -->
 
-                    @if ($budget->status === 'pending')
-                    @can('approve-budget')
-                    <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button type="submit" class="btn btn-success vip-btn">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-                    @endcan
+                    @php
+                    $isPendingAndActionable = in_array($budget->status, ['pending', 'Needs Revision']);
+                    $currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
+                    $isCurrentApprover = false;
 
-                    @can('reject-budget')
-                    <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-dark vip-btn">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
-                    @endcan
-                    <br><br>
+                    if ($isPendingAndActionable && $budget->current_level) {
+                    if ($currentUserLevelSequence == $budget->current_level) {
+                    $currentPendingApproval = $budget->approvals
+                    ->where('level', $budget->current_level)
+                    ->where('status', 'pending')
+                    ->where('approver_id', Auth::id())
+                    ->first();
+
+                    if ($currentPendingApproval) {
+                    $isCurrentApprover = true;
+                    }
+                    }
+                    }
+                    @endphp
+
+                    @if ($isCurrentApprover)
+
+                    <div class="card mt-4 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Approval Action (Level {{ $currentPendingApproval->level }})</h5>
+                        </div>
+                        <div class="card-body">
+
+                            <form action="{{ route('approvals.updateStatus', $currentPendingApproval->id) }}"
+                                method="POST">
+                                @csrf
+
+                                {{-- Comments Field --}}
+                                <div class="form-group mb-3">
+                                    <label for="comments">Comments (Optional)</label>
+                                    <textarea name="comments" id="comments" class="form-control" rows="3"
+                                        placeholder="Approval ya rejection ke liye comments likhen..."></textarea>
+                                </div>
+
+                                {{-- Action Buttons --}}
+                                <div class="d-flex justify-content-end">
+                                    {{-- REJECT Button --}}
+                                    <button type="submit" name="status" value="rejected"
+                                        class="btn btn-danger btn-lg me-3"
+                                        onclick="return confirm('Are you Confirm this Rejection?')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+
+                                    {{-- APPROVE Button --}}
+                                    <button type="submit" name="status" value="approved" class="btn btn-success btn-lg"
+                                        onclick="return confirm('Are you Confirm this Approval?')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                    @else
+                    {{-- Approval Status Box --}}
+                    <div class="alert alert-info mt-4">
+                        @if ($budget->status == 'approved')
+                        <i class="fas fa-thumbs-up"></i> **Status:** Fully Approved.
+                        @elseif ($budget->status == 'rejected')
+                        <i class="fas fa-ban"></i> **Status:** Rejected.
+                        @elseif ($budget->status == 'Needs Revision')
+                        <i class="fas fa-edit"></i> **Status:** Needs Revision.
+                        @elseif ($budget->status == 'pending')
+                        <i class="fas fa-hourglass-half"></i> **Status:** Pending at Level
+                        {{ $budget->current_level }}.
+                        @else
+                        <i class="fas fa-info-circle"></i> **Status:** {{ ucwords($budget->status) }}.
+                        @endif
+                    </div>
                     @endif
+
+
+
+
                     <!-- Status Change Buttons -->
                     @can('update-budget')
                     <a href="{{ route('finance.budgets.edit', $budget->id) }}" class="btn  btn-warning vip-btn">

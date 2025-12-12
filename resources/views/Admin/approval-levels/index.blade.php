@@ -1,4 +1,5 @@
-@extends('master')
+
+<!-- @extends('master')
 
 @section('content')
 <div class="container">
@@ -41,4 +42,4 @@
     </table>
 
 </div>
-@endsection
+@endsection -->

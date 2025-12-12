@@ -19,12 +19,13 @@ return new class extends Migration
             $table->decimal('spent', 12, 2)->default(0);
             $table->decimal('balance', 12, 2)->default(0);
             $table->string('notes')->nullable();
+            $table->foreignId('requestor_id')->nullable()->constrained('users');
+            $table->unsignedInteger('current_level')->default(1);
             $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
-            $table->enum('status', ['approved', 'pending', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'draft', 'need revision'])->default('pending');
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->timestamps();
             $table->softDeletes();
-
         });
     }
 

@@ -9,6 +9,13 @@ use App\Models\Department;
 use App\Events\ProcurementApproved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Models\Approval;
+use App\Models\ApprovalLevel;
+use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class ProcurementController extends Controller
 {
@@ -57,9 +64,7 @@ class ProcurementController extends Controller
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
-        // if ($request->hasFile('attachment')) {
-        //     $data['attachment'] = $request->file('attachment')->store('procurements', 'public');
-        // }
+        
         $procurement = Procurement::create($data);
 
     if ($request->hasFile('attachments')) {
@@ -68,11 +73,15 @@ class ProcurementController extends Controller
         }
     }
 
-
         return redirect()->route('finance.procurements.index')->with('success', 'Procurement created successfully!');
     }
 
-   
+
+    public function show($id)
+    {
+        return view('finance.procurements.show', compact('id'));
+    }
+
 
     public function edit($id)
     {
@@ -97,9 +106,6 @@ class ProcurementController extends Controller
 
     $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
 
-    // if ($r->hasFile('attachment')) {
-    //     $data['attachment'] = $r->file('attachment')->store('procurements', 'public');
-    // }
 
      // Handling attachments
     if ($r->hasFile('attachments')) {

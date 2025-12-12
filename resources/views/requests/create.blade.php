@@ -14,12 +14,52 @@
                     <input type="text" name="title" id="title" class="form-control" required>
                 </div>
 
-                <select name="department_id" id="department_id" class="form-control" required>
+                <h3>Request Type Select</h3>
+                <div class="form-group mb-3">
+                    <label>Request Type</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="type" id="typeGeneral" value="general"
+                                checked>
+                            <label class="form-check-label" for="typeGeneral">General Approval</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="type" id="typePrivate" value="private">
+                            <label class="form-check-label" for="typePrivate">Direct Approval</label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Private Assignment Field (JavaScript se hide/show hoga) --}}
+                <div id="privateAssignmentField" style="display: none;" class="form-group mb-3">
+                    <label for="assigned_to_user_id">Assign To Specific User:</label>
+                    <select name="assigned_to_user_id" id="assigned_to_user_id" class="form-control">
+                        <option value="">-- Select Approver --</option>
+
+                        @foreach($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->username }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+
+                {{-- Department Select Field --}}
+                <div class="form-group mb-3" id="departmentFieldGroup">
+                    <label for="department_id">Department</label>
+                    <select name="department_id" id="department_id" class="form-control">
+                        <option value="">-- Select Department --</option>
+                        @foreach ($departments as $dept)
+                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- <select name="department_id" id="department_id" class="form-control" required>
                     <option value="">-- Select Department --</option>
                     @foreach ($departments as $dept)
                     <option value="{{ $dept->id }}">{{ $dept->name }}</option>
                     @endforeach
-                </select>
+                </select> -->
 
                 <div class="form-group mb-3">
                     <label for="description">Description</label>
@@ -142,9 +182,45 @@ function updateInputFiles() {
 
     attachmentInput.files = dataTransfer.files;
 }
+
+
+
+// ----------------------------------------------------------------------
+// Fields Show Hide Script
+// ----------------------------------------------------------------------
+// Updated JavaScript
+document.addEventListener('DOMContentLoaded', function () {
+    const typeGeneral = document.getElementById('typeGeneral');
+    const typePrivate = document.getElementById('typePrivate');
+    const privateField = document.getElementById('privateAssignmentField');
+    
+    // New variables for Department Select and Assigned User Select
+    const departmentSelect = document.getElementById('department_id'); 
+    const assignedUserSelect = document.getElementById('assigned_to_user_id'); 
+
+    function toggleFields() {
+        if (typePrivate.checked) {
+            privateField.style.display = 'block';
+            
+            // Private: Assigned User required hoga, Department required nahi
+            assignedUserSelect.setAttribute('required', 'required');
+            departmentSelect.removeAttribute('required');
+            departmentSelect.disabled = true;
+
+        } else {
+            privateField.style.display = 'none';
+
+            // General: Department required hoga, Assigned User required nahi
+            departmentSelect.setAttribute('required', 'required');
+            assignedUserSelect.removeAttribute('required');
+            departmentSelect.disabled = false;
+        }
+    }
+
+    typeGeneral.addEventListener('change', toggleFields);
+    typePrivate.addEventListener('change', toggleFields);
+    toggleFields();
+});
 </script>
-
-
-
 
 @endsection

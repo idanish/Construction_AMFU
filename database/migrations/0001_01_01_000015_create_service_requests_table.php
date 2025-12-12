@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('request_no')->nullable();              // unique request number (added from alter)
             $table->string('title')->nullable();                   // title now nullable
             $table->text('description')->nullable();               // details
-            $table->enum('status', ['pending','approved','rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'draft', 'need revision'])->default('pending');
             $table->unsignedBigInteger('transaction_no')->default(0); // already added but ensured
             $table->timestamps();
             $table->softDeletes();

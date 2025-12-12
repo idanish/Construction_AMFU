@@ -8,26 +8,30 @@
         <div class="mb-3"><strong>ID:</strong> {{ $procurement->id }}</div>
         <div class="mb-3"><strong>Item Name:</strong> {{ $procurement->item_name }}</div>
         <div class="mb-3"><strong>Quantity:</strong> {{ $procurement->quantity }}</div>
-        <div class="mb-3"><strong>Cost Estimate:</strong> PKR {{ number_format($procurement->cost_estimate, 2) }}</div>
+        <div class="mb-3"><strong>Cost Estimate:</strong> <span id="currencySymbol">$</span> {{ number_format($procurement->cost_estimate, 2) }}</div>
         <div class="mb-3"><strong>Department:</strong> {{ $procurement->department->name ?? 'N/A' }}</div>
         <div class="mb-3"><strong>Justification:</strong> {{ $procurement->justification }}</div>
         <div class="mb-3">
             <strong>Status:</strong>
-            @if($procurement->status == 'pending')
+            <!-- @if($procurement->status == 'pending')
                 <span class="badge bg-warning">Pending</span>
             @elseif($procurement->status == 'approved')
                 <span class="badge bg-success">Approved</span>
             @else
                 <span class="badge bg-danger">Rejected</span>
-            @endif
+            @endif -->
         </div>
         <div class="mb-3">
             <strong>Attachment:</strong>
-            @if($procurement->attachment)
+            <!-- @if($procurement->attachment)
                 <a href="{{ asset('storage/' . $procurement->attachment) }}" target="_blank" class="btn btn-sm btn-outline-info">View File</a>
             @else
                 <span class="text-muted">No File</span>
-            @endif
+            @endif -->
+            @foreach($procurement->getMedia('attachments') as $media)
+            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
+                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+        @endforeach
         </div>
         <div class="mb-3"><strong>Created At:</strong> {{ $procurement->created_at->format('d M, Y H:i') }}</div>
     </div>

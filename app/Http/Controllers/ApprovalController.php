@@ -18,13 +18,15 @@ class ApprovalController extends Controller
     {
         $user = Auth::user();
 
-        $approvals = Approval::with('request')
-            ->where('approver_id', $user->id)
-            ->where('status', 'pending')
-            ->latest()
-            ->get();
+        $userLevelSequence = optional($user->approvalLevel)->sequence;
 
-        return view('approvals.index', compact('approvals'));
+        $pendingApprovals = Approval::with('request')
+        ->where('approver_id', $user->id)
+        ->where('status', 'pending')
+        ->latest()
+        ->get();
+
+        return view('approvals.index', compact('pendingApprovals'));
     }
 
 
@@ -44,7 +46,9 @@ class ApprovalController extends Controller
         if ($approval->approver_id !== Auth::id()) {
             return back()->with('error', "You are not authorized for this approval level.");
         }
-
+    $request = $approval->request; // Request object ko define karein
+    $currentSequence = $approval->level; // Current sequence ko define karein
+    
         // Update current approval level
         $approval->update([
             'status'   => $req->status,
@@ -53,103 +57,62 @@ class ApprovalController extends Controller
 
         // If rejected → request rejected & no more levels required
         if ($req->status === 'rejected') {
-            $approval->request->update(['status' => 'rejected']);
-            return back()->with('success', "Request rejected successfully.");
-        }
+            
+            $previousSequence = $currentSequence - 1;
 
-        // If approved → create next level (if exists)
-        $request = $approval->request;
+            if ($previousSequence >= 1) {
+                // Agar Level 1 se bada hai to pichhle level par wapas bhejo
+                
+                // Request ka status aur current_level update karna
+                $request->update([
+                    'status' => 'Needs Revision', 
+                    'current_level' => $previousSequence
+                ]);
+        
+                
+                return back()->with('warning', "Request rejected. Sent back to Requestor for revision (Level {$previousSequence}).");
+            } else {
+                 // Level 1 par rejection = Final Rejection
+                 $request->update(['status' => 'rejected', 'current_level' => null]);
+                 return back()->with('danger', "Request permanently rejected.");
+            }
+}
 
-        // Next approval level sequence
-        $nextSequence = $approval->level + 1;
+// --- 3. Handle Approval (Next Level Par Bhejna) ---
 
-        // Check if next level exists for this department
-        $nextLevel = ApprovalLevel::where('department_id', $request->department_id)
-            ->where('sequence', $nextSequence)
-            ->first();
+    $nextSequence = $currentSequence + 1;
 
-        // If no next level → final approval
-        if (!$nextLevel) {
-            $request->update(['status' => 'approved']);
-            return back()->with('success', "Request fully approved.");
-        }
+    // Next approval level dhoondhna
+    $nextLevel = ApprovalLevel::where('department_id', $request->department_id)
+      ->where('sequence', $nextSequence)
+      ->first();
 
-        // Find the user assigned to that next approval level
-        $nextApprover = $nextLevel->users()->first();
+    // Final Approval
+    if (!$nextLevel) {
+      $request->update(['status' => 'approved', 'current_level' => null]);
+      return back()->with('success', "Request fully approved!");
+    }
 
-        if (!$nextApprover) {
-            return back()->with('error', "No approver found for next level!");
-        }
+    // Next Approver dhoondhna
+    $nextApprover = $nextLevel->users()->first();
 
-        // Create next pending approval row
-        Approval::create([
-            'request_id'  => $request->id,
-            'approver_id' => $nextApprover->id,
-            'level'       => $nextSequence,
-            'status'      => 'pending',
-        ]);
+    if (!$nextApprover) {
+      // If next level exists but no user assigned:
+      $request->update(['status' => 'Needs Approver', 'current_level' => $nextSequence]);
+      return back()->with('error', "Level approved. Error: No approver found for Level {$nextSequence}!");
+    }
+
+        // Request ka current level update karna
+        $request->update(['current_level' => $nextSequence]);
+
+    // Next pending approval row create karna
+    Approval::create([
+      'request_id' => $request->id,
+      'approver_id' => $nextApprover->id,
+      'level'    => $nextSequence,
+      'status'   => 'pending',
+    ]);
 
         return back()->with('success', "Level approved. Moved to next approver.");
     }
 }
-
-
-
-
-
-
-
-
-// namespace App\Http\Controllers;
-
-// use App\Models\Approval;
-// use App\Models\ApprovalLevel;
-// use Illuminate\Http\Request;
-// use App\Models\RequestModel; 
-// use Illuminate\Support\Facades\Auth;
-
-// class ApprovalController extends Controller
-// {
-//     /**
-//      * Show all approvals for a given request
-//      */
-//     public function index()
-// {
-    
-//     $approvals = Approval::with('request')->latest()->get();
-
-//     return view('approvals.index', compact('approvals'));
-// }
-
-
-//     /**
-//      * Show the form for creating a new approval for a given request
-//      */
-//     public function create($requestId)
-//     {
-//         $request = RequestModel::findOrFail($requestId);
-//         return view('approvals.create', compact('request'));
-//     }
-
-//     /**
-//      * Store a new approval for a request
-//      */
-//     public function store(Request $req, $requestId)
-//     {
-//         $req->validate([
-//             'status'   => 'required|in:approve,reject',
-//             'comments' => 'nullable|string|max:500',
-//         ]);
-
-//         Approval::create([
-//             'request_id'  => $requestId,
-//             'approver_id' => auth()->id(),
-//             'status'      => $req->status,
-//             'comments'    => $req->comments,
-//         ]);
-
-//         return redirect()
-//             ->route('approvals.index', $requestId)
-//             ->with('success', 'Approval submitted successfully.');
-//     }
-// }
