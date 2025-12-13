@@ -1,7 +1,11 @@
-@extends('layouts.app')
-@section('title', 'Login')
-@section('content')
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" type="image/x-icon" href="https://amfu.net/wp-content/uploads/2024/04/cropped-amfu-FAV-32x32.png" />
 <style>
 body {
     background-color: #f8f9fa;
@@ -9,7 +13,6 @@ body {
 
 .image-column {
     background: url("https://amfu.net/wp-content/uploads/2024/04/construction-silhouette-1.jpg") no-repeat center center fixed;
-    /* background: url("{{ asset('assets/img/backgrounds/bg.jpg') }}") no-repeat center center fixed; */
     background-size: cover;
     height: 100vh;
     padding: 0;
@@ -71,6 +74,11 @@ body {
 }
 </style>
 
+</head>
+<body>
+    
+
+
 <div class="row g-0">
 
     <div class="col-md-8 image-column">
@@ -124,14 +132,14 @@ body {
                         </div>
 
 
-                        @if (Route::has('password.request'))
+                        <!-- @if (Route::has('password.request'))
                         <div class="text-center mt-4">
                             <a class="text-decoration-none" href="{{ route('password.request') }}"
                                 style="color: #ffab00;">
                                 {{ __('Forgot Your Password?') }}
                             </a>
                         </div>
-                        @endif
+                        @endif -->
 
                         @if (session('success'))
                         <div class="alert mt-4 d-none" id="alertMessage" role="alert">{{ session('success') }}
@@ -145,4 +153,6 @@ body {
 
     </div>
 </div>
-@endsection
+
+</body>
+</html>

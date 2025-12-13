@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\ApprovalLevel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 // Activity Logs
@@ -25,7 +26,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'transaction_no'];
+    protected $fillable = ['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'approval_level_id', 'transaction_no'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -50,16 +51,20 @@ class User extends Authenticatable
         ];
     }
     public function role()
-{
+    {
     return $this->belongsTo(Role::class);
-}
+    }
 
 
-         public function department()
-{
+        public function department()
+    {
     return $this->belongsTo(\App\Models\Department::class, 'department_id');
-}
+    }
 
+    public function approvalLevel()
+    {
+        return $this->belongsTo(ApprovalLevel::class, 'approval_level_id');
+    }
 
     // Activity Log Start Here
 
@@ -67,7 +72,7 @@ class User extends Authenticatable
     {
         return LogOptions::defaults()
             ->useLogName('User')
-            ->logOnly(['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'transaction_no'])
+            ->logOnly(['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'approval_level_id', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -52,10 +52,12 @@
             <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
                     <th>S.No</th>
+                    <th>Title</th>
                     <th>Department</th>
                     <th>Allocated</th>
                     <th>Spent</th>
                     <th>Balance</th>
+                    <th>Month & Year</th>
                     <th>Status</th>
                     <th>Date & Time</th>
                 </tr>
@@ -64,10 +66,12 @@
                 @foreach($budgets as $key => $budget)
                 <tr>
                     <td>{{ $key + 1 }}</td>
+                    <td>{{ $budget->title }}</td>
                     <td>{{ $budget->department->name ?? '-' }}</td>
                     <td>{{ $budget->allocated }}</td>
                     <td>{{ $budget->spent }}</td>
                     <td>{{ $budget->balance }}</td>
+                    <td>{{ $budget->month }} / {{ $budget->year }}</td>
                     <td>{{ $budget->status }}</td>
                     <td>{{ $budget->created_at->format('d-M-Y h:i A') }}</td>
                 </tr>

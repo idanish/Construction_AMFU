@@ -6,6 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Department;
 use App\Models\Budget;
+use App\Models\User;
+use App\Models\Approval;
+use App\Models\ApprovalLevel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class BudgetController extends Controller
 {
@@ -28,6 +34,11 @@ public function index(Request $r)
         $budgetsQuery->where('year', $r->year);
     }
 
+     // 🔹 Month filter
+    if ($r->filled('month')) {
+            $budgetsQuery->where('month', $r->month);
+        }
+
     // 🔹 Status filter
     if ($r->filled('status')) {
         $budgetsQuery->where('status', $r->status);
@@ -38,6 +49,12 @@ public function index(Request $r)
     // Dropdown ke liye departments list
     $departments = \App\Models\Department::all();
 
+    $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
+
     return view('finance.budgets.index', compact('budgets', 'departments'));
 }
   public function create()
@@ -46,119 +63,47 @@ public function index(Request $r)
     return view('finance.budgets.create', compact('departments'));
   }
 
- public function store(Request $r)
+  public function store(Request $r)
 {
-    $r->validate([
+    // 1. Validation (Thoda sa clean up)
+    $validatedData = $r->validate([
         'department_id' => 'required|integer|exists:departments,id',
-        'year' => 'required|integer',
-        'allocated' => 'required|numeric|min:0',
-        'requested_budget' => 'required|numeric|min:0',
-        'budget_type' => 'required|in:monthly,weekly',
-        'spent' => 'nullable|numeric|min:0|lte:allocated',
-        'notes' => 'nullable|string',
-        'status' => 'required|string',
-        'attachment' => 'nullable|array|max:10',
-        'attachment.*' => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+        'year'          => 'required|integer',
+        'month'         => 'required|integer|min:1|max:12',
+        'allocated'     => 'required|numeric|min:0',
+        // Spent field create form mein nahi hai, lekin validation mein rakha ja sakta hai agar form mein hidden ho.
+        'spent'         => 'nullable|numeric|min:0|lte:allocated', 
+        'notes'         => 'nullable|string',
+        'status'        => 'required|string',
+        'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx|max:2048', // xlsx add kiya
     ]);
 
-    // 🔹 Check duplicate budgets
-    $monthStart = now()->startOfMonth();
-    $monthEnd = now()->endOfMonth();
+    // Create ke waqt Spent ko default 0 aur Balance ko calculate karein
+    $spent = $r->spent ?? 0;
 
-    if($r->budget_type === 'monthly') {
-        $existingMonthly = Budget::where('department_id', $r->department_id)
-                                 ->where('budget_type', 'monthly')
-                                 ->whereBetween('created_at', [$monthStart, $monthEnd])
-                                 ->count();
-        if($existingMonthly > 0) {
-            $dept = \App\Models\Department::find($r->department_id);
-            $deptName = $dept ? $dept->name : 'Department';
-            return redirect()->back()->with('monthly_conflict', [
-                'department_id' => $r->department_id,
-                'department_name' => $deptName,
-                'year' => $r->year,
-                'message' => 'You have already submitted a monthly budget for this month. You can send a special request to admin to request an override.'
-            ])->withInput();
-        }
-    } elseif($r->budget_type === 'weekly') {
-        $existingWeekly = Budget::where('department_id', $r->department_id)
-                                ->where('budget_type', 'weekly')
-                                ->whereBetween('created_at', [$monthStart, $monthEnd])
-                                ->count();
-        if($existingWeekly >= 4) {
-            return redirect()->back()->with('error', 'Is mahine ke liye weekly budget ki limit (4) poori ho chuki hai.');
+    // 2. Budget Record Banana aur $budget mein save karna
+    $budget = Budget::create([
+        'department_id' => $r->department_id,
+        'year'          => $r->year,
+        'month'         => $r->month,
+        'allocated'     => $r->allocated,
+        'spent'         => $spent,
+        'balance'       => $r->allocated - $spent, // Allocated - Spent
+        'notes'         => $r->notes,
+        'status'        => $r->status,
+    ]); 
+    // ^^^ YAHAN AB $budget DEFINE HO GAYA HAI ^^^
+    
+    // 3. Attachments ko $budget record par attach karna
+    if ($r->hasFile('attachments')) {
+        
+        foreach ($r->file('attachments') as $file) {
+            $budget->addMedia($file)->toMediaCollection('attachments');
         }
     }
-
-    // 🔹 Handle attachments (multiple) and keep original filenames
-    $paths = null;
-    if ($r->hasFile('attachment')) {
-        $paths = [];
-        foreach ($r->file('attachment') as $file) {
-            $stored = $file->store('budgets', 'public');
-            $paths[] = [
-                'path' => $stored,
-                'name' => $file->getClientOriginalName(),
-            ];
-        }
-    }
-
-   $budget = Budget::create([
-    'department_id' => $r->department_id,
-    'year' => $r->year,
-    'allocated' => (float)$r->allocated,
-    'requested_budget' => (float)$r->requested_budget,
-    'budget_type' => $r->budget_type,
-    'spent' => (float)($r->spent ?? 0),
-    'balance' => (float)($r->allocated - ($r->spent ?? 0)),
-    'notes' => $r->notes,
-    'status' => $r->status,
-    'current_approval_step' => 'PM',
-    'attachment' => $paths,
-]);
-
-    // Create approvals for the budget (sequential 5-step workflow)
-    \App\Http\Controllers\ApprovalController::createApprovalsForModel($budget);
 
     return redirect()->route('finance.budgets.index')->with('success','Budget created successfully!');
 }
-
-    /**
-     * Handle special override requests when a monthly budget already exists.
-     */
-    public function requestOverride(Request $r)
-    {
-        // Log incoming request for debugging 404 issue
-        try {
-            \Log::info('BudgetController::requestOverride called', ['user_id' => auth()->id(), 'input' => $r->all()]);
-        } catch (\Exception $e) {
-            // ignore logging errors
-        }
-        $r->validate([
-            'department_id' => 'required|integer|exists:departments,id',
-            'year' => 'required|integer',
-            'note' => 'nullable|string',
-        ]);
-
-        $dept = Department::find($r->department_id);
-        $user = auth()->user();
-        $note = $r->input('note', '');
-
-        $message = "Special override request by {$user->name} for department {$dept->name} (Year: {$r->year}).";
-        if ($note) {
-            $message .= " Note: {$note}";
-        }
-
-        try {
-            // notify admins via helper
-            createNotification('Admin', $message);
-        } catch (\Exception $e) {
-            \Log::error('Failed to create special request notification: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to send special request. Please try again.');
-        }
-
-        return redirect()->back()->with('success', 'Special request sent to admin.');
-    }
 
   public function edit(Budget $budget)
   {
@@ -169,18 +114,14 @@ public function index(Request $r)
   public function update(Request $r, Budget $budget)
 {
     $r->validate([
-        'department_id' => 'required|integer|exists:departments,id',
-        'year' => 'required|integer',
-        'allocated' => 'required|numeric|min:0',
-        'requested_budget' => 'required|numeric|min:0',
-        'budget_type' => 'required|in:monthly,weekly',
-        'spent' => 'nullable|numeric|min:0|lte:allocated',
-        'notes' => 'nullable|string',
-        'status' => 'required|string',
-        'r_attachment' => 'nullable',
-        'attachment' => 'nullable|array|max:10',
-        'attachment.*' => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
-
+      'department_id' => 'required|integer|exists:departments,id',
+      'year'     => 'required|integer',
+      'month'         => 'required|integer|min:1|max:12',
+      'allocated'   => 'required|numeric|min:0',
+      'spent'     => 'nullable|numeric|min:0|lte:allocated',
+      'status'    => 'required|string',
+      'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+      // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
 // 🔹 Check duplicate budgets
 if ($r->budget_type === 'monthly') {
@@ -218,56 +159,33 @@ if ($r->budget_type === 'monthly') {
 
     // 🔹 Update fields
     $budget->department_id = $r->department_id;
-    $budget->year = $r->year;
-    $budget->allocated = $r->allocated;
-    $budget->requested_budget = $r->requested_budget;
-    $budget->budget_type = $r->budget_type;
-    $budget->spent = $r->spent ?? 0;
-    $budget->balance = $r->allocated - ($r->spent ?? 0);
-    $budget->notes = $r->notes;
-    $budget->status = $r->status;
+    $budget->year     = $r->year;
+    $budget->month         = $r->month;
+    $budget->allocated   = $r->allocated;
+    $budget->spent     = $r->spent ?? 0;
+    $budget->balance    = $budget->allocated - $budget->spent ?? 0;
+    $budget->notes     = $r->notes;
+    $budget->status    = $r->status;
 
-        if ($r->hasFile('attachment')) {
-            $existing = is_array($budget->attachment) ? $budget->attachment : ($budget->attachment ? (json_decode($budget->attachment, true) ?? []) : []);
-            try {
-                foreach ($r->file('attachment') as $file) {
-                    $stored = $file->store('budgets','public');
-                    $existing[] = [
-                        'path' => $stored,
-                        'name' => $file->getClientOriginalName(),
-                    ];
-                }
-            } catch (\Exception $e) {
-                \Log::error('Budget attachment upload failed: ' . $e->getMessage());
-                return redirect()->back()->with('error', 'Attachment upload failed. Please try again.');
+    // Attachments handling via Spatie Media Library
+    if ($r->hasFile('attachments')) {
+            foreach ($r->file('attachments') as $file) {
+                $budget->addMedia($file)->toMediaCollection('attachments');
             }
-            $budget->attachment = $existing;
         }
 
-
-
-
-    try {
-        $budget->save();
-    } catch (\Exception $e) {
-        \Log::error('Budget update failed: ' . $e->getMessage());
-        return redirect()->back()->with('error', 'Failed to update budget. Please try again.');
-    }
+    $budget->save();
 
     return redirect()->route('finance.budgets.index')->with('success','Budget updated successfully!');
 }
 
   public function destroy(Budget $budget)
   {
-        if ($budget->attachment) {
-          $atts = is_array($budget->attachment) ? $budget->attachment : (json_decode($budget->attachment, true) ?? [$budget->attachment]);
-          foreach ($atts as $att) {
-              $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
-              if (\Storage::disk('public')->exists($attPath)) {
-                  \Storage::disk('public')->delete($attPath);
-              }
-          }
-        }
+    // if ($budget->attachment && \Storage::disk('public')->exists($budget->attachment)) {
+    //   \Storage::disk('public')->delete($budget->attachment);
+    // }
+
+    $budget->clearMediaCollection('attachments');
     $budget->delete();
 
     return redirect()->route('finance.budgets.index')->with('success','Budget deleted successfully!');

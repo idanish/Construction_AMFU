@@ -4,21 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class Approval extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, Notifiable, LogsActivity, HasRoles, SoftDeletes;
 
-    protected $fillable = ['request_id', 'approvable_type', 'approvable_id', 'approver_id', 'status', 'note', 'step_order', 'acted_at', 'approval_step', 'assigned_role', 'revert_reason'];
+    protected $fillable = ['request_id', 'approver_id', 'level', 'status', 'comments'];
+
+
+    // Activity Log Start Here
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('Approval')
-            ->logOnly(['request_id', 'approvable_type', 'approvable_id', 'approver_id', 'status', 'note'])
+            ->logOnly(['request_id', 'approver_id', 'level', 'status', 'comments'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -28,13 +32,9 @@ class Approval extends Model
         return "Approval record has been {$eventName}";
     }
 
-    // Polymorphic relationship: can belong to RequestModel, Invoice, Procurement, Budget, or Payment
-    public function approvable()
-    {
-        return $this->morphTo();
-    }
+    // Activity Log End Here
 
-    // Legacy request relationship for backward compatibility
+
     public function request()
     {
         return $this->belongsTo(RequestModel::class, 'request_id');

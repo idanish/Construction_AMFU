@@ -1,5 +1,5 @@
 @extends('master')
-@section('title', 'Requets')
+@section('title', 'Requests')
 @section('content')
 
 <div class="app-page-title">
@@ -96,46 +96,47 @@
 
 <div class="table-responsive-lg">
     <table class="table table-bordered table-striped">
-        <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
+        <thead>
             <tr>
                 <th>S.No</th>
                 <th>Title</th>
                 <th>Requestor</th>
                 <th>Amount</th>
                 <th>Status</th>
-                <th>Current Step</th>
+                <th>Attachments</th>
                 <th>Date</th>
                 <th>Action</th>
             </tr>
         </thead>
+
         <tbody>
             @forelse ($requests as $key => $request)
             <tr class="text-center align-middle">
                 <td>{{ $key + 1 }}</td>
                 <td>{{ $request->title }}</td>
                 <td>{{ $request->requestor->name ?? 'N/A' }}</td>
+                <td>{{ $request->description }}</td>
                 <td>${{ number_format($request->amount) }}</td>
-                <td>
-                    @if($request->status === 'approved')
-                        <span class="badge bg-success">Approved</span>
-                    @elseif($request->status === 'reverted')
-                        <span class="badge bg-danger">Reverted</span>
-                    @else
-                        <span class="badge bg-warning">Pending</span>
-                    @endif
-                </td>
-                <td><span class="badge bg-info">{{ $request->current_approval_step ?? 'N/A' }}</span></td>
-                <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
-                <td>
-                    <a href="{{ route('requests.show', $request->id) }}" class="btn btn-sm btn-primary vip-btn">
-                        <i class="bi bi-eye"></i> View
-                    </a>
+                <td>{{ ucfirst($request->status) }}</td>
 
-                    @if($request->status === 'reverted' && $request->requestor_id === auth()->id())
-                    <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-warning vip-btn">
-                        <i class="bi bi-pencil-square"></i> Resubmit
-                    </a>
-                    @elseif($request->status !== 'approved')
+                {{-- Attachments Column --}}
+                <td>
+                    @foreach($request->getMedia('attachments') as $media)
+                    <a href="{{ $media->getUrl() }}" target="_blank" title="{{ $media->file_name }}">
+                        <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+                    @endforeach
+                </td>
+
+                <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
+
+                <td>
+                    
+          
+            <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn">
+            <i class="bi bi-check-circle"></i> View Request
+            </a>
+
+                    @can('update-request')
                     <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
                         <i class="bi bi-pencil-square"></i> Edit
                     </a>
@@ -155,10 +156,10 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-center">No requests found.</td>
+                <td colspan="9" class="text-center">No requests found.</td>
             </tr>
             @endforelse
-        </tbody>
+
     </table>
     <!-- Pagination -->
     <div>

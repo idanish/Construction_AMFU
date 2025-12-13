@@ -1,157 +1,123 @@
 @extends('master')
 @section('title', 'Request #' . $request->id)
 @section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <h1>Request #{{ $request->id }}</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>Request Details</h1>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ $request->title }}</h5>
+                    <p class="card-text"><strong>Requestor:</strong> {{ $request->requestor->name }}</p>
+                    <p class="card-text"><strong>Department:</strong> {{ optional($request->department)->name ?? 'N/A (Private Request)' }}</p>
+                    <p class="card-text"><strong>Amount:</strong> {{ $request->amount }}</p>
 
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+                    <p class="card-text">
+                        <strong>Attachments:</strong>
+                    @foreach($request->getMedia('attachments') as $media)
+                    <a href="{{ $media->getUrl() }}" target="_blank" title="{{ $media->file_name }}">
+                        <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+                    @endforeach
+                    </p>
 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Request Details</h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Title:</strong> {{ $request->title }}</p>
-                        <p><strong>Requestor:</strong> {{ $request->requestor->name }}</p>
-                        <p><strong>Department:</strong> {{ $request->department->name }}</p>
-                        <p><strong>Amount:</strong> ${{ number_format($request->amount, 2) }}</p>
-                        <p><strong>Description:</strong> {{ $request->description }}</p>
-                        <p><strong>Status:</strong>
-                            @if($request->status === 'approved')
-                                <span class="badge bg-success">Approved</span>
-                            @elseif($request->status === 'reverted')
-                                <span class="badge bg-danger">Reverted</span>
-                            @else
-                                <span class="badge bg-warning">Pending</span>
-                            @endif
-                        </p>
-                        <p><strong>Current Step:</strong> <span class="badge bg-info">{{ $request->current_approval_step }}</span></p>
-                        @if($request->approved_at)
-                            <p><strong>Approved On:</strong> {{ $request->approved_at->format('d-M-Y h:i A') }}</p>
+                    <p class="card-text"><strong>Status:</strong>
+                        @if($request->status == 'pending')
+                        <span class="badge bg-warning">Pending</span>
+                        @elseif($request->status == 'approved')
+                        <span class="badge bg-success">Approved</span>
+                        @else
+                        <span class="badge bg-danger">Rejected</span>
                         @endif
-                        <p><strong>Created:</strong> {{ $request->created_at->format('d-M-Y h:i A') }}</p>
-                    </div>
-                </div>
 
-                @if($request->revert_reason)
-                    <div class="alert alert-warning">
-                        <h6>Revert Reason:</h6>
-                        <p>{{ $request->revert_reason }}</p>
-                    </div>
-                @endif
 
-                <!-- Approval Workflow Steps -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Approval Workflow</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline">
-                            @php
-                                $approvals = $request->approvals()->orderBy('step_order')->get();
-                            @endphp
+                        @php
+                        $isPendingAndActionable = in_array($request->status, ['pending', 'Needs Revision']);
+                        $currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
+                        $isCurrentApprover = false;
 
-                            @forelse($approvals as $approval)
-                                <div class="timeline-item mb-4">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6>
-                                                Step {{ $approval->step_order }}: {{ $approval->approval_step }}
-                                                @if($approval->status === 'approved')
-                                                    <span class="badge bg-success ms-2">Approved</span>
-                                                @elseif($approval->status === 'rejected')
-                                                    <span class="badge bg-danger ms-2">Rejected</span>
-                                                @else
-                                                    <span class="badge bg-warning ms-2">Pending</span>
-                                                @endif
-                                            </h6>
-                                            <p class="text-muted mb-1">
-                                                <strong>Assigned To:</strong> {{ $approval->approver->name }}
-                                            </p>
-                                            @if($approval->acted_at)
-                                                <p class="text-muted mb-1">
-                                                    <strong>Action Taken:</strong> {{ $approval->acted_at->format('d-M-Y h:i A') }}
-                                                </p>
-                                            @endif
-                                            @if($approval->note)
-                                                <p class="text-muted mb-1">
-                                                    <strong>Note:</strong> {{ $approval->note }}
-                                                </p>
-                                            @endif
-                                            @if($approval->revert_reason)
-                                                <div class="alert alert-danger mt-2 mb-0">
-                                                    <strong>Rejection Reason:</strong>
-                                                    <p>{{ $approval->revert_reason }}</p>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            @if($approval->status === 'approved')
-                                                <span class="badge bg-success p-2">✓ Approved</span>
-                                            @elseif($approval->status === 'rejected')
-                                                <span class="badge bg-danger p-2">✗ Rejected</span>
-                                            @else
-                                                <span class="badge bg-warning p-2">⏱ Pending</span>
-                                            @endif
-                                        </div>
-                                    </div>
+                        if ($isPendingAndActionable && $request->current_level) {
+                            if ($currentUserLevelSequence == $request->current_level) {
+                                $currentPendingApproval = $request->approvals
+                                ->where('level', $request->current_level)
+                                ->where('status', 'pending')
+                                ->where('approver_id', Auth::id())
+                                ->first();
+                                
+                                if ($currentPendingApproval) {
+                                    $isCurrentApprover = true;
+                                }
+                            }
+                        }
+                        @endphp
+
+                        @if ($isCurrentApprover)
+
+                    <div class="card mt-4 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Approval Action (Level {{ $currentPendingApproval->level }})</h5>
+                        </div>
+                        <div class="card-body">
+
+                            <form action="{{ route('approvals.updateStatus', $currentPendingApproval->id) }}"
+                                method="POST">
+                                @csrf
+
+                                {{-- Comments Field --}}
+                                <div class="form-group mb-3">
+                                    <label for="comments">Comments (Optional)</label>
+                                    <textarea name="comments" id="comments" class="form-control" rows="3"
+                                        placeholder="Approval ya rejection ke liye comments likhen..."></textarea>
                                 </div>
-                                @if(!$loop->last)
-                                    <hr>
-                                @endif
-                            @empty
-                                <p class="text-muted">No approvals assigned.</p>
-                            @endforelse
+
+                                {{-- Action Buttons --}}
+                                <div class="d-flex justify-content-end">
+                                    {{-- REJECT Button --}}
+                                    <button type="submit" name="status" value="rejected"
+                                        class="btn btn-danger btn-lg me-3"
+                                        onclick="return confirm('Are you Confirm this Rejection?')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+
+                                    {{-- APPROVE Button --}}
+                                    <button type="submit" name="status" value="approved" class="btn btn-success btn-lg"
+                                        onclick="return confirm('Are you Confirm this Approval?')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </div>
+                            </form>
+
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Actions</h5>
+                    @else
+                    {{-- Approval Status Box --}}
+                    <div class="alert alert-info mt-4">
+                        @if ($request->status == 'approved')
+                        <i class="fas fa-thumbs-up"></i> **Status:** Fully Approved.
+                        @elseif ($request->status == 'rejected')
+                        <i class="fas fa-ban"></i> **Status:** Rejected.
+                        @elseif ($request->status == 'Needs Revision')
+                        <i class="fas fa-edit"></i> **Status:** Needs Revision.
+                        @elseif ($request->status == 'pending')
+                        <i class="fas fa-hourglass-half"></i> **Status:** Pending at Level
+                        {{ $request->current_level }}.
+                        @else
+                        <i class="fas fa-info-circle"></i> **Status:** {{ ucwords($request->status) }}.
+                        @endif
                     </div>
-                    <div class="card-body">
-                        @if($request->status === 'reverted' && $request->requestor_id === auth()->id())
-                            <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-warning w-100 mb-2">
-                                <i class="bi bi-pencil-square"></i> Edit & Resubmit
-                            </a>
-                        @elseif($request->status !== 'approved' && $request->requestor_id === auth()->id())
-                            <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-primary w-100 mb-2">
-                                <i class="bi bi-pencil-square"></i> Edit Request
-                            </a>
-                        @endif
+                    @endif
 
-                        @if(auth()->id() === $request->requestor_id && $request->status !== 'approved')
-                            <form action="{{ route('requests.destroy', $request->id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger w-100">
-                                    <i class="bi bi-trash"></i> Delete Request
-                                </button>
-                            </form>
-                        @endif
 
-                        @if($request->status === 'approved' && auth()->id() === $request->requestor_id)
-                            <div class="alert alert-success">
-                                <i class="bi bi-check-circle"></i> This request has been approved and is ready for implementation.
-                            </div>
-                        @endif
+                    </p>
+                    <hr>
+                    <p class="card-text"><strong>Description:</strong></p>
+                    <p>{{ $request->description }}</p>
+                    <hr>
+                    <p class="card-text"><strong>Comments:</strong></p>
+                    <p>{{ $request->comments }}</p>
 
-                        <a href="{{ route('requests.index') }}" class="btn btn-secondary w-100 mt-2">
-                            <i class="bi bi-arrow-left-circle"></i> Back to List
-                        </a>
-                    </div>
+                    <a href="{{ route('requests.index') }}" class="btn btn-secondary mt-3 vip-btn">
+                        <i class="bi bi-arrow-left-circle"></i> Back to list
+                    </a>
                 </div>
             </div>
         </div>

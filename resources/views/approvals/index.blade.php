@@ -1,119 +1,132 @@
 @extends('master')
-@section('title', 'My Approvals')
+@section('title', 'Pending Approvals')
+
 @section('content')
-    <div class="container">
-        <h1>Pending Approvals</h1>
 
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="app-page-title">
+    <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+        <div class="page-title-heading m-0">
+            <div class="page-title-icon">
+                <i class="pe-7s-check icon-gradient bg-tempting-azure"></i>
             </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if($pendingApprovals->isEmpty())
-            <div class="alert alert-info">No pending approvals assigned to you.</div>
-        @else
-            <div class="row">
-                @foreach($pendingApprovals as $approval)
-                    @php $req = $approval->request; @endphp
-                    <div class="col-md-6 mb-4">
-                        <div class="card border-warning">
-                            <div class="card-header bg-warning text-dark">
-                                <h5 class="mb-0">{{ $approval->approval_step }} Approval - Request #{{ $req->id }}</h5>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Title:</strong> {{ $req->title }}</p>
-                                <p><strong>Requestor:</strong> {{ $req->requestor->name }} ({{ $req->department->name }})</p>
-                                <p><strong>Amount:</strong> {{ $req->amount }}</p>
-                                <p><strong>Description:</strong> {{ substr($req->description, 0, 100) }}...</p>
-                                <p><strong>Current Step:</strong> <span class="badge bg-info">{{ $req->current_approval_step }}</span></p>
-
-                                <hr>
-
-                                <div class="approval-actions">
-                                    <form action="{{ route('approvals.approve', $approval->id) }}" method="POST" style="display: inline-block; margin-right: 10px;">
-                                        @csrf
-                                        <input type="hidden" name="note" value="Approved by {{ auth()->user()->name }}">
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="bi bi-check-circle"></i> Approve
-                                        </button>
-                                    </form>
-
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $approval->id }}">
-                                        <i class="bi bi-x-circle"></i> Reject
-                                    </button>
-                                </div>
-
-                                <!-- Reject Modal -->
-                                <div class="modal fade" id="rejectModal{{ $approval->id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form action="{{ route('approvals.reject', $approval->id) }}" method="POST">
-                                                @csrf
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Reject Request</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="form-group">
-                                                        <label for="revert_reason">Reason for Rejection:</label>
-                                                        <textarea name="revert_reason" id="revert_reason" class="form-control" rows="4" required placeholder="Please provide a detailed reason..."></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-danger">Reject Request</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @endif
+            <div class="h4 m-0">Pending Approvals</div>
+        </div>
     </div>
-@endsection
-@extends('master')
-@section('title', 'Approvals')
-@section('content')
-<div class="container">
-    <h2>All Approvals</h2>
+</div>
 
-    <table class="table table-bordered">
-        <thead>
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show">
+    {{ session('success') }}
+    <button class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+@endif
+
+@if (session('error'))
+<div class="alert alert-danger alert-dismissible fade show">
+    {{ session('error') }}
+    <button class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+@endif
+
+<div class="table-responsive-lg">
+    <table class="table table-bordered table-striped">
+        <thead class="table thead-dark text-center fw-bold bg-light text-dark">
             <tr>
-                <th>Approval ID</th>
+                <th>S.No</th>
                 <th>Request Title</th>
-                <th>Status</th>
-                <th>Comments</th>
-                <th>Approved By</th>
-                <th>Created At</th>
+                <th>Requestor</th>
+                <th>Amount</th>
+                <th>Current Level</th>
+                <th>Submitted On</th>
+                <th>Action</th>
             </tr>
         </thead>
+
         <tbody>
-            @foreach($approvals as $approval)
-                <tr>
-                    <td>{{ $approval->id }}</td>
-                    <td>{{ $approval->request->title ?? 'N/A' }}</td>
-                    <td>{{ ucfirst($approval->status) }}</td>
-                    <td>{{ $approval->comments }}</td>
-                    <td>{{ $approval->approver_id }}</td>
-                    <td>{{ $approval->created_at->format('d-m-Y H:i') }}</td>
-                </tr>
-            @endforeach
+        @forelse ($approvals as $key => $appr)
+            <tr class="text-center align-middle">
+                <td>{{ $key + 1 }}</td>
+                <td>{{ $appr->request->title }}</td>
+                <td>{{ $appr->request->requestor->name }}</td>
+                <td>${{ number_format($appr->request->amount) }}</td>
+                <td>Level {{ $appr->level }}</td>
+                <td>{{ $appr->created_at->format('d-M-Y h:i A') }}</td>
+
+                <td>
+                    <a href="{{ route('approvals.show', $appr->id) }}"
+                        class="btn btn-primary btn-sm vip-btn">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+
+                    <button class="btn btn-success btn-sm vip-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#approveModal{{ $appr->id }}">
+                        <i class="bi bi-check-circle"></i> Approve
+                    </button>
+
+                    <button class="btn btn-dark btn-sm vip-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#rejectModal{{ $appr->id }}">
+                        <i class="bi bi-x-circle"></i> Reject
+                    </button>
+                </td>
+            </tr>
+
+            {{-- Approve Modal --}}
+            <div class="modal fade" id="approveModal{{ $appr->id }}">
+                <div class="modal-dialog">
+                <form method="POST" action="{{ route('approvals.updateStatus', $appr->id) }}">
+                    @csrf
+                    <input type="hidden" name="status" value="approved">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5>Approve Request</h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <label>Comments (Optional)</label>
+                            <textarea name="comments" class="form-control"></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+
+            {{-- Reject Modal --}}
+            <div class="modal fade" id="rejectModal{{ $appr->id }}">
+                <div class="modal-dialog">
+                <form method="POST" action="{{ route('approvals.updateStatus', $appr->id) }}">
+                    @csrf
+                    <input type="hidden" name="status" value="rejected">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5>Reject Request</h5>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <label>Reason</label>
+                            <textarea name="comments" class="form-control" required></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-dark">Reject</button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        @empty
+            <tr><td colspan="7" class="text-center">No pending approvals.</td></tr>
+        @endforelse
         </tbody>
     </table>
 </div>
-
 @endsection

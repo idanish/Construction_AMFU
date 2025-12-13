@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Approval;
+use App\Models\ApprovalLevel;
+use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class PaymentController extends Controller
 {
@@ -130,25 +137,16 @@ class PaymentController extends Controller
         $data = $r->only('payment_ref','invoice_id','payment_date','amount','method','transaction_no');
 
       
-            // Handle attachments (multiple)
-        if ($r->hasFile('attachment')) {
-            $paths = [];
-            foreach ($r->file('attachment') as $file) {
-                $stored = $file->store('payments', 'public');
-                $paths[] = [
-                    'path' => $stored,
-                    'name' => $file->getClientOriginalName(),
-                ];
-            }
-            $data['attachment'] = $paths;
-        }
 
         // Create payment
         $data['current_approval_step'] = 'PM';
         $payment = Payment::create($data);
 
-        // Create approvals for the payment (sequential 5-step workflow)
-        \App\Http\Controllers\ApprovalController::createApprovalsForModel($payment);
+    if ($r->hasFile('attachments')) {
+        foreach ($r->file('attachments') as $file) {
+            $payment->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
+        }
+    } 
 
         // 3. Invoice Status Update
         $this->updateInvoiceStatus($invoice);
@@ -188,17 +186,27 @@ class PaymentController extends Controller
             return back()->withInput()->withErrors(['amount' => "Payment cannot exceed remaining invoice amount ($remaining)."]);
         }
         
-        if ($r->hasFile('attachment')) {
-            $existing = is_array($payment->attachment) ? $payment->attachment : ($payment->attachment ? (json_decode($payment->attachment, true) ?? [$payment->attachment]) : []);
-            foreach ($r->file('attachment') as $file) {
-                $stored = $file->store('payments', 'public');
-                $existing[] = [
-                    'path' => $stored,
-                    'name' => $file->getClientOriginalName(),
-                ];
+        // if ($r->hasFile('attachment')) {
+        //     if ($payment->attachment) {
+        //         Storage::disk('public')->delete($payment->attachment);
+        //     }
+        //     $path = $r->file('attachment')->store('payments', 'public');
+        //     $data['attachment'] = $path; 
+        // } 
+
+          // Handling attachments
+        if ($r->hasFile('attachments')) {
+
+            // Optional: Remove existing attachments if "replace all" logic
+            if ($r->input('replace_attachments')) {
+                $payment->clearMediaCollection('attachments');
             }
-            $data['attachment'] = $existing;
+
+            foreach ($r->file('attachments') as $file) {
+                $payment->addMedia($file)->toMediaCollection('attachments');
+            }
         }
+
         
         $payment->update($data);
 
@@ -212,16 +220,6 @@ class PaymentController extends Controller
 
     public function destroy(Payment $payment)
     {
-        // Attachment delete logic
-       if ($payment->attachment) {
-           $atts = is_array($payment->attachment) ? $payment->attachment : (json_decode($payment->attachment, true) ?? [$payment->attachment]);
-           foreach ($atts as $att) {
-               $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
-               if (Storage::disk('public')->exists($attPath)) {
-                   Storage::disk('public')->delete($attPath);
-               }
-           }
-       }
 
         $invoice = Invoice::find($payment->invoice_id);
         
@@ -236,6 +234,10 @@ class PaymentController extends Controller
         return redirect()->route('finance.payments.index')->with('success', 'Payment deleted successfully.');
     }
 
+    public function show($id)
+    {
+        return view('finance.payments.show', compact('id'));
+    }
 
 
 /**

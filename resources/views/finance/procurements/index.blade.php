@@ -117,29 +117,25 @@
                 <td>{{ $procurement->department->name ?? 'N/A' }}</td>
                 <td>
                     @can('view attachment')
-                        @if ($procurement->attachment)
-                            @php
-                                $atts = is_array($procurement->attachment) ? $procurement->attachment : (json_decode($procurement->attachment, true) ?? [$procurement->attachment]);
-                            @endphp
-                            @foreach($atts as $att)
-                                @php
-                                    $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
-                                    $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
-                                @endphp
-                                <a href="{{ asset('storage/' . $attPath) }}" target="_blank" class="btn btn-sm btn-info vip-btn mb-1">
-                                    <i class="bi bi-eye"></i> {{ \Illuminate\Support\Str::limit($attName, 20) }}
-                                </a>
-                            @endforeach
-                        @else
-                            N/A
-                        @endif
+                    <!-- @if ($procurement->attachment)
+                    <a href="{{ asset('storage/' . $procurement->attachment) }}" target="_blank"
+                        class="btn btn-sm btn-info vip-btn">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    @else
+                    N/A
+                    @endif -->
+                     @foreach($procurement->getMedia('attachments') as $media)
+            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
+                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+        @endforeach
                     @endcan
 
                 </td>
                 <td>{{ ucfirst($procurement->status) }}</td>
                 <td>
                     <!-- Status Change Buttons -->
-                    @if ($procurement->status === 'pending')
+                    <!-- @if ($procurement->status === 'pending')
                     @can('approve-procurement')
                     <form action="{{ route('procurement.updateStatus', $procurement->id) }}" method="POST"
                         style="display:inline;">
@@ -162,7 +158,88 @@
                     </form>
                     @endcan
                     <br><br>
+                    @endif -->
+
+
+
+                        @php
+                        $isPendingAndActionable = in_array($procurement->status, ['pending', 'Needs Revision']);
+                        $currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
+                        $isCurrentApprover = false;
+
+                        if ($isPendingAndActionable && $procurement->current_level) {
+                            if ($currentUserLevelSequence == $procurement->current_level) {
+                                $currentPendingApproval = $procurement->approvals
+                                ->where('level', $procurement->current_level)
+                                ->where('status', 'pending')
+                                ->where('approver_id', Auth::id())
+                                ->first();
+                                
+                                if ($currentPendingApproval) {
+                                    $isCurrentApprover = true;
+                                }
+                            }
+                        }
+                        @endphp
+
+                        @if ($isCurrentApprover)
+
+                    <div class="card mt-4 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Approval Action (Level {{ $currentPendingApproval->level }})</h5>
+                        </div>
+                        <div class="card-body">
+
+                            <form action="{{ route('approvals.updateStatus', $currentPendingApproval->id) }}"
+                                method="POST">
+                                @csrf
+
+                                {{-- Comments Field --}}
+                                <div class="form-group mb-3">
+                                    <label for="comments">Comments (Optional)</label>
+                                    <textarea name="comments" id="comments" class="form-control" rows="3"
+                                        placeholder="Approval ya rejection ke liye comments likhen..."></textarea>
+                                </div>
+
+                                {{-- Action Buttons --}}
+                                <div class="d-flex justify-content-end">
+                                    {{-- REJECT Button --}}
+                                    <button type="submit" name="status" value="rejected"
+                                        class="btn btn-danger btn-lg me-3"
+                                        onclick="return confirm('Are you Confirm this Rejection?')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+
+                                    {{-- APPROVE Button --}}
+                                    <button type="submit" name="status" value="approved" class="btn btn-success btn-lg"
+                                        onclick="return confirm('Are you Confirm this Approval?')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                    @else
+                    {{-- Approval Status Box --}}
+                    <div class="alert alert-info mt-4">
+                        @if ($procurement->status == 'approved')
+                        <i class="fas fa-thumbs-up"></i> **Status:** Fully Approved.
+                        @elseif ($procurement->status == 'rejected')
+                        <i class="fas fa-ban"></i> **Status:** Rejected.
+                        @elseif ($procurement->status == 'Needs Revision')
+                        <i class="fas fa-edit"></i> **Status:** Needs Revision.
+                        @elseif ($procurement->status == 'pending')
+                        <i class="fas fa-hourglass-half"></i> **Status:** Pending at Level
+                        {{ $procurement->current_level }}.
+                        @else
+                        <i class="fas fa-info-circle"></i> **Status:** {{ ucwords($procurement->status) }}.
+                        @endif
+                    </div>
                     @endif
+
+
+
                     <!-- Status Change Buttons -->
 
                     @can('update-procurement')

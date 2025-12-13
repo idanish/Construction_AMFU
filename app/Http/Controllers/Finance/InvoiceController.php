@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\User;
+use App\Models\Approval;
+use App\Models\ApprovalLevel;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\File;
 
 class InvoiceController extends Controller
 {
@@ -101,20 +106,18 @@ class InvoiceController extends Controller
             'notes'          => $r->notes ?? null,
         ];
 
-        // Handle attachments (multiple)
-        if ($r->hasFile('attachment')) {
-            $paths = [];
-            foreach ($r->file('attachment') as $file) {
-                $stored = $file->store('invoices', 'public');
-                $paths[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
-            }
-            $data['attachment'] = $paths;
+        // Handle attachment
+        // if ($r->hasFile('attachment')) {
+        //     $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+        // }
+
+        $InvoiceCr = Invoice::create($data);
+
+         if ($r->hasFile('attachments')) {
+        foreach ($r->file('attachments') as $file) {
+            $InvoiceCr->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
         }
-
-        $invoice = Invoice::create($data);
-
-        // Create approvals for the invoice (sequential 5-step workflow)
-        \App\Http\Controllers\ApprovalController::createApprovalsForModel($invoice);
+    }
 
         return redirect()->route('finance.invoices.index')->with('success', 'Invoice created successfully!');
     }
@@ -158,15 +161,30 @@ class InvoiceController extends Controller
             // Status update PaymentController se hoga
         ];
 
-        // File Upload (merge with existing attachments)
-        if ($r->hasFile('attachment')) {
-            $existing = is_array($invoice->attachment) ? $invoice->attachment : ($invoice->attachment ? (json_decode($invoice->attachment, true) ?? [$invoice->attachment]) : []);
-            foreach ($r->file('attachment') as $file) {
-                $stored = $file->store('invoices', 'public');
-                $existing[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
+        // File Upload (replace old if exists)
+        // if ($r->hasFile('attachment')) {
+        //     if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
+        //         Storage::disk('public')->delete($invoice->attachment);
+        //     }
+        //     $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
+        // }
+
+
+
+        // Handling attachments
+        if ($r->hasFile('attachments')) {
+
+            // Optional: Remove existing attachments if "replace all" logic
+            if ($r->input('replace_attachments')) {
+                $invoice->clearMediaCollection('attachments');
             }
-            $data['attachment'] = $existing;
+
+            foreach ($r->file('attachments') as $file) {
+                $invoice->addMedia($file)->toMediaCollection('attachments');
+            }
         }
+
+
 
         // Amount change hone se pehle update kar dein
         $invoice->update($data); 
@@ -191,16 +209,6 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice)
     {
-        // Delete stored attachments if present
-        if ($invoice->attachment) {
-            $atts = is_array($invoice->attachment) ? $invoice->attachment : (json_decode($invoice->attachment, true) ?? [$invoice->attachment]);
-            foreach ($atts as $att) {
-                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
-                if (Storage::disk('public')->exists($attPath)) {
-                    Storage::disk('public')->delete($attPath);
-                }
-            }
-        }
 
         // Soft Delete (payments bhi cascade delete ya soft delete ho sakti hain, depending on relationship)
         $invoice->delete();

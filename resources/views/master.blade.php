@@ -5,6 +5,7 @@
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
 
+    <x-mobile/>
     <x-sidebar/>
 
     <x-main/>

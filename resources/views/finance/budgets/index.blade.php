@@ -133,8 +133,11 @@ table td {
                 <input type="number" name="year" class="form-control" value="{{ request('year') }}" placeholder="Year">
             </div>
 
-            <div class="col-md-3 col-6">
-                <label class="filter-label">Status</label>
+
+
+            <!-- Status -->
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label mb-0">By Status</label>
                 <select name="status" class="form-control">
                     <option value="">-- All --</option>
                     <option value="pending"  {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -168,14 +171,13 @@ table td {
     </div>
 </div>
 
-
-{{-- TABLE --}}
-<div class="table-responsive">
-    <table class="table table-bordered table-striped">
-        <thead class="bg-light">
-            <tr>
+<div class="table-responsive-lg ">
+    <table id="budgetsTable" class="table table-bordered table-striped">
+        <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
+            <tr class="text-center align-middle fw-bold ">
                 <th>No</th>
                 <th>Department</th>
+                <th>Month</th>
                 <th>Year</th>
                 <th>Allocated</th>
                 <th>Requested</th>
@@ -192,70 +194,117 @@ table td {
         <tbody>
             @forelse ($budgets as $key => $budget)
             <tr>
-                <td>{{ $key + 1 }}</td>
+                <td>{{ $key + $budgets->firstItem() }}</td>
                 <td>{{ $budget->department->name ?? 'N/A' }}</td>
+                <td>{{ \Carbon\Carbon::create()->month($budget->month)->format('F') }}</td>
                 <td>{{ $budget->year }}</td>
-                <td>${{ number_format($budget->allocated) }}</td>
-                <td>${{ number_format($budget->requested_budget) }}</td>
-                <td>{{ ucfirst($budget->budget_type) }}</td>
-                <td>${{ number_format($budget->spent) }}</td>
-                <td>${{ number_format($budget->balance) }}</td>
+                <td>${{ number_format($budget->allocated, 2) }}</td>
+                <td>${{ number_format($budget->spent, 2) }}</td>
+                <td>${{ number_format($budget->balance, 2) }}</td>
                 <td>{{ ucfirst($budget->status) }}</td>
                 <td>{{ $budget->created_at?->format('Y-m-d') }}</td>
 
                 <td>
-                    @php
-                        $atts = is_array($budget->attachment)
-                                ? $budget->attachment
-                                : ($budget->attachment ? (json_decode($budget->attachment, true) ?? [$budget->attachment]) : []);
-                    @endphp
+                    @can('view attachment')
 
-                    @forelse ($atts as $att)
-                        @php
-                            $attPath = is_array($att) ? ($att['path'] ?? '') : $att;
-                            $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
-                        @endphp
 
-                        <a href="{{ asset('storage/' . $attPath) }}" target="_blank"
-                           class="btn btn-info attachment-btn mb-1">
-                           <i class="bi bi-eye"></i> {{ $attName }}
-                        </a>
+                    @forelse($budget->getMedia('attachments') as $media)
+                    <a href="{{ $media->getUrl() }}" target="_blank" title="{{ $media->file_name }}">
+                        <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
                     @empty
-                        -
+                    N/A
                     @endforelse
+                    @endcan
                 </td>
 
                 <td>
-                    <div class="btn-action-group">
 
-                        @if ($budget->status === 'pending')
-                            @can('approve-budget')
-                            <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="status" value="approved">
-                                <button class="btn btn-success vip-btn">
-                                    <i class="bi bi-check-circle"></i> Approve
-                                </button>
-                            </form>
-                            @endcan
 
-                            @can('reject-budget')
-                            <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST">
+                    @php
+                    $isPendingAndActionable = in_array($budget->status, ['pending', 'Needs Revision']);
+                    $currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
+                    $isCurrentApprover = false;
+
+                    if ($isPendingAndActionable && $budget->current_level) {
+                    if ($currentUserLevelSequence == $budget->current_level) {
+                    $currentPendingApproval = $budget->approvals
+                    ->where('level', $budget->current_level)
+                    ->where('status', 'pending')
+                    ->where('approver_id', Auth::id())
+                    ->first();
+
+                    if ($currentPendingApproval) {
+                    $isCurrentApprover = true;
+                    }
+                    }
+                    }
+                    @endphp
+
+                    @if ($isCurrentApprover)
+
+                    <div class="card mt-4 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Approval Action (Level {{ $currentPendingApproval->level }})</h5>
+                        </div>
+                        <div class="card-body">
+
+                            <form action="{{ route('approvals.updateStatus', $currentPendingApproval->id) }}"
+                                method="POST">
                                 @csrf
-                                <input type="hidden" name="status" value="rejected">
-                                <button class="btn btn-dark vip-btn">
-                                    <i class="bi bi-x-circle"></i> Reject
-                                </button>
+
+                                {{-- Comments Field --}}
+                                <div class="form-group mb-3">
+                                    <label for="comments">Comments (Optional)</label>
+                                    <textarea name="comments" id="comments" class="form-control" rows="3"
+                                        placeholder="Approval ya rejection ke liye comments likhen..."></textarea>
+                                </div>
+
+                                {{-- Action Buttons --}}
+                                <div class="d-flex justify-content-end">
+                                    {{-- REJECT Button --}}
+                                    <button type="submit" name="status" value="rejected"
+                                        class="btn btn-danger btn-lg me-3"
+                                        onclick="return confirm('Are you Confirm this Rejection?')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+
+                                    {{-- APPROVE Button --}}
+                                    <button type="submit" name="status" value="approved" class="btn btn-success btn-lg"
+                                        onclick="return confirm('Are you Confirm this Approval?')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </div>
                             </form>
-                            @endcan
+
+                        </div>
+                    </div>
+                    @else
+                    {{-- Approval Status Box --}}
+                    <div class="alert alert-info mt-4">
+                        @if ($budget->status == 'approved')
+                        <i class="fas fa-thumbs-up"></i> **Status:** Fully Approved.
+                        @elseif ($budget->status == 'rejected')
+                        <i class="fas fa-ban"></i> **Status:** Rejected.
+                        @elseif ($budget->status == 'Needs Revision')
+                        <i class="fas fa-edit"></i> **Status:** Needs Revision.
+                        @elseif ($budget->status == 'pending')
+                        <i class="fas fa-hourglass-half"></i> **Status:** Pending at Level
+                        {{ $budget->current_level }}.
+                        @else
+                        <i class="fas fa-info-circle"></i> **Status:** {{ ucwords($budget->status) }}.
                         @endif
+                    </div>
+                    @endif
 
-                        @can('update-budget')
-                        <a href="{{ route('finance.budgets.edit', $budget->id) }}"
-                           class="btn btn-warning vip-btn">
-                            <i class="bi bi-pencil-square"></i> Edit
-                        </a>
-                        @endcan
+
+
+
+                    <!-- Status Change Buttons -->
+                    @can('update-budget')
+                    <a href="{{ route('finance.budgets.edit', $budget->id) }}" class="btn  btn-warning vip-btn">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    @endcan
 
                         @can('delete-budget')
                         <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST"
@@ -275,7 +324,7 @@ table td {
 
             @empty
             <tr>
-                <td colspan="12" class="text-center">No budgets found.</td>
+                <td colspan="10" class="text-center">No budgets found.</td>
             </tr>
             @endforelse
         </tbody>

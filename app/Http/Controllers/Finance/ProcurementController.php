@@ -9,6 +9,13 @@ use App\Models\Department;
 use App\Events\ProcurementApproved;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Models\Approval;
+use App\Models\ApprovalLevel;
+use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class ProcurementController extends Controller
 {
@@ -53,31 +60,28 @@ class ProcurementController extends Controller
             'cost_estimate' => 'required|numeric|min:0',
             'department_id' => 'nullable|exists:departments,id',
             'justification' => 'nullable|string',
-            'attachment'     => 'nullable|array|max:10',
-            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
-        if ($request->hasFile('attachment')) {
-            $paths = [];
-            foreach ($request->file('attachment') as $file) {
-                $stored = $file->store('procurements', 'public');
-                $paths[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
-            }
-            $data['attachment'] = $paths;
-        }
-
-        $data['current_approval_step'] = 'PM';
+        
         $procurement = Procurement::create($data);
 
-        // Create approvals for the procurement (sequential 5-step workflow)
-        \App\Http\Controllers\ApprovalController::createApprovalsForModel($procurement);
-
-        return redirect()->route('finance.procurements.index')
-                         ->with('success', 'Procurement created successfully!');
+    if ($request->hasFile('attachments')) {
+        foreach ($request->file('attachments') as $file) {
+            $procurement->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
+        }
     }
 
-   
+        return redirect()->route('finance.procurements.index')->with('success', 'Procurement created successfully!');
+    }
+
+
+    public function show($id)
+    {
+        return view('finance.procurements.show', compact('id'));
+    }
+
 
     public function edit($id)
     {
@@ -96,26 +100,30 @@ class ProcurementController extends Controller
         'cost_estimate' => 'required|numeric|min:0',
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
-        'attachment'     => 'nullable|array|max:10',
-        'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+        // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         'status'        => 'required|in:pending,approved,rejected'
     ]);
 
     $data = $r->only(['item_name','quantity','cost_estimate','department_id','justification','status']);
 
-    if ($r->hasFile('attachment')) {
-        $existing = is_array($proc->attachment) ? $proc->attachment : ($proc->attachment ? (json_decode($proc->attachment, true) ?? [$proc->attachment]) : []);
-        foreach ($r->file('attachment') as $file) {
-            $stored = $file->store('procurements', 'public');
-            $existing[] = ['path' => $stored, 'name' => $file->getClientOriginalName()];
+
+     // Handling attachments
+    if ($r->hasFile('attachments')) {
+
+        // Optional: Remove existing attachments if "replace all" logic
+        if ($r->input('replace_attachments')) {
+            $proc->clearMediaCollection('attachments');
         }
-        $data['attachment'] = $existing;
+
+        foreach ($r->file('attachments') as $file) {
+            $proc->addMedia($file)->toMediaCollection('attachments');
+        }
     }
+
 
     $proc->update($data);
 
-    return redirect()->route('finance.procurements.index')
-                     ->with('success','Procurement updated successfully!');
+    return redirect()->route('finance.procurements.index')->with('success','Procurement updated successfully!');
 }
 
 
