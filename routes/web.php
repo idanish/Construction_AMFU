@@ -216,9 +216,32 @@ Route::get('/debug/invoice-create', function () {
 });
 
 // User Management Routes
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::resource('users', UserManagementController::class);
-
+Route::middleware(['auth'])->group(function () {
+    
+    // User Management Main Routes
+    Route::get('/admin/user-management', [UserManagementController::class, 'index'])->name('admin.user-management');
+    
+    // Create & Store
+    Route::get('/admin/register', [UserManagementController::class, 'create'])->name('admin.register');
+    Route::post('/admin/register', [UserManagementController::class, 'store'])->name('admin.register.store');
+    
+    // Edit & Update
+    Route::get('/admin/users/{user}/edit', [UserManagementController::class, 'edit'])->name('admin.users.edit');
+    Route::patch('/admin/users/{id}', [UserManagementController::class, 'update'])->name('admin.users.update');
+    
+    // Delete
+    Route::delete('/admin/users/{user}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+    
+    // Status Update
+    Route::patch('/users/{user}/status', [UserManagementController::class, 'updateStatus'])->name('users.update-status');
+    
+    // Deleted Users Management
+    Route::get('admin/users/deleted', [UserManagementController::class, 'deletedUsers'])->name('admin.deleted-users');
+    Route::post('admin/users/{id}/restore', [UserManagementController::class, 'restore'])->name('admin.users.restore');
+    Route::delete('admin/users/{id}/force-delete', [UserManagementController::class, 'forceDelete'])->name('admin.users.force-delete');
+    
+    // Assign Role (agar use hota hai)
+    Route::put('/users/{user}/assign-role', [UserManagementController::class, 'assignRole'])->name('users.assignRole');
 });
 
 // Department routes
@@ -231,7 +254,7 @@ Route::delete('/departments/{department}', [DepartmentController::class, 'destro
 
 // Request Route
 Route::resource('requests', RequestController::class);
-// Route::post('/requests/{id}/update-status', [RequestController::class, 'updateStatus'])->name('requests.updateStatus');
+Route::post('/requests/{id}/update-status', [RequestController::class, 'updateStatus'])->name('requests.updateStatus');
 Route::get('/requests/{id}', [RoleController::class, 'show'])->name('requests.show');
 
 // ================= Approvals =================
@@ -312,7 +335,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/approval-levels/create', [ApprovalLevelController::class, 'create'])->name('approval.levels.create');
     Route::post('/admin/approval-levels', [ApprovalLevelController::class, 'store'])->name('approval.levels.store');
     Route::get('/admin/approval-levels/{id}/edit', [ApprovalLevelController::class, 'edit'])->name('approval.levels.edit');
-    Route::post('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'update'])->name('approval.levels.update');
+    Route::put('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'update'])->name('approval.levels.update');
     Route::delete('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'destroy'])->name('approval.levels.destroy');
 
 });
