@@ -19,8 +19,8 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign keys
-            $table->foreign('approver_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('request_id')->references('id')->on('requests')->onDelete('cascade');
+            // $table->foreign('approver_id')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('request_id')->references('id')->on('requests')->onDelete('cascade');
         });
     }
 
