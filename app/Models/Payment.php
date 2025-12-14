@@ -12,6 +12,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 // Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\HasApprovals;
 
 class Payment extends Model implements HasMedia
 {

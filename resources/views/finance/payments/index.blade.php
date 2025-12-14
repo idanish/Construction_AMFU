@@ -46,10 +46,10 @@
             </div>
 
             <!-- Single Date -->
-            <!-- <div class="col-md-2 col-sm-6">
+            <div class="col-md-2 col-sm-6">
                 <label class="form-label mb-0">By date</label>
                 <input type="date" name="date" value="{{ request('date') }}" class="form-control">
-            </div> -->
+            </div>
 
             <!-- Date Range -->
             <div class="col-md-2 col-sm-6">
@@ -80,12 +80,6 @@
                 <a href="{{ route('finance.payments.index') }}" class="btn btn-secondary btn-sm vip-btn"><I
                         class="bi bi-eraser"></I>Clear</a>
             </div>
-
-            <!-- <div class="col-md-2">
-                <button type="submit" class="vip-btn btn-filter">
-                    <I class="bi bi-funnel"></I> Filter
-                </button>
-            </div> -->
         </form>
     </div>
 </div>
@@ -115,14 +109,6 @@
                 <td>${{ number_format($payment->balance, 2) }}</td>
                 <td>
                     @can('view attachment')
-                    <!-- @if ($payment->attachment)
-                    <a href="{{ asset('storage/' . $payment->attachment) }}" target="_blank"
-                        class="btn btn-sm btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-                    @else
-                    N/A
-                    @endif -->
                     @foreach($payment->getMedia('attachments') as $media)
             <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
                 <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>

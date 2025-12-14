@@ -17,6 +17,7 @@
 
     <div class="">
         <div class="card-body">
+            @php use Illuminate\Support\Str; @endphp
             <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                 @csrf
 
@@ -51,8 +52,7 @@
                         : asset('assets/img/avatars/1.png') }}"
                         alt="Profile Picture" class="rounded-circle border" width="120" height="120">
                     <div class="mt-2">
-                        <input type="file" name="profile_picture"
-                            class="form-control @error('profile_picture') is-invalid @enderror">
+                        <input type="file" name="profile_picture" class="form-control @error('profile_picture') is-invalid @enderror">
                         @error('profile_picture')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

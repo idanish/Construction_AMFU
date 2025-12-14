@@ -5,16 +5,17 @@ namespace App\Http\Controllers\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Invoice;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Approval;
 use App\Models\ApprovalLevel;
 use Yajra\DataTables\Facades\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class PaymentController extends Controller
@@ -107,7 +108,8 @@ class PaymentController extends Controller
             'amount'       => 'required|numeric|min:0',
             'method'       => 'required|in:Cash,Bank,Online,Card',
             'transaction_no' => 'nullable|numeric',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachment'     => 'nullable|array|max:10',
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
 
         $invoice = Invoice::findOrFail($r->invoice_id);
@@ -135,9 +137,8 @@ class PaymentController extends Controller
 
         $data = $r->only('payment_ref','invoice_id','payment_date','amount','method','transaction_no');
 
-      
-
         // Create payment
+        $data['current_approval_step'] = 'PM';
         $payment = Payment::create($data);
 
     if ($r->hasFile('attachments')) {
@@ -148,6 +149,14 @@ class PaymentController extends Controller
 
         // 3. Invoice Status Update
         $this->updateInvoiceStatus($invoice);
+
+        // Email Notifiation
+    $recipientEmail = auth()->user()->email;
+
+    Mail::raw("Your Payment against {$r->invoice_id} has been received.",
+        function ($message) use ($recipientEmail) {
+            $message->to($recipientEmail) ->subject('Payment Received');
+        });
 
         return redirect()->route('finance.payments.index')->with('success', 'Payment added successfully.');
     }
@@ -162,19 +171,27 @@ class PaymentController extends Controller
             'amount'         => 'required|numeric|min:0',
             'method'         => 'required|in:Cash,Bank,Online,Card',
             'transaction_no' => 'nullable|numeric',
-            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048', 
+            'attachment'     => 'nullable|array|max:10', 
+            'attachment.*'   => 'file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048', 
         ]);
         
         $invoice = Invoice::findOrFail($r->invoice_id);
         $data = $r->only('payment_ref', 'invoice_id','payment_date','amount','method','transaction_no');
-        
-        // if ($r->hasFile('attachment')) {
-        //     if ($payment->attachment) {
-        //         Storage::disk('public')->delete($payment->attachment);
-        //     }
-        //     $path = $r->file('attachment')->store('payments', 'public');
-        //     $data['attachment'] = $path; 
-        // } 
+
+        // Calculate remaining amount for the target invoice.
+        // If user is keeping the same invoice, add back the current payment amount
+        // so the user can re-submit the same amount without being blocked.
+        $paidTotal = $invoice->payments()->sum('amount');
+        if ($payment->invoice_id == $r->invoice_id) {
+            $remaining = $invoice->amount - ($paidTotal - $payment->amount);
+        } else {
+            // Moving payment to a different invoice; current payment not part of that invoice
+            $remaining = $invoice->amount - $paidTotal;
+        }
+
+        if ($r->amount > $remaining) {
+            return back()->withInput()->withErrors(['amount' => "Payment cannot exceed remaining invoice amount ($remaining)."]);
+        }
 
           // Handling attachments
         if ($r->hasFile('attachments')) {
@@ -188,7 +205,6 @@ class PaymentController extends Controller
                 $payment->addMedia($file)->toMediaCollection('attachments');
             }
         }
-
         
         $payment->update($data);
 
@@ -197,8 +213,6 @@ class PaymentController extends Controller
 
         return redirect()->route('finance.payments.index')->with('success', 'Payment updated successfully.');
     }
-
- 
 
     public function destroy(Payment $payment)
     {

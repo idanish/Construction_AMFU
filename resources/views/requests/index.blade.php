@@ -134,16 +134,16 @@
                     
           
             <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn">
-            <i class="bi bi-check-circle"></i> View Request
+            <i class="bi bi-check-circle"></i> View
             </a>
 
                     @can('update-request')
                     <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
                         <i class="bi bi-pencil-square"></i> Edit
                     </a>
-                    @endcan
+                    @endif
 
-                    @can('delete-request')
+                    @if(auth()->id() === $request->requestor_id && $request->status !== 'approved')
                     <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline-block"
                         onsubmit="return confirm('Are you sure you want to delete this request?');">
                         @csrf
@@ -152,7 +152,7 @@
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>
-                    @endcan
+                    @endif
                 </td>
             </tr>
             @empty

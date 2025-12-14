@@ -1,8 +1,89 @@
 @extends('master')
 @section('title', 'Edit Budget')
 @section('content')
-    <div class="container py-4">
-        <h2 class="mb-4">Edit Budget</h2>
+    <div class="app-page-title">
+        <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+            <div class="page-title-heading m-0">
+                <div class="page-title-icon">
+                    <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
+                </div>
+
+                <style>
+                    .upload-box {
+                        border: 2px dashed #6c757d;
+                        border-radius: 10px;
+                        padding: 12px;
+                        text-align: center;
+                        cursor: pointer;
+                        background-color: #f8f9fa;
+                        transition: background 0.3s;
+                        max-height: 160px;
+                        overflow: auto;
+                    }
+                    .upload-box i { font-size: 20px; color: #0d6efd; }
+                    #filePreviewEdit { font-size:13px; color:#198754; font-weight:500; }
+                </style>
+                <div class="h4 m-0">Edit Budget</div>
+            </div>
+            <div class="page-title-actions">
+                <div class="d-inline-block">
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary mb-3 vip-btn btn-sm">
+                        <i class="bi bi-arrow-left-circle"></i> Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-card mb-3 w-75 mx-auto">
+        <div class="card-body">
+
+        {{-- Flash Messages --}}
+        @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
+        {{-- Validation Errors --}}
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
+        {{-- Popup for flash messages --}}
+        @if(session('error') || session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var msg = @json(session('error') ?? session('success'));
+                var icon = @json(session('error') ? 'error' : 'success');
+                if (msg) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: icon === 'error' ? 'Error' : 'Success',
+                            text: msg,
+                            icon: icon,
+                            confirmButtonText: 'OK',
+                            allowOutsideClick: false
+                        });
+                    } else {
+                        alert(msg);
+                    }
+                }
+            });
+        </script>
+        @endif
 
         <form action="{{ route('finance.budgets.update', $budget->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -63,6 +144,30 @@
                 <input type="number" step="0.01" name="allocated" id="allocated" class="form-control @error('allocated') is-invalid @enderror"
                     value="{{ old('allocated', $budget->allocated) }}" required>
                 @error('allocated')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+
+            {{-- Requested Budget --}}
+            <div class="mb-3">
+                <label for="requested_budget">Requested Budget</label>
+                <input type="number" step="0.01" name="requested_budget" id="requested_budget"
+                    class="form-control form-control-sm @error('requested_budget') is-invalid @enderror"
+                    value="{{ old('requested_budget', $budget->requested_budget) }}" required>
+                @error('requested_budget')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Budget Type --}}
+            <div class="mb-3">
+                <label for="budget_type">Budget Type</label>
+                <select name="budget_type" id="budget_type" class="form-select form-select-sm @error('budget_type') is-invalid @enderror" required>
+                    <option value="">Select Type</option>
+                    <option value="monthly" {{ old('budget_type', $budget->budget_type) == 'monthly' ? 'selected' : '' }}>Monthly Budget</option>
+                    <option value="weekly" {{ old('budget_type', $budget->budget_type) == 'weekly' ? 'selected' : '' }}>Weekly Budget</option>
+                </select>
+                @error('budget_type')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
@@ -152,13 +257,16 @@
                 @endif
             </div>
 
-            <button type="submit" class="btn btn-info text-dark vip-btn">
-                <i class="bi bi-arrow-repeat"></i> Update
-            </button>
-            <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn">
-                <i class="bi bi-arrow-left-circle"></i> Go Back
-            </a>
-        </form>
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="vip-btn btn-submit btn-sm">
+                        <i class="bi bi-arrow-repeat"></i> Update
+                    </button>
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn btn-sm">
+                        <i class="bi bi-arrow-left-circle"></i> Go Back
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <style>

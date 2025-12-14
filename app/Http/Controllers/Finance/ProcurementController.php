@@ -15,6 +15,8 @@ use App\Models\ApprovalLevel;
 use Yajra\DataTables\Facades\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class ProcurementController extends Controller
@@ -23,22 +25,22 @@ class ProcurementController extends Controller
 {
     $query = Procurement::with('department');
 
-    // 🔹 Filter by Department
+    //  Filter by Department
     if ($request->filled('department_id')) {
         $query->where('department_id', $request->department_id);
     }
 
-    // 🔹 Filter by Status
+    //  Filter by Status
     if ($request->filled('status')) {
         $query->where('status', $request->status);
     }
 
-    // 🔹 Filter by Item Name (search)
+    //  Filter by Item Name (search)
     if ($request->filled('search')) {
         $query->where('item_name', 'like', '%' . $request->search . '%');
     }
 
-    // 🔹 Pagination (10 per page)
+    //  Pagination (10 per page)
     $procurements = $query->orderBy('id')->paginate(05);
 
     // Departments dropdown ke liye
@@ -49,6 +51,7 @@ class ProcurementController extends Controller
    public function create()
     {
         $departments = Department::all();
+        $users = User::all();
         return view('finance.procurements.create', compact('departments'));
     }
 
@@ -60,7 +63,7 @@ class ProcurementController extends Controller
             'cost_estimate' => 'required|numeric|min:0',
             'department_id' => 'nullable|exists:departments,id',
             'justification' => 'nullable|string',
-            // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
             'status' => 'required|in:pending,approved,rejected',
         ]);
 
@@ -73,14 +76,25 @@ class ProcurementController extends Controller
         }
     }
 
+    $recipientEmail = auth()->user()->email;
+
+    Mail::raw("Your procurement request {$procurement->item_name} has been submitted successfully.",
+        function ($message) use ($recipientEmail) {
+            $message->to($recipientEmail) ->subject('Procurement Submitted Successfully');
+        });
+
         return redirect()->route('finance.procurements.index')->with('success', 'Procurement created successfully!');
     }
 
 
-    public function show($id)
-    {
-        return view('finance.procurements.show', compact('id'));
-    }
+public function show($id)
+{
+    $procurement = Procurement::with('department', 'media')->findOrFail($id);
+    return view('finance.procurements.show', compact('procurement'));
+}
+
+
+
 
 
     public function edit($id)
@@ -100,7 +114,7 @@ class ProcurementController extends Controller
         'cost_estimate' => 'required|numeric|min:0',
         'department_id' => 'required|exists:departments,id',
         'justification' => 'nullable|string',
-        // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+        'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
         'status'        => 'required|in:pending,approved,rejected'
     ]);
 
@@ -120,8 +134,14 @@ class ProcurementController extends Controller
         }
     }
 
-
     $proc->update($data);
+
+    $recipientEmail = auth()->user()->email;
+
+    Mail::raw("Your procurement request {$proc->item_name} has been updated successfully.",
+        function ($message) use ($recipientEmail) {
+            $message->to($recipientEmail) ->subject('Procurement updated successfully');
+        });
 
     return redirect()->route('finance.procurements.index')->with('success','Procurement updated successfully!');
 }
@@ -130,6 +150,17 @@ class ProcurementController extends Controller
     public function destroy($id)
     {
         $proc = Procurement::findOrFail($id);
+        // delete stored attachments if any
+        if ($proc->attachment) {
+            $atts = is_array($proc->attachment) ? $proc->attachment : (json_decode($proc->attachment, true) ?? [$proc->attachment]);
+            foreach ($atts as $att) {
+                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                if (\Storage::disk('public')->exists($attPath)) {
+                    \Storage::disk('public')->delete($attPath);
+                }
+            }
+        }
+
         $proc->delete();
 
         return redirect()->route('finance.procurements.index')->with('success','Procurement deleted successfully!');

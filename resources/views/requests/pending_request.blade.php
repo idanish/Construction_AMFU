@@ -37,25 +37,7 @@
                 <td>${{ number_format($pendingRequest->amount) }}</td>
                 <td>
                     @can('approve-request')
-                    <form action="{{ route('requests.updateStatus', $pendingRequest->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button type="submit" class="btn btn-success vip-btn">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-                    @endcan
-
-                    @can('reject-request')
-                    <form action="{{ route('requests.updateStatus', $pendingRequest->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-dark vip-btn">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
+                    <a href="{{ route('requests.show', $pendingRequest->id) }}" class="btn btn-info vip-btn"><i class="bi bi-eye"></i> View</a>
                     @endcan
                 </td>
             </tr>
@@ -80,6 +62,7 @@
                 <th>S.NO.</th>
                 <th>Item Name</th>
                 <th>Quantity</th>
+                <th>Cost Estimate</th>
                 <th>Department</th>
                 <th>Actions</th>
             </tr>
@@ -90,28 +73,19 @@
                 <td>{{ $key + 1 }}</td>
                 <td>{{ $procurement->item_name }}</td>
                 <td>{{ $procurement->quantity }}</td>
+                <td>${{ $procurement->cost_estimate }}</td>
                 <td>{{ $procurement->department->name ?? 'N/A' }}</td>
                 <td>
                     @can('approve-procurement')
-                    <form action="{{ route('procurement.updateStatus', $procurement->id) }}" method="POST"
+                    <a href="{{ route('finance.procurements.show', $procurement->id) }}" class="btn btn-info vip-btn"><i class="bi bi-eye"></i> View</a>
+                    <!-- <form action="{{ route('procurement.updateStatus', $procurement->id) }}" method="POST"
                         class="d-inline">
                         @csrf
                         <input type="hidden" name="status" value="approved">
                         <button type="submit" class="btn btn-success vip-btn">
                             <i class="bi bi-check-circle"></i> Approve
                         </button>
-                    </form>
-                    @endcan
-
-                    @can('reject-procurement')
-                    <form action="{{ route('procurement.updateStatus', $procurement->id) }}" method="POST"
-                        class="d-inline">
-                        @csrf
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-danger vip-btn">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
+                    </form> -->
                     @endcan
                 </td>
             </tr>
@@ -147,7 +121,7 @@
                 <td>{{ number_format($invoice->amount, 2) }}</td>
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
-                    <a href="{{ route('finance.payments.index') }}" class="btn btn-download vip-btn">
+                    <a href="{{ route('finance.payments.index') }}" class="btn btn-info vip-btn">
                             <div>Payment</div>
                         </a>
                 </td>
@@ -186,25 +160,7 @@
                 <td>
                     <!-- Status Change Buttons -->
                     @can('approve-budget')
-                    <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button type="submit" class="btn btn-success vip-btn">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-                    @endcan
-
-                    @can('reject-budget')
-                    <form action="{{ route('finance.budget.updateStatus', $budget->id) }}" method="POST"
-                        style="display:inline;">
-                        @csrf
-                        <input type="hidden" name="status" value="rejected">
-                        <button type="submit" class="btn btn-dark vip-btn">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
+                    <a href="{{ route('finance.budgets.show', $budget->id) }}" class="btn btn-info vip-btn"><i class="bi bi-eye"></i> View</a>
                     @endcan
                     <!-- Status Change Buttons -->
 

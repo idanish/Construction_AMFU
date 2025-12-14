@@ -43,7 +43,14 @@
                         <option value="">Select Invoice</option>
                         @foreach ($invoices as $invoice)
                             @php
-                                $remaining = $invoice->amount - $invoice->payments()->sum('amount');
+                                $paid = $invoice->payments()->sum('amount');
+                                // If this invoice is the one attached to the current payment,
+                                // subtract the current payment amount so remaining reflects
+                                // the true remaining amount available for this edit.
+                                if (isset($payment) && $payment->invoice_id == $invoice->id) {
+                                    $paid = $paid - $payment->amount;
+                                }
+                                $remaining = $invoice->amount - $paid;
                             @endphp
                             <option value="{{ $invoice->id }}" data-amount="{{ $remaining }}"
                                 {{ old('invoice_id', $payment->invoice_id) == $invoice->id ? 'selected' : '' }}>
@@ -117,12 +124,23 @@
                         <!-- <input type="file" name="attachment" id="attachmentInput" hidden> -->
                         <input type="file" id="attachmentInput" name="attachments[]" multiple hidden>
                     </div>
-                    <div id="filePreview" class="mt-2">
-                        @if ($payment->attachment)
-                            📎 Current File: <a href="{{ asset('storage/payments/' . $payment->attachment) }}"
-                                target="_blank">{{ basename($payment->attachment) }}</a>
+                    <div id="filePreview" class="mt-2"></div>
+
+                    <div id="existingAttachments" class="mt-2">
+                        @if($payment->attachment)
+                            @php
+                                $attachments = is_array($payment->attachment) ? $payment->attachment : (json_decode($payment->attachment, true) ?? [$payment->attachment]);
+                            @endphp
+                            @foreach($attachments as $att)
+                                @php
+                                    $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                    $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                                @endphp
+                                <div>📎 <a href="{{ asset('storage/' . $attPath) }}" target="_blank">{{ $attName }}</a></div>
+                            @endforeach
                         @endif
                     </div>
+
                     @error('attachment')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -178,7 +196,7 @@
         const statusSelect = document.getElementById('status');
 
         // Upload box
-        uploadBox.addEventListener('click', () => attachmentInput.click());
+        uploadBox.addEventListener('click', () => { attachmentInput.click(); filePreview.innerHTML = ''; });
         uploadBox.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadBox.style.background = '#dee2e6';
@@ -188,14 +206,26 @@
             e.preventDefault();
             if (e.dataTransfer.files.length > 0) {
                 attachmentInput.files = e.dataTransfer.files;
-                filePreview.textContent = "📎 " + attachmentInput.files[0].name + " attached";
+                showFileNames(attachmentInput.files);
             }
             uploadBox.style.background = '#f8f9fa';
         });
         attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) filePreview.textContent = "📎 " + attachmentInput.files[0].name +
-                " attached";
+            if (attachmentInput.files.length > 0) showFileNames(attachmentInput.files);
         });
+
+        function showFileNames(files) {
+            if (!files || files.length === 0) { filePreview.innerHTML = ''; return; }
+            let html = '<ul class="list-unstyled mb-0">';
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                const sizeKb = Math.round(f.size / 1024);
+                html += `<li>📎 ${f.name} <small class="text-muted">(${sizeKb} KB)</small></li>`;
+                if (i >= 9) { html += '<li class="text-muted">...and more</li>'; break; }
+            }
+            html += '</ul>';
+            filePreview.innerHTML = html;
+        }
 
         // Auto status update
         document.getElementById('paymentForm').addEventListener('submit', function(e) {

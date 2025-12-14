@@ -35,8 +35,7 @@
                     icon: 'success',
                     title: 'Success',
                     text: '{{ session('success') }}',
-                    timer: 3000,
-                    showConfirmButton: false
+                    showConfirmButton: true
                 });
             @endif
 
@@ -45,8 +44,7 @@
                     icon: 'error',
                     title: 'Error',
                     text: '{{ session('error') }}',
-                    timer: 3000,
-                    showConfirmButton: false
+                    showConfirmButton: true
                 });
             @endif
         });
@@ -54,10 +52,12 @@
 
         let attachmentDropzone = new Dropzone("#attachmentDropzone", {
             url: "{{ route('finance.invoices.store') }}", 
-            paramName: "attachment", 
-            maxFiles: 1, 
-            acceptedFiles: ".pdf,.jpg,.jpeg,.png",
+            paramName: "attachment[]", 
+            maxFiles: 10, 
+            acceptedFiles: ".pdf,.jpg,.jpeg,.png,.doc,.docx",
             addRemoveLinks: true,
+            uploadMultiple: true,
+            parallelUploads: 5,
             autoProcessQueue: false, 
         });
 

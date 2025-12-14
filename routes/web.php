@@ -150,7 +150,8 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
     Route::post('/budgets/store', [BudgetController::class, 'store'])->name('budgets.store');
-    Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
+    // Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
+    Route::get('/budgets/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
     Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
     Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
     Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
@@ -185,16 +186,63 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::get('/procurements', [ProcurementController::class, 'index'])->name('procurements.index');
     Route::get('/procurements/create', [ProcurementController::class, 'create'])->name('procurements.create');
     Route::post('/procurements/store', [ProcurementController::class, 'store'])->name('procurements.store');
-    Route::get('/procurements/{id}', [ProcurementController::class, 'show'])->name('procurements.show');
+    Route::get('/procurements/{procurement}', [ProcurementController::class, 'show'])->name('procurements.show');
     Route::get('/procurements/{procurement}/edit', [ProcurementController::class, 'edit'])->name('procurements.edit');
     Route::put('/procurements/{procurement}', [ProcurementController::class, 'update'])->name('procurements.update');
     Route::delete('/procurements/{procurement}', [ProcurementController::class, 'destroy'])->name('procurements.destroy');
 });
 
-// User Management Routes
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::resource('users', UserManagementController::class);
+// Temporary debug/fallback route to help diagnose invoice create 404 issues
+Route::middleware('auth')->get('/finance/invoices/create-fixed', function () {
+    try {
+        $procurements = \App\Models\Procurement::where('status', 'approved')
+            ->whereDoesntHave('invoice')
+            ->get();
 
+        $lastInvoice = \App\Models\Invoice::withTrashed()->latest('id')->first();
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $invoice_no = 'INV-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+        \Log::info('Accessed create-fixed by user: ' . auth()->id());
+        return view('finance.invoices.create', compact('procurements', 'invoice_no'));
+    } catch (\Exception $e) {
+        \Log::error('Error in create-fixed route: ' . $e->getMessage());
+        abort(500, 'Debug route failed. Check logs.');
+    }
+})->name('finance.invoices.create_fixed');
+
+// Very small public debug route to check routing/webserver
+Route::get('/debug/invoice-create', function () {
+    return response('OK', 200);
+});
+
+// User Management Routes
+Route::middleware(['auth'])->group(function () {
+    
+    // User Management Main Routes
+    Route::get('/admin/user-management', [UserManagementController::class, 'index'])->name('admin.user-management');
+    
+    // Create & Store
+    Route::get('/admin/register', [UserManagementController::class, 'create'])->name('admin.register');
+    Route::post('/admin/register', [UserManagementController::class, 'store'])->name('admin.register.store');
+    
+    // Edit & Update
+    Route::get('/admin/users/{user}/edit', [UserManagementController::class, 'edit'])->name('admin.users.edit');
+    Route::patch('/admin/users/{id}', [UserManagementController::class, 'update'])->name('admin.users.update');
+    
+    // Delete
+    Route::delete('/admin/users/{user}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+    
+    // Status Update
+    Route::patch('/users/{user}/status', [UserManagementController::class, 'updateStatus'])->name('users.update-status');
+    
+    // Deleted Users Management
+    Route::get('admin/users/deleted', [UserManagementController::class, 'deletedUsers'])->name('admin.deleted-users');
+    Route::post('admin/users/{id}/restore', [UserManagementController::class, 'restore'])->name('admin.users.restore');
+    Route::delete('admin/users/{id}/force-delete', [UserManagementController::class, 'forceDelete'])->name('admin.users.force-delete');
+    
+    // Assign Role (agar use hota hai)
+    Route::put('/users/{user}/assign-role', [UserManagementController::class, 'assignRole'])->name('users.assignRole');
 });
 
 // Department routes
@@ -207,7 +255,7 @@ Route::delete('/departments/{department}', [DepartmentController::class, 'destro
 
 // Request Route
 Route::resource('requests', RequestController::class);
-// Route::post('/requests/{id}/update-status', [RequestController::class, 'updateStatus'])->name('requests.updateStatus');
+Route::post('/requests/{id}/update-status', [RequestController::class, 'updateStatus'])->name('requests.updateStatus');
 Route::get('/requests/{id}', [RoleController::class, 'show'])->name('requests.show');
 
 // ================= Approvals =================
@@ -220,6 +268,10 @@ Route::prefix('approvals')->name('approvals.')->group(function () {
 
     // Store new approval
     Route::post('/store', [ApprovalController::class, 'store'])->name('store');
+
+    // Actions: approve / reject
+    Route::post('/{approval}/approve', [ApprovalController::class, 'approve'])->name('approve');
+    Route::post('/{approval}/reject', [ApprovalController::class, 'reject'])->name('reject');
 });
 
 
@@ -284,7 +336,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/approval-levels/create', [ApprovalLevelController::class, 'create'])->name('approval.levels.create');
     Route::post('/admin/approval-levels', [ApprovalLevelController::class, 'store'])->name('approval.levels.store');
     Route::get('/admin/approval-levels/{id}/edit', [ApprovalLevelController::class, 'edit'])->name('approval.levels.edit');
-    Route::post('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'update'])->name('approval.levels.update');
+    Route::put('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'update'])->name('approval.levels.update');
     Route::delete('/admin/approval-levels/{id}', [ApprovalLevelController::class, 'destroy'])->name('approval.levels.destroy');
 
 });

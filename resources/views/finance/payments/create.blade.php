@@ -159,7 +159,7 @@
         const amountInput = document.getElementById('amount');
         const statusSelect = document.getElementById('status');
 
-        uploadBox.addEventListener('click', () => attachmentInput.click());
+        uploadBox.addEventListener('click', () => { attachmentInput.click(); filePreview.innerHTML = ''; });
         uploadBox.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadBox.style.background = '#dee2e6';
@@ -171,14 +171,26 @@
             e.preventDefault();
             if (e.dataTransfer.files.length > 0) {
                 attachmentInput.files = e.dataTransfer.files;
-                filePreview.textContent = "📎 " + attachmentInput.files[0].name + " attached";
+                showFileNames(attachmentInput.files);
             }
             uploadBox.style.background = '#f8f9fa';
         });
         attachmentInput.addEventListener('change', () => {
-            if (attachmentInput.files.length > 0) filePreview.textContent = "📎 " + attachmentInput.files[0].name +
-                " attached";
+            if (attachmentInput.files.length > 0) showFileNames(attachmentInput.files);
         });
+
+        function showFileNames(files) {
+            if (!files || files.length === 0) { filePreview.innerHTML = ''; return; }
+            let html = '<ul class="list-unstyled mb-0">';
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                const sizeKb = Math.round(f.size / 1024);
+                html += `<li>📎 ${f.name} <small class="text-muted">(${sizeKb} KB)</small></li>`;
+                if (i >= 9) { html += '<li class="text-muted">...and more</li>'; break; }
+            }
+            html += '</ul>';
+            filePreview.innerHTML = html;
+        }
 
         invoiceSelect.addEventListener('change', () => {
             let option = invoiceSelect.options[invoiceSelect.selectedIndex];

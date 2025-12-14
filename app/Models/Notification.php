@@ -12,4 +12,16 @@ class Notification extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function via($notifiable)
+    {
+        return ['mail'];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Your Request Status Updated')
+            ->line('Your request has been approved.')
+            ->action('View Request', url('/requests'));
+    }
 }

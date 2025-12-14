@@ -19,9 +19,66 @@
                 </div>
             </div>
         </div>
+
+                {{-- Flash Messages --}}
+                @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+
+                @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+
+                {{-- Popup for flash messages --}}
+                @if(session('error') || session('success'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var msg = @json(session('error') ?? session('success'));
+                        var icon = @json(session('error') ? 'error' : 'success');
+                        if (msg) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    title: icon === 'error' ? 'Error' : 'Success',
+                                    text: msg,
+                                    icon: icon,
+                                    confirmButtonText: 'OK',
+                                    allowOutsideClick: false
+                                });
+                            } else {
+                                alert(msg);
+                            }
+                        }
+                    });
+                </script>
+                @endif
+                
+                {{-- Special request option when monthly conflict detected --}}
+                @if(session('monthly_conflict'))
+                    @php $conf = session('monthly_conflict'); @endphp
+                    <div class="alert alert-warning">
+                        <p class="mb-2">{{ $conf['message'] ?? 'A monthly budget already exists for this department.' }}</p>
+                        <form method="POST" action="{{ url('/finance/budgets/request-override') }}">
+                            @csrf
+                            <input type="hidden" name="department_id" value="{{ old('department_id', $conf['department_id'] ?? '') }}">
+                            <input type="hidden" name="year" value="{{ old('year', $conf['year'] ?? '') }}">
+                            <div class="mb-2">
+                                <label for="note" class="form-label">Optional message to admin</label>
+                                <textarea name="note" id="note" class="form-control form-control-sm" placeholder="Explain why you need an override (optional)"></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-warning btn-sm">Send Special Request to Admin</button>
+                                <a href="{{ route('finance.budgets.create') }}" class="btn btn-secondary btn-sm">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                @endif
     </div>
 
-    <div class="main-card mb-3">
+    <div class="main-card mb-3 w-75 mx-auto">
         <div class="card-body">
             <form action="{{ route('finance.budgets.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -30,7 +87,7 @@
                 <div class="form-group mb-3">
                     <label for="department_id">Department</label>
                     <select name="department_id" id="department_id"
-                        class="form-control @error('department_id') is-invalid @enderror" required>
+                        class="form-control form-control-sm @error('department_id') is-invalid @enderror" required>
                         <option value="">Select Department</option>
                         @foreach ($departments as $department)
                             <option value="{{ $department->id }}"
@@ -82,7 +139,7 @@
                 <div class="form-group mb-3">
                     <label for="allocated">Allocated Amount</label>
                     <input type="number" step="0.01" name="allocated" id="allocated"
-                        class="form-control @error('allocated') is-invalid @enderror" value="{{ old('allocated') }}"
+                        class="form-control form-control-sm @error('allocated') is-invalid @enderror" value="{{ old('allocated') }}"
                         required>
                     @error('allocated')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -92,7 +149,7 @@
                 {{-- Notes --}}
                 <div class="form-group mb-3">
                     <label for="notes">Notes</label>
-                    <textarea name="notes" id="notes" rows="3" class="form-control @error('notes') is-invalid @enderror">{{ old('notes') }}</textarea>
+                    <textarea name="notes" id="notes" rows="3" class="form-control form-control-sm @error('notes') is-invalid @enderror">{{ old('notes') }}</textarea>
                     @error('notes')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -130,7 +187,7 @@
                     <button type="submit" class="vip-btn btn-submit">
                         <i class="bi bi-check-lg"></i> Add Budget
                     </button>
-                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn">
+                    <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn btn-sm">
                         <i class="bi bi-x-octagon"></i> Cancel
                     </a>
                 </div>
@@ -141,11 +198,13 @@
         .upload-box {
             border: 2px dashed #6c757d;
             border-radius: 10px;
-            padding: 25px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
             background-color: #f8f9fa;
             transition: background 0.3s;
+            max-height: 160px;
+            overflow: auto;
         }
 
         .upload-box:hover {
@@ -153,12 +212,12 @@
         }
 
         .upload-box i {
-            font-size: 28px;
+            font-size: 20px;
             color: #0d6efd;
         }
 
         #filePreview {
-            font-size: 14px;
+            font-size: 13px;
             color: #198754;
             font-weight: 500;
         }

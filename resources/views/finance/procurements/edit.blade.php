@@ -81,12 +81,23 @@
                     <p>Drag & Drop file here or click to upload </br> .jpg, .jpeg, .png, .pdf, .doc, .docx Max: 2 MB</p>
                     <input type="file" id="attachmentInput" name="attachments[]" multiple hidden>
                 </div>
-                <div id="filePreview" class="mt-2">
-                    @if ($procurement->attachment)
-                        📎 Current File: <a href="{{ asset('storage/' . $procurement->attachment) }}"
-                            target="_blank">{{ basename($procurement->attachment) }}</a>
+                <div id="filePreview" class="mt-2"></div>
+
+                <div id="existingAttachments" class="mt-2">
+                    @if($procurement->attachment)
+                        @php
+                            $attachments = is_array($procurement->attachment) ? $procurement->attachment : (json_decode($procurement->attachment, true) ?? [$procurement->attachment]);
+                        @endphp
+                        @foreach($attachments as $att)
+                            @php
+                                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                            @endphp
+                            <div>📎 <a href="{{ asset('storage/' . $attPath) }}" target="_blank">{{ $attName }}</a></div>
+                        @endforeach
                     @endif
                 </div>
+
                 @error('attachment')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror

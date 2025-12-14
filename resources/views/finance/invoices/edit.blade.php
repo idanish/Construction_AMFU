@@ -103,12 +103,20 @@
                     <input type="file" id="attachmentInput" name="attachments[]" multiple hidden>
                 </div>
 
-                @if ($invoice->attachment)
-                    <div class="mt-2">
-                        📎 Current:
-                        <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank">View Attachment</a>
-                    </div>
-                @endif
+                <div id="existingAttachments" class="mt-2">
+                    @if($invoice->attachment)
+                        @php
+                            $attachments = is_array($invoice->attachment) ? $invoice->attachment : (json_decode($invoice->attachment, true) ?? [$invoice->attachment]);
+                        @endphp
+                        @foreach($attachments as $att)
+                            @php
+                                $attPath = is_array($att) ? ($att['path'] ?? $att) : $att;
+                                $attName = is_array($att) ? ($att['name'] ?? basename($attPath)) : basename($attPath);
+                            @endphp
+                            <div>📎 <a href="{{ asset('storage/' . $attPath) }}" target="_blank">{{ $attName }}</a></div>
+                        @endforeach
+                    @endif
+                </div>
 
                 <div id="filePreview" class="mt-2"></div>
                 @error('attachment')

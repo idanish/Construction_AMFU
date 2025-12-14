@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Permission\Traits\HasRoles;
-// Activity Logs Files
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
-
+use Spatie\Permission\Traits\HasRoles;
 
 class Approval extends Model
 {
@@ -47,6 +45,5 @@ class Approval extends Model
     {
         return $this->belongsTo(User::class, 'approver_id');
     }
-
-    
 }
+
