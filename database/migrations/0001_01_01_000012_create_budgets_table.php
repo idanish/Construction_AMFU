@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('notes')->nullable();
             $table->foreignId('requestor_id')->nullable()->constrained('users');
             $table->unsignedInteger('current_level')->default(1);
-            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
+            $table->foreign('department_id')->nullable()->references('id')->on('departments')->onDelete('cascade');
             $table->enum('status', ['pending', 'approved', 'rejected', 'draft', 'need revision'])->default('pending');
             $table->unsignedBigInteger('transaction_no')->default(0);
             $table->string('current_approval_step')->default('PM');

@@ -180,8 +180,6 @@ table td {
                 <th>Month</th>
                 <th>Year</th>
                 <th>Allocated</th>
-                <th>Requested</th>
-                <th>Type</th>
                 <th>Spent</th>
                 <th>Balance</th>
                 <th>Status</th>

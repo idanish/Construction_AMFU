@@ -101,6 +101,7 @@
                 <th>S.No</th>
                 <th>Title</th>
                 <th>Requestor</th>
+                <th>Description</th>
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Attachments</th>
