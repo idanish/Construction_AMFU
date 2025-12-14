@@ -44,7 +44,7 @@ class ApprovalWorkflowTestSeeder extends Seeder
                 [
                     'name' => $data['name'],
                     'username' => str_replace('@', '_', $data['email']),
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('12345678'),
                     'department_id' => $department->id,
                     'status' => 1
                 ]
@@ -64,7 +64,7 @@ class ApprovalWorkflowTestSeeder extends Seeder
             [
                 'name' => 'Admin User',
                 'username' => 'admin_test',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('12345678'),
                 'department_id' => $department->id,
                 'status' => 1
             ]
@@ -82,7 +82,7 @@ class ApprovalWorkflowTestSeeder extends Seeder
             [
                 'name' => 'Test Requester',
                 'username' => 'requester_test',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('12345678'),
                 'department_id' => $department->id,
                 'status' => 1
             ]
@@ -90,9 +90,9 @@ class ApprovalWorkflowTestSeeder extends Seeder
 
         echo "✓ Created/Updated: Test Requester (requester@test.com)\n";
 
-        echo "\n✅ Approval Workflow Test Data Ready!\n";
+        echo "\n Approval Workflow Test Data Ready!\n";
         echo "Test Flow:\n";
-        echo "1. Login as: requester@test.com (password: password123)\n";
+        echo "1. Login as: requester@test.com (password: 12345678)\n";
         echo "2. Create a Request\n";
         echo "3. Approvals will be sent to:\n";
         echo "   - PM Manager: pm@test.com\n";

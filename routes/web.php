@@ -150,7 +150,8 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
     Route::post('/budgets/store', [BudgetController::class, 'store'])->name('budgets.store');
-    Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
+    // Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
+    Route::get('/budgets/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
     Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
     Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
     Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
@@ -185,7 +186,7 @@ Route::prefix('finance')->name('finance.')->middleware(['auth'])->group(function
     Route::get('/procurements', [ProcurementController::class, 'index'])->name('procurements.index');
     Route::get('/procurements/create', [ProcurementController::class, 'create'])->name('procurements.create');
     Route::post('/procurements/store', [ProcurementController::class, 'store'])->name('procurements.store');
-    Route::get('/procurements/{id}', [ProcurementController::class, 'show'])->name('procurements.show');
+    Route::get('/procurements/{procurement}', [ProcurementController::class, 'show'])->name('procurements.show');
     Route::get('/procurements/{procurement}/edit', [ProcurementController::class, 'edit'])->name('procurements.edit');
     Route::put('/procurements/{procurement}', [ProcurementController::class, 'update'])->name('procurements.update');
     Route::delete('/procurements/{procurement}', [ProcurementController::class, 'destroy'])->name('procurements.destroy');

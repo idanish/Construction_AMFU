@@ -11,6 +11,8 @@ use App\Models\Approval;
 use App\Models\ApprovalLevel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class BudgetController extends Controller
@@ -24,22 +26,22 @@ public function index(Request $r)
 
     $budgetsQuery = \App\Models\Budget::with('department')->latest();
 
-    // 🔹 Department filter
+    //  Department filter
     if ($r->filled('department_id')) {
         $budgetsQuery->where('department_id', $r->department_id);
     }
 
-    // 🔹 Year filter
+    //  Year filter
     if ($r->filled('year')) {
         $budgetsQuery->where('year', $r->year);
     }
 
-     // 🔹 Month filter
+     //  Month filter
     if ($r->filled('month')) {
             $budgetsQuery->where('month', $r->month);
         }
 
-    // 🔹 Status filter
+    //  Status filter
     if ($r->filled('status')) {
         $budgetsQuery->where('status', $r->status);
     }
@@ -60,6 +62,7 @@ public function index(Request $r)
   public function create()
   {
     $departments = Department::all();
+    $users = User::all();
     return view('finance.budgets.create', compact('departments'));
   }
 
@@ -71,17 +74,13 @@ public function index(Request $r)
         'year'          => 'required|integer',
         'month'         => 'required|integer|min:1|max:12',
         'allocated'     => 'required|numeric|min:0',
-        // Spent field create form mein nahi hai, lekin validation mein rakha ja sakta hai agar form mein hidden ho.
         'spent'         => 'nullable|numeric|min:0|lte:allocated', 
         'notes'         => 'nullable|string',
         'status'        => 'required|string',
-        'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx|max:2048', // xlsx add kiya
+        'attachments.*' => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
 
-    // Create ke waqt Spent ko default 0 aur Balance ko calculate karein
     $spent = $r->spent ?? 0;
-
-    // 2. Budget Record Banana aur $budget mein save karna
     $budget = Budget::create([
         'department_id' => $r->department_id,
         'year'          => $r->year,
@@ -92,9 +91,7 @@ public function index(Request $r)
         'notes'         => $r->notes,
         'status'        => $r->status,
     ]); 
-    // ^^^ YAHAN AB $budget DEFINE HO GAYA HAI ^^^
-    
-    // 3. Attachments ko $budget record par attach karna
+
     if ($r->hasFile('attachments')) {
         
         foreach ($r->file('attachments') as $file) {
@@ -102,8 +99,25 @@ public function index(Request $r)
         }
     }
 
-    return redirect()->route('finance.budgets.index')->with('success','Budget created successfully!');
+    // Email Notifiation
+    $recipientEmail = auth()->user()->email;
+
+    Mail::raw("Your budget amounting of ${$budget->allocated} has been added successfully.",
+        function ($message) use ($recipientEmail) {
+            $message->to($recipientEmail) ->subject('Budget added successfully');
+    });
+
+    return redirect()->route('finance.budgets.index')->with('success','Budget added successfully!');
 }
+
+// App\Http\Controllers\Finance\BudgetController.php
+
+public function show($id)
+{
+    $budget = Budget::with(['department', 'approvals.approver'])->findOrFail($id);
+    return view('finance.budgets.show', compact('budget')); 
+}
+
 
   public function edit(Budget $budget)
   {
@@ -120,10 +134,9 @@ public function index(Request $r)
       'allocated'   => 'required|numeric|min:0',
       'spent'     => 'nullable|numeric|min:0|lte:allocated',
       'status'    => 'required|string',
-      'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
-      // 'attachment'     => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
+      'attachments.*' => 'nullable|file|mimes:JPG,JPEG,PNG,PDF,DOC,DOCX,jpg,jpeg,png,pdf,doc,docx|max:2048',
     ]);
-// 🔹 Check duplicate budgets
+//  Check duplicate budgets
 if ($r->budget_type === 'monthly') {
 
     $existingMonthly = Budget::where('department_id', $r->department_id)
@@ -155,9 +168,7 @@ if ($r->budget_type === 'monthly') {
     }
 }
 
-
-
-    // 🔹 Update fields
+    // Update fields
     $budget->department_id = $r->department_id;
     $budget->year     = $r->year;
     $budget->month         = $r->month;

@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="page-title-actions">
-            <a href="{{ route('users.index') }}" class="btn btn-secondary vip-btn">
+            <a href="{{ route('admin.user-management') }}" class="btn btn-secondary vip-btn">
                 <i class="bi bi-arrow-left-circle"></i> Go Back
 
             </a>

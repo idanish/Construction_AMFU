@@ -18,11 +18,11 @@ class DatabaseSeeder extends Seeder
 
         // Default Admin
         $admin = User::updateOrCreate(
-            ['email' => 'dev@amfu.net'],
+            ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
                 'username' => 'admin',
-                'password' => Hash::make('qmD-n=hG]Z!R'),
+                'password' => Hash::make('12345678'),
                 'status' => '1',
                 'department_id' => $adminDepartment->id,
             ]

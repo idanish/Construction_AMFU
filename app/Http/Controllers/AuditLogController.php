@@ -7,6 +7,7 @@ use Spatie\Activitylog\Models\Activity;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AuditLogExport;
 use App\Exports\AuditLogFullExport;
+use Yajra\DataTables\Facades\DataTables;
 
 class AuditLogController extends Controller
 {

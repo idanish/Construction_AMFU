@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Yajra\DataTables\Facades\DataTables;
 use App\Models\User;
 use App\Models\Department;
 use App\Models\ApprovalLevel;
