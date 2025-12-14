@@ -7,6 +7,7 @@ use App\Models\ApprovalLevel;
 use App\Models\Department;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class ApprovalLevelController extends Controller
 {

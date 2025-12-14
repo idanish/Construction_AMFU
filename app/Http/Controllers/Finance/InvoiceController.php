@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Finance;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Procurement;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\User;
 use App\Models\Approval;
 use App\Models\ApprovalLevel;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\File;
 
 class InvoiceController extends Controller
@@ -106,18 +107,22 @@ class InvoiceController extends Controller
             'notes'          => $r->notes ?? null,
         ];
 
-        // Handle attachment
-        // if ($r->hasFile('attachment')) {
-        //     $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
-        // }
 
         $InvoiceCr = Invoice::create($data);
 
-         if ($r->hasFile('attachments')) {
-        foreach ($r->file('attachments') as $file) {
-            $InvoiceCr->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
+        if ($r->hasFile('attachments')) {
+            foreach ($r->file('attachments') as $file) {
+                $InvoiceCr->addMedia($file)->toMediaCollection('attachments'); // Attach to Model
+            }
         }
-    }
+
+        // Email Notifiation
+        $recipientEmail = auth()->user()->email;
+
+        Mail::raw("Your Invoice against {$r->procurement_id} has been generated successfully.",
+            function ($message) use ($recipientEmail) {
+                $message->to($recipientEmail) ->subject('Invoice generated successfully');
+        });
 
         return redirect()->route('finance.invoices.index')->with('success', 'Invoice created successfully!');
     }
@@ -161,16 +166,6 @@ class InvoiceController extends Controller
             // Status update PaymentController se hoga
         ];
 
-        // File Upload (replace old if exists)
-        // if ($r->hasFile('attachment')) {
-        //     if ($invoice->attachment && Storage::disk('public')->exists($invoice->attachment)) {
-        //         Storage::disk('public')->delete($invoice->attachment);
-        //     }
-        //     $data['attachment'] = $r->file('attachment')->store('invoices', 'public');
-        // }
-
-
-
         // Handling attachments
         if ($r->hasFile('attachments')) {
 
@@ -183,8 +178,6 @@ class InvoiceController extends Controller
                 $invoice->addMedia($file)->toMediaCollection('attachments');
             }
         }
-
-
 
         // Amount change hone se pehle update kar dein
         $invoice->update($data); 

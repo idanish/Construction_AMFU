@@ -15,9 +15,9 @@ return new class extends Migration
             $table->date('payment_date');
             $table->decimal('amount', 10, 2);
             $table->enum('method', ['Cash', 'Bank', 'Online']);
-            $table->string('attachment')->nullable();
+            $table->longText('attachment')->nullable();
             $table->unsignedBigInteger('transaction_no')->default(0);
-            $table->string('current_approval_step')->default('PM');
+            $table->string('current_approval_step')->nullable();
             $table->text('revert_reason')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();

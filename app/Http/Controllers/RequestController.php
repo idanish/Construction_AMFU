@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\File;
 
 class RequestController extends Controller
@@ -77,22 +78,17 @@ public function store(Request $request)
    
     // === STEP 1: Validation (Updated for Private/General) ===
     $validatedData = $request->validate([
-        // requestor_id ko Auth::id() se nikaalna behtar hai, user input se nahi
-        'requestor_id' => 'nullable|exists:users,id', // Agar admin doosre users ke liye request bana raha ho
-        
-        // New Fields Validation
+        'requestor_id' => 'nullable|exists:users,id',
         'type' => 'required|in:general,private',
         'assigned_to_user_id' => 'required_if:type,private|nullable|exists:users,id',
         'department_id' => 'required_if:type,general|nullable|exists:departments,id',
-
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
         'amount' => 'required|numeric|min:0.01',
-        // 'attachments' should be validated here if not using Spatie's method
     ]);
 
     $initialLevel = 1;
-    $requestorId = Auth::id(); // Request hamesha logged-in user create karta hai
+    $requestorId = Auth::id();
 
     // === STEP 2: Request Creation (Transaction Safety) ===
     DB::beginTransaction();
@@ -102,13 +98,9 @@ public function store(Request $request)
             'title' => $validatedData['title'],
             'description' => $validatedData['description'],
             'amount' => $validatedData['amount'],
-            
             'type' => $validatedData['type'],
             'assigned_to_user_id' => $validatedData['assigned_to_user_id'] ?? null,
-            
-            // General Request ke liye department zaroori hai
             'department_id' => $validatedData['type'] === 'general' ? $validatedData['department_id'] : null,
-            
             'status' => 'pending',
             'current_level' => $initialLevel,
         ]);
@@ -124,37 +116,31 @@ public function store(Request $request)
         $approverId = null;
 
         if ($requestModel->type === 'private') {
-            // Scenario 1: Private Request - Approver wohi user hai jisko assign kiya gaya hai
+            // Scenario 1: Private Request
             $approverId = $requestModel->assigned_to_user_id;
-            // Private requests mein Level 1 hi aakhri level hota hai.
-            
         } else {
 
-            // Scenario 2: General Request - Level 1 Approver dhoondhein
+            // Scenario 2: General Request - Level 1 Approver
             $levelOne = ApprovalLevel::where('department_id', $requestModel->department_id)
                 ->where('sequence', 1)
                 ->first();
     
-
             if (!$levelOne) {
-                // Agar koi Approval Level define nahi hai (Department Z jaisa scenario)
                 $requestModel->update(['status' => 'approved', 'current_level' => 1]);
                 DB::commit();
-                
                 return redirect()->route('requests.index')->with('success', 'Request created and automatically approved (No workflow found).');
             }
 
             $approverId = optional($levelOne->users()->first())->id;
 
             if (!$approverId) {
-                // Agar Approver ki ID nahi mili
                 $requestModel->update(['status' => 'Needs Approver']);
                 DB::commit();
                 return redirect()->route('requests.index')->with('warning', 'Request created, but Level 1 Approver is missing.');
             }
         }
         
-        // Final Pending Entry Creation (Dono Scenarios ke liye)
+        // Final Pending Entry Creation
         Approval::create([
             'request_id' => $requestModel->id,
             'approver_id' => $approverId,
@@ -163,12 +149,25 @@ public function store(Request $request)
         ]);
 
         DB::commit();
+
+        $recipientEmail = auth()->user()->email;
+        if ($requestModel->type === 'private') {
+        Mail::raw("Your Private Request has been submitted successfully.",
+            function ($message) use ($recipientEmail) {
+                $message->to($recipientEmail) ->subject('Request submitted successfully');
+        });
+        } else{
+        Mail::raw("Your Request has been submitted successfully.",
+            function ($message) use ($recipientEmail) {
+                $message->to($recipientEmail) ->subject('Your Request has been submitted successfully.');
+        });
+        }
+
         return redirect()->route('requests.index')->with('success', 'Request submitted successfully.');
         
     } catch (\Exception $e) {
         DB::rollBack();
         // dd($e->getMessage(), $e->getFile(), $e->getLine());
-        // Exception ko log karna zaroori hai
         \Log::error("Request submission failed: " . $e->getMessage(), ['user_id' => $requestorId]);
         return back()->with('error', 'Request could not be submitted. Please try again.');
     }

@@ -1,5 +1,5 @@
 @extends('master')
-@section('title', 'View Procurement')
+@section('title', 'View Budget')
 
 @section('content')
 <div class="app-page-title">
@@ -8,15 +8,15 @@
             <div class="page-title-icon">
                 <i class="pe-7s-note2 icon-gradient bg-tempting-azure"></i>
             </div>
-            <div class="h4 m-0">Procurement Details</div>
+            <div class="h4 m-0">Budget Details</div>
         </div>
         <div class="page-title-actions">
-            <a href="{{ route('finance.procurements.index') }}" class="btn btn-secondary vip-btn">
+            <a href="{{ route('finance.budgets.index') }}" class="btn btn-secondary vip-btn">
                 <i class="bi bi-arrow-left"></i> Back
             </a>
 
-            @can('update-procurement')
-            <a href="{{ route('finance.procurements.edit', $procurement->id) }}" class="btn btn-warning vip-btn">
+            @can('update-budget')
+            <a href="{{ route('finance.budgets.edit', $budget->id) }}" class="btn btn-warning vip-btn">
                 <i class="bi bi-pencil-square"></i> Edit
             </a>
             @endcan
@@ -40,47 +40,33 @@
 @endif
 
 <div class="row">
-    {{-- Procurement Info --}}
+    {{-- Budget Info --}}
     <div class="col-md-6">
         <div class="mb-3">
             <div class="card-header fw-bold bg-light">
-                <i class="bi bi-info-circle"></i> Procurement Information
+                <i class="bi bi-info-circle"></i> Budget Information
             </div>
             <div class="card-body">
                 <table class="table table-bordered mb-0">
                     <tr>
-                        <th width="40%">Item Name</th>
-                        <td>{{ $procurement->item_name }}</td>
+                        <th width="40%">Department</th>
+                        <td>{{ $budget->department->name ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <th>Quantity</th>
-                        <td>{{ $procurement->quantity }}</td>
+                        <th>Month</th>
+                        <td>{{ \Carbon\Carbon::create()->month($budget->month)->format('F') }}</td>
                     </tr>
                     <tr>
-                        <th>Cost Estimate</th>
-                        <td>${{ number_format($procurement->cost_estimate, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <th>Unit Price</th>
-                        <td>
-                            @if($procurement->quantity > 0)
-                                ${{ number_format($procurement->cost_estimate / $procurement->quantity, 2) }}
-                            @else
-                                N/A
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Department</th>
-                        <td>{{ $procurement->department->name ?? 'N/A' }}</td>
+                        <th>Year</th>
+                        <td>{{ $budget->year }}</td>
                     </tr>
                     <tr>
                         <th>Status</th>
                         <td>
                             <span class="badge 
-                                {{ $procurement->status == 'approved' ? 'bg-success' : 
-                                   ($procurement->status == 'rejected' ? 'bg-danger' : 'bg-warning') }}">
-                                {{ ucfirst($procurement->status) }}
+                                {{ $budget->status == 'approved' ? 'bg-success' : 
+                                   ($budget->status == 'rejected' ? 'bg-danger' : 'bg-warning') }}">
+                                {{ ucfirst($budget->status) }}
                             </span>
                         </td>
                     </tr>
@@ -89,45 +75,67 @@
         </div>
     </div>
 
-    {{-- Attachments --}}
+    {{-- Financial Info --}}
     <div class="col-md-6">
-        <div class="mb-3">
+        <div class=" mb-3">
             <div class="card-header fw-bold bg-light">
-                <i class="bi bi-paperclip"></i> Attachments
+                <i class="bi bi-cash-stack"></i> Financial Summary
             </div>
             <div class="card-body">
-                @can('view attachment')
-                    @forelse($procurement->getMedia('attachments') as $media)
-                        <a href="{{ $media->getUrl() }}" target="_blank" class="d-block mb-1">
-                            <i class="bi bi-paperclip"></i> {{ $media->file_name }}
-                        </a>
-                    @empty
-                        <span class="text-muted">No attachments available.</span>
-                    @endforelse
-                @else
-                    <span class="text-muted">You are not allowed to view attachments.</span>
-                @endcan
+                <table class="table table-bordered mb-0">
+                    <tr>
+                        <th width="40%">Allocated</th>
+                        <td>${{ number_format($budget->allocated, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Spent</th>
+                        <td>${{ number_format($budget->spent, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Balance</th>
+                        <td>${{ number_format($budget->balance, 2) }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
-{{-- Notes / Justification --}}
-@if($procurement->justification)
-<div class="mb-3">
+{{-- Notes --}}
+@if($budget->notes)
+<div class=" mb-3 ">
     <div class="card-header fw-bold bg-light">
-        <i class="bi bi-journal-text"></i> Justification / Notes
+        <i class="bi bi-journal-text"></i> Notes
     </div>
     <div class="card-body">
-        {{ $procurement->justification }}
+        {{ $budget->notes }}
     </div>
 </div>
 @endif
 
-{{-- Future Approval History (if required) --}}
-{{-- 
-@if($procurement->approvals && $procurement->approvals->count())
-<div class="mb-3">
+{{-- Attachments --}}
+<div class=" mb-3 ">
+    <div class="card-header fw-bold bg-light">
+        <i class="bi bi-paperclip"></i> Attachments
+    </div>
+    <div class="card-body">
+        @can('view attachment')
+        @forelse($budget->getMedia('attachments') as $media)
+        <a href="{{ $media->getUrl() }}" target="_blank" class="d-block mb-1">
+            <i class="bi bi-paperclip"></i> {{ $media->file_name }}
+        </a>
+        @empty
+        <span class="text-muted">No attachments available.</span>
+        @endforelse
+        @else
+        <span class="text-muted">You are not allowed to view attachments.</span>
+        @endcan
+    </div>
+</div>
+
+{{-- Approval History (Future Ready) --}}
+@if($budget->approvals && $budget->approvals->count())
+<div class=" mb-3 ">
     <div class="card-header fw-bold bg-light">
         <i class="bi bi-check2-circle"></i> Approval History
     </div>
@@ -143,7 +151,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($procurement->approvals as $key => $approval)
+                @foreach($budget->approvals as $key => $approval)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $approval->approver->name ?? 'N/A' }}</td>
@@ -163,21 +171,18 @@
     </div>
 </div>
 @endif
---}}
 
 @endsection
 
-
-
 @php
-$isPendingAndActionable = in_array($procurement->status, ['pending', 'Needs Revision']);
+$isPendingAndActionable = in_array($budget->status, ['pending', 'Needs Revision']);
 $currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
 $isCurrentApprover = false;
 
-if ($isPendingAndActionable && $procurement->current_level) {
-if ($currentUserLevelSequence == $procurement->current_level) {
-$currentPendingApproval = $procurement->approvals
-->where('level', $procurement->current_level)
+if ($isPendingAndActionable && $budget->current_level) {
+if ($currentUserLevelSequence == $budget->current_level) {
+$currentPendingApproval = $budget->approvals
+->where('level', $budget->current_level)
 ->where('status', 'pending')
 ->where('approver_id', Auth::id())
 ->first();
@@ -228,17 +233,17 @@ $isCurrentApprover = true;
 @else
 {{-- Approval Status Box --}}
 <div class="alert alert-info mt-4">
-    @if ($procurement->status == 'approved')
+    @if ($budget->status == 'approved')
     <i class="fas fa-thumbs-up"></i> **Status:** Fully Approved.
-    @elseif ($procurement->status == 'rejected')
+    @elseif ($budget->status == 'rejected')
     <i class="fas fa-ban"></i> **Status:** Rejected.
-    @elseif ($procurement->status == 'Needs Revision')
+    @elseif ($budget->status == 'Needs Revision')
     <i class="fas fa-edit"></i> **Status:** Needs Revision.
-    @elseif ($procurement->status == 'pending')
+    @elseif ($budget->status == 'pending')
     <i class="fas fa-hourglass-half"></i> **Status:** Pending at Level
-    {{ $procurement->current_level }}.
+    {{ $budget->current_level }}.
     @else
-    <i class="fas fa-info-circle"></i> **Status:** {{ ucwords($procurement->status) }}.
+    <i class="fas fa-info-circle"></i> **Status:** {{ ucwords($budget->status) }}.
     @endif
 </div>
 @endif

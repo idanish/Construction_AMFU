@@ -134,7 +134,7 @@
                     
           
             <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn">
-            <i class="bi bi-check-circle"></i> View Request
+            <i class="bi bi-check-circle"></i> View
             </a>
 
                     @can('update-request')

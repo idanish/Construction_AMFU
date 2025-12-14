@@ -8,13 +8,14 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\Procurement;
-use App\Models\RequestModel ;
+use App\Models\RequestModel;
 
 use Spatie\Activitylog\Models\Activity;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use Carbon\Carbon;
+use Yajra\DataTables\Facades\DataTables;
 
 use App\Exports\FinanceReportExport;
 use App\Exports\AuditReportExport;
