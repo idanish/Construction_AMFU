@@ -153,16 +153,16 @@ if ($isPendingAndActionable && $request->current_level) {
             @csrf
             <div class="mb-3">
                 <label for="comments">Comments (Optional)</label>
-                <textarea name="comments" id="comments" class="form-control" rows="3" placeholder="Approval ya rejection ke liye comments likhen..."></textarea>
+                <textarea name="comments" id="comments" class="form-control" rows="3" placeholder="Comment for Approval or rejection"></textarea>
             </div>
             <div class="d-flex justify-content-end">
-                <button type="submit" name="status" value="rejected" class="btn btn-danger me-2"
-                    onclick="return confirm('Are you sure you want to reject?')">
-                    <i class="fas fa-times"></i> Reject
-                </button>
-                <button type="submit" name="status" value="approved" class="btn btn-success"
+                <button type="submit" name="status" value="approved" class="btn btn-success vip-btn"
                     onclick="return confirm('Are you sure you want to approve?')">
                     <i class="fas fa-check"></i> Approve
+                </button>
+                <button type="submit" name="status" value="rejected" class="btn btn-danger me-2 vip-btn"
+                    onclick="return confirm('Are you sure you want to reject?')">
+                    <i class="fas fa-times"></i> Reject
                 </button>
             </div>
         </form>

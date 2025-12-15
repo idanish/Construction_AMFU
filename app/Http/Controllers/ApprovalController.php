@@ -21,10 +21,10 @@ class ApprovalController extends Controller
         $userLevelSequence = optional($user->approvalLevel)->sequence;
 
         $pendingApprovals = Approval::with('request')
-        ->where('approver_id', $user->id)
-        ->where('status', 'pending')
-        ->latest()
-        ->get();
+            ->where('approver_id', $user->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
 
         return view('approvals.index', compact('pendingApprovals'));
     }
@@ -46,73 +46,90 @@ class ApprovalController extends Controller
         if ($approval->approver_id !== Auth::id()) {
             return back()->with('error', "You are not authorized for this approval level.");
         }
-    $request = $approval->request; // Request object ko define karein
-    $currentSequence = $approval->level; // Current sequence ko define karein
-    
+
+        $request = $approval->request; // Request object
+        $currentSequence = $approval->level; // Current sequence
+
         // Update current approval level
         $approval->update([
             'status'   => $req->status,
             'comments' => $req->comments,
         ]);
 
-        // If rejected → request rejected & no more levels required
+        // --- HANDLE REJECTION ---
         if ($req->status === 'rejected') {
-            
             $previousSequence = $currentSequence - 1;
 
             if ($previousSequence >= 1) {
-                // Agar Level 1 se bada hai to pichhle level par wapas bhejo
-                
-                // Request ka status aur current_level update karna
+                // Send back to previous level for revision
                 $request->update([
-                    'status' => 'Needs Revision', 
+                    'status' => 'need revision',  // Match enum value
                     'current_level' => $previousSequence
                 ]);
-        
-                
-                return back()->with('warning', "Request rejected. Sent back to Requestor for revision (Level {$previousSequence}).");
+
+                return back()->with('warning', "Request rejected. Sent back to Level {$previousSequence} for revision.");
             } else {
-                 // Level 1 par rejection = Final Rejection
-                 $request->update(['status' => 'rejected', 'current_level' => null]);
-                 return back()->with('danger', "Request permanently rejected.");
+                // Level 1 rejection = Final Rejection
+                // Use 0 instead of null to avoid constraint violation
+                $request->update([
+                    'status' => 'rejected', 
+                    'current_level' => 0
+                ]);
+
+                return back()->with('danger', "Request permanently rejected.");
             }
-}
+        }
 
-// --- 3. Handle Approval (Next Level Par Bhejna) ---
+        // --- HANDLE APPROVAL (Move to Next Level) ---
+        $nextSequence = $currentSequence + 1;
 
-    $nextSequence = $currentSequence + 1;
+        // Find next approval level
+        $nextLevel = ApprovalLevel::where('department_id', $request->department_id)
+            ->where('sequence', $nextSequence)
+            ->first();
 
-    // Next approval level dhoondhna
-    $nextLevel = ApprovalLevel::where('department_id', $request->department_id)
-      ->where('sequence', $nextSequence)
-      ->first();
+        // --- FINAL APPROVAL (No more levels) ---
+        if (!$nextLevel) {
+            // Get the highest level for this department
+            $highestLevel = ApprovalLevel::where('department_id', $request->department_id)
+                ->max('sequence');
 
-    // Final Approval
-    if (!$nextLevel) {
-      $request->update(['status' => 'approved', 'current_level' => null]);
-      return back()->with('success', "Request fully approved!");
-    }
+            // Use highest level instead of null to avoid constraint violation
+            $request->update([
+                'status' => 'approved', 
+                'current_level' => $highestLevel ?? $currentSequence
+            ]);
 
-    // Next Approver dhoondhna
-    $nextApprover = $nextLevel->users()->first();
+            return back()->with('success', "Request fully approved!");
+        }
 
-    if (!$nextApprover) {
-      // If next level exists but no user assigned:
-      $request->update(['status' => 'Needs Approver', 'current_level' => $nextSequence]);
-      return back()->with('error', "Level approved. Error: No approver found for Level {$nextSequence}!");
-    }
+        // --- FIND NEXT APPROVER ---
+        $nextApprover = $nextLevel->users()->first();
 
-        // Request ka current level update karna
-        $request->update(['current_level' => $nextSequence]);
+        if (!$nextApprover) {
+            // If next level exists but no user assigned
+            $request->update([
+                'status' => 'pending',
+                'current_level' => $nextSequence
+            ]);
 
-    // Next pending approval row create karna
-    Approval::create([
-      'request_id' => $request->id,
-      'approver_id' => $nextApprover->id,
-      'level'    => $nextSequence,
-      'status'   => 'pending',
-    ]);
+            return back()->with('error', "Level {$currentSequence} approved but no approver found for Level {$nextSequence}!");
+        }
 
-        return back()->with('success', "Level approved. Moved to next approver.");
+        // Update request to next level
+        $request->update([
+            'status' => 'pending',
+            'current_level' => $nextSequence
+        ]);
+
+        // Create next pending approval
+        Approval::create([
+            'request_id'  => $request->id,
+            'approver_id' => $nextApprover->id,
+            'level'       => $nextSequence,
+            'status'      => 'pending',
+        ]);
+
+        return back()->with('success', "Level {$currentSequence} approved. Moved to Level {$nextSequence}.");
     }
 }
