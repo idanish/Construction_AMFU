@@ -16,7 +16,6 @@
         <div class="page-title-actions">
             <a href="{{ route('admin.user-management') }}" class="btn btn-secondary vip-btn">
                 <i class="bi bi-arrow-left-circle"></i> Go Back
-
             </a>
         </div>
     </div>
@@ -124,10 +123,9 @@
                 @enderror
             </div>
 
-            {{-- NEW FIELD: Approval Level (Only for Approvers) --}}
+            {{-- Approval Level --}}
             <div class="mb-3" id="approval_level_field">
                 <label class="form-label">Assign Approval Level</label>
-                {{-- Note: 'approval_levels' variable Controller se aana zaroori hai --}}
                 <select name="approval_level_id" id="approval_level_select"
                     class="form-select @error('approval_level_id') is-invalid @enderror">
                     <option value="">-- Select Approval Level --</option>
