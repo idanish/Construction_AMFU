@@ -124,64 +124,89 @@
 
 {{-- Approval Action --}}
 @php
-$isPendingAndActionable = in_array($request->status, ['pending', 'Needs Revision']);
-$currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
-$isCurrentApprover = false;
+    $isPendingAndActionable = in_array($request->status, ['pending', 'Needs Revision']);
+    $currentUserLevelSequence = optional(Auth::user()->approvalLevel)->sequence;
+    $isCurrentApprover = false;
 
-if ($isPendingAndActionable && $request->current_level) {
-    if ($currentUserLevelSequence == $request->current_level) {
-        $currentPendingApproval = $request->approvals
-            ->where('level', $request->current_level)
-            ->where('status', 'pending')
-            ->where('approver_id', Auth::id())
-            ->first();
+    if ($isPendingAndActionable && $request->current_level) {
+        if ($currentUserLevelSequence == $request->current_level) {
+            $currentPendingApproval = $request->approvals
+                ->where('level', $request->current_level)
+                ->where('status', 'pending')
+                ->where('approver_id', Auth::id())
+                ->first();
 
-        if ($currentPendingApproval) {
-            $isCurrentApprover = true;
+            if ($currentPendingApproval) {
+                $isCurrentApprover = true;
+            }
         }
     }
-}
 @endphp
 
 @if($isCurrentApprover)
-<div class="mb-3">
-    <div class="card-header bg-primary text-white fw-bold">
-        <i class="bi bi-check2-circle"></i> Approval Action (Level {{ $currentPendingApproval->level }})
+    <div class="mb-3">
+        <div class="card-header bg-primary text-white fw-bold">
+            <i class="bi bi-check2-circle"></i> Approval Action (Level {{ $currentPendingApproval->level }})
+        </div>
+        <div class="card-body">
+            <form action="{{ route('approvals.updateStatus', $currentPendingApproval->id) }}" method="POST">
+                @csrf
+                @method('POST')
+                <div class="mb-3">
+                    <label for="comments">Comments (Optional)</label>
+                    <textarea name="comments" id="comments" class="form-control" rows="3" placeholder="Comment for Approval or rejection"></textarea>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" name="status" value="approved" class="btn btn-success vip-btn"
+                        onclick="return confirm('Are you sure you want to approve?')">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button type="submit" name="status" value="rejected" class="btn btn-danger me-2 vip-btn"
+                        onclick="return confirm('Are you sure you want to reject?')">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="card-body">
-        <form action="{{ route('approvals.updateStatus', $currentPendingApproval->id) }}" method="POST">
-            @csrf
-            <div class="mb-3">
-                <label for="comments">Comments (Optional)</label>
-                <textarea name="comments" id="comments" class="form-control" rows="3" placeholder="Comment for Approval or rejection"></textarea>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button type="submit" name="status" value="approved" class="btn btn-success vip-btn"
-                    onclick="return confirm('Are you sure you want to approve?')">
-                    <i class="fas fa-check"></i> Approve
-                </button>
-                <button type="submit" name="status" value="rejected" class="btn btn-danger me-2 vip-btn"
-                    onclick="return confirm('Are you sure you want to reject?')">
-                    <i class="fas fa-times"></i> Reject
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 @else
-<div class="alert alert-info">
-    @if ($request->status == 'approved')
-        <i class="fas fa-thumbs-up"></i> Fully Approved
-    @elseif ($request->status == 'rejected')
-        <i class="fas fa-ban"></i> Rejected
-    @elseif ($request->status == 'Needs Revision')
-        <i class="fas fa-edit"></i> Needs Revision
-    @elseif ($request->status == 'pending')
-        <i class="fas fa-hourglass-half"></i> Pending at Level {{ $request->current_level }}
-    @else
-        <i class="fas fa-info-circle"></i> {{ ucwords($request->status) }}
-    @endif
-</div>
+    <div class="alert alert-info">
+        @if ($request->status == 'approved')
+            <i class="fas fa-thumbs-up"></i> Fully Approved
+        @elseif ($request->status == 'rejected')
+            <i class="fas fa-ban"></i> Rejected
+        @elseif ($request->status == 'Needs Revision')
+            <i class="fas fa-edit"></i> Needs Revision
+        @elseif ($request->status == 'pending')
+            <i class="fas fa-hourglass-half"></i> Pending at Level {{ $request->current_level }}
+        @else
+            <i class="fas fa-info-circle"></i> {{ ucwords($request->status) }}
+        @endif
+    </div>
 @endif
+
+
+{{-- Request ki history dikhane ke liye --}}
+<div class="mt-4">
+    <h5>Approval History</h5>
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Level</th>
+                <th>Status</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($request->approvals as $history)
+                <tr>
+                    <td>Level {{ $history->level }}</td>
+                    <td>{{ $history->status }}</td>
+                    <td>{{ $history->comments }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 
 @endsection

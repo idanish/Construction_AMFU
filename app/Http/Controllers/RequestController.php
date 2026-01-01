@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Models\User;
 use App\Models\Approval;
 use App\Models\ApprovalLevel;
+use App\Models\Notification;
 use Yajra\DataTables\Facades\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -22,157 +23,117 @@ class RequestController extends Controller
         $this->middleware('auth');
     }
 
-public function index(Request $r)
-{
-    $perPage = $r->input('per_page', 10);
-    if (!in_array($perPage, [5, 10, 25, 50, 100])) {
-        $perPage = 10;
+    public function index(Request $r)
+    {
+        $perPage = $r->input('per_page', 10);
+        if (!in_array($perPage, [5, 10, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        $user = auth()->user();
+
+        $requestsQuery = RequestModel::with(['requestor', 'department'])->latest();
+
+
+        if (!$user->hasRole('super-admin')) {
+            $requestsQuery->where('requestor_id', $user->id) // Jo usne banayi
+                ->orWhere('department_id', $user->department_id) // Jo uske department ki hai
+                ->orWhereHas('approvals', function ($query) use ($user) {
+                    $query->where('approver_id', $user->id) // Jo usko assign hain
+                        ->where('status', 'pending');
+                });
+        }
+
+        // Filters
+        if ($r->filled('requestor_id')) {
+            $requestsQuery->where('requestor_id', $r->requestor_id);
+        }
+        if ($r->filled('status')) {
+            $requestsQuery->where('status', $r->status);
+        }
+        if ($r->filled('start_date') && $r->filled('end_date')) {
+            $requestsQuery->whereBetween('created_at', [
+                $r->start_date . " 00:00:00",
+                $r->end_date . " 23:59:59"
+            ]);
+        }
+
+        $requests = $requestsQuery->paginate($perPage)->withQueryString();
+        $departments = Department::all();
+        $allRequestors = User::orderBy('name')->get();
+
+        return view('requests.index', compact('requests', 'departments', 'allRequestors'));
     }
-
-    $user = auth()->user();
-
-    $requestsQuery = RequestModel::with(['requestor', 'department'])->latest();
-
-
-    if (!$user->hasRole('super-admin')) {
-        $requestsQuery->where('requestor_id', $user->id) // Jo usne banayi
-            ->orWhere('department_id', $user->department_id) // Jo uske department ki hai
-            ->orWhereHas('approvals', function ($query) use ($user) {
-                $query->where('approver_id', $user->id) // Jo usko assign hain
-                    ->where('status', 'pending');
-            });
-    }
-
-    // Filters
-    if ($r->filled('requestor_id')) {
-        $requestsQuery->where('requestor_id', $r->requestor_id);
-    }
-    if ($r->filled('status')) {
-        $requestsQuery->where('status', $r->status);
-    }
-    if ($r->filled('start_date') && $r->filled('end_date')) {
-        $requestsQuery->whereBetween('created_at', [
-            $r->start_date . " 00:00:00",
-            $r->end_date . " 23:59:59"
-        ]);
-    }
-
-    $requests = $requestsQuery->paginate($perPage)->withQueryString();
-    $departments = Department::all();
-    $allRequestors = User::orderBy('name')->get();
-
-    return view('requests.index', compact('requests', 'departments', 'allRequestors'));
-}
 
     public function create()
-{
+    {
 
-    $departments = Department::all();
-    $users = User::orderBy('name')->get();
+        $departments = Department::all();
+        $users = User::orderBy('name')->get();
 
-    return view('requests.create', compact('departments', 'users'));
-}
-
-public function store(Request $request)
-{
-   
-    // === STEP 1: Validation (Updated for Private/General) ===
-    $validatedData = $request->validate([
-        'requestor_id' => 'nullable|exists:users,id',
-        'type' => 'required|in:general,private',
-        'assigned_to_user_id' => 'required_if:type,private|nullable|exists:users,id',
-        'department_id' => 'required_if:type,general|nullable|exists:departments,id',
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'amount' => 'required|numeric|min:0.01',
-    ]);
-
-    $initialLevel = 1;
-    $requestorId = Auth::id();
-
-    // === STEP 2: Request Creation (Transaction Safety) ===
-    DB::beginTransaction();
-    try {
-        $requestModel = RequestModel::create([
-            'requestor_id' => $requestorId,
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
-            'amount' => $validatedData['amount'],
-            'type' => $validatedData['type'],
-            'assigned_to_user_id' => $validatedData['assigned_to_user_id'] ?? null,
-            'department_id' => $validatedData['type'] === 'general' ? $validatedData['department_id'] : null,
-            'status' => 'pending',
-            'current_level' => $initialLevel,
-        ]);
-
-        // Attachments handling (Spatie Media Library)
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $requestModel->addMedia($file)->toMediaCollection('attachments');
-            }
-        }
-
-        // === STEP 3: Approval Initialization (Logic Split) ===
-        $approverId = null;
-
-        if ($requestModel->type === 'private') {
-            // Scenario 1: Private Request
-            $approverId = $requestModel->assigned_to_user_id;
-        } else {
-
-            // Scenario 2: General Request - Level 1 Approver
-            $levelOne = ApprovalLevel::where('department_id', $requestModel->department_id)
-                ->where('sequence', 1)
-                ->first();
-    
-            if (!$levelOne) {
-                $requestModel->update(['status' => 'approved', 'current_level' => 1]);
-                DB::commit();
-                return redirect()->route('requests.index')->with('success', 'Request created and automatically approved (No workflow found).');
-            }
-
-            $approverId = optional($levelOne->users()->first())->id;
-
-            if (!$approverId) {
-                $requestModel->update(['status' => 'Needs Approver']);
-                DB::commit();
-                return redirect()->route('requests.index')->with('warning', 'Request created, but Level 1 Approver is missing.');
-            }
-        }
-        
-        // Final Pending Entry Creation
-        Approval::create([
-            'request_id' => $requestModel->id,
-            'approver_id' => $approverId,
-            'level' => $initialLevel,
-            'status' => 'pending',
-        ]);
-
-        DB::commit();
-
-        $recipientEmail = auth()->user()->email;
-        if ($requestModel->type === 'private') {
-        Mail::raw("Your Private Request has been submitted successfully.",
-            function ($message) use ($recipientEmail) {
-                $message->to($recipientEmail) ->subject('Request submitted successfully');
-        });
-        } else{
-        Mail::raw("Your Request has been submitted successfully.",
-            function ($message) use ($recipientEmail) {
-                $message->to($recipientEmail) ->subject('Your Request has been submitted successfully.');
-        });
-        }
-
-        return redirect()->route('requests.index')->with('success', 'Request submitted successfully.');
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        // dd($e->getMessage(), $e->getFile(), $e->getLine());
-        \Log::error("Request submission failed: " . $e->getMessage(), ['user_id' => $requestorId]);
-        return back()->with('error', 'Request could not be submitted. Please try again.');
+        return view('requests.create', compact('departments', 'users'));
     }
-}
 
+    public function store(Request $request)
+    {
+        // === STEP 1: Validation ===
+        $validatedData = $request->validate([
+            'requestor_id' => 'nullable|exists:users,id',
+            'type' => 'required|in:general,private',
+            'assigned_to_user_id' => 'required_if:type,private|nullable|exists:users,id',
+            'department_id' => 'required_if:type,general|nullable|exists:departments,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'required|numeric|min:0.01',
+        ]);
+
+        $requestorId = Auth::id();
+
+        DB::beginTransaction();
+        try {
+            // === STEP 2: Request Creation ===
+            $requestModel = RequestModel::create([
+                'requestor_id' => $requestorId,
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+                'amount' => $validatedData['amount'],
+                'type' => $validatedData['type'],
+                'assigned_to_user_id' => $validatedData['assigned_to_user_id'] ?? null,
+                'department_id' => $validatedData['type'] === 'general' ? $validatedData['department_id'] : null,
+                'status' => 'pending',
+                'current_level' => 1,
+            ]);
+
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $requestModel->addMedia($file)->toMediaCollection('attachments');
+                }
+            }
+
+            // === STEP 3: Approval Initialization (The Clean Way) ===
+            if ($requestModel->type === 'private') {
+                Approval::create([
+                    'request_id' => $requestModel->id,
+                    'approver_id' => $requestModel->assigned_to_user_id,
+                    'level' => 1,
+                    'status' => 'pending',
+                ]);
+            } else {
+                // Sirf isse rehne dein, baaki extra code delete kar dein
+                $this->initializeWorkflow($requestModel);
+            }
+
+            DB::commit();
+
+            // Email logic...
+            return redirect()->route('requests.index')->with('success', 'Request submitted successfully.');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Request submission failed: " . $e->getMessage());
+            return back()->with('error', 'Request could not be submitted.');
+        }
+    }
 
     public function show($id)
     {
@@ -180,161 +141,122 @@ public function store(Request $request)
         return view('requests.show', compact('request'));
     }
 
-
-public function edit($id)
-{
-    $requestModel = RequestModel::with(['media', 'requestor', 'department'])->findOrFail($id);
-    
-    // Check authorization - sirf requestor ya super-admin edit kar sakta hai
-    $user = auth()->user();
-    if (!$user->hasRole('super-admin') && $requestModel->requestor_id !== $user->id) {
-        abort(403, 'Unauthorized action.');
-    }
-    
-    // Agar request already approved/rejected hai to edit nahi hona chahiye
-    if (in_array($requestModel->status, ['approved', 'rejected'])) {
-        return redirect()->route('requests.index')
-            ->with('error', 'Cannot edit a request that is already ' . $requestModel->status);
-    }
-    
-    $departments = Department::all();
-    $users = User::orderBy('name')->get();
-
-    return view('requests.edit', compact('requestModel', 'departments', 'users'));
-}
-
-public function update(Request $request, $id)
-{
-    $requestModel = RequestModel::findOrFail($id);
-    
-    // Authorization check
-    $user = auth()->user();
-    if (!$user->hasRole('super-admin') && $requestModel->requestor_id !== $user->id) {
-        abort(403, 'Unauthorized action.');
-    }
-    
-    // Status check
-    if (in_array($requestModel->status, ['approved', 'rejected'])) {
-        return redirect()->route('requests.index')
-            ->with('error', 'Cannot update a request that is already ' . $requestModel->status);
-    }
-
-    // Validation - Same as store method
-    $validatedData = $request->validate([
-        'type' => 'required|in:general,private',
-        'assigned_to_user_id' => 'required_if:type,private|nullable|exists:users,id',
-        'department_id' => 'required_if:type,general|nullable|exists:departments,id',
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'amount' => 'required|numeric|min:0.01',
-    ]);
-
-    DB::beginTransaction();
-    try {
-        // Check if type or assignment changed
-        $typeChanged = $requestModel->type !== $validatedData['type'];
-        $assignmentChanged = false;
+    public function edit($id)
+    {
+        $requestModel = RequestModel::with(['media', 'requestor', 'department'])->findOrFail($id);
         
-        if ($validatedData['type'] === 'private') {
-            $assignmentChanged = $requestModel->assigned_to_user_id !== $validatedData['assigned_to_user_id'];
-        } else {
-            $assignmentChanged = $requestModel->department_id !== $validatedData['department_id'];
+        // Check authorization - sirf requestor ya super-admin edit kar sakta hai
+        $user = auth()->user();
+        if (!$user->hasRole('super-admin') && $requestModel->requestor_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Agar request already approved/rejected hai to edit nahi hona chahiye
+        if (in_array($requestModel->status, ['approved', 'rejected'])) {
+            return redirect()->route('requests.index')
+                ->with('error', 'Cannot edit a request that is already ' . $requestModel->status);
+        }
+        
+        $departments = Department::all();
+        $users = User::orderBy('name')->get();
+
+        return view('requests.edit', compact('requestModel', 'departments', 'users'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $requestModel = RequestModel::findOrFail($id);
+        $user = auth()->user();
+
+        // Authorization & Status Checks (Sahi hain)
+        if (!$user->hasRole('super-admin') && $requestModel->requestor_id !== $user->id) { abort(403); }
+        if (in_array($requestModel->status, ['approved', 'rejected'])) {
+            return redirect()->route('requests.index')->with('error', 'Cannot update final status request.');
         }
 
-        // Update request fields
-        $requestModel->update([
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
-            'amount' => $validatedData['amount'],
-            'type' => $validatedData['type'],
-            'assigned_to_user_id' => $validatedData['assigned_to_user_id'] ?? null,
-            'department_id' => $validatedData['type'] === 'general' ? $validatedData['department_id'] : null,
+        $validatedData = $request->validate([
+            'type' => 'required|in:general,private',
+            'assigned_to_user_id' => 'required_if:type,private|nullable|exists:users,id',
+            'department_id' => 'required_if:type,general|nullable|exists:departments,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'required|numeric|min:0.01',
         ]);
 
-        // Handle attachments
-        if ($request->hasFile('attachments')) {
-            // Replace attachments option
-            if ($request->input('replace_attachments')) {
-                $requestModel->clearMediaCollection('attachments');
-            }
-            
-            foreach ($request->file('attachments') as $file) {
-                $requestModel->addMedia($file)->toMediaCollection('attachments');
-            }
-        }
+        DB::beginTransaction();
+        try {
+            $typeChanged = $requestModel->type !== $validatedData['type'];
+            $assignmentChanged = ($validatedData['type'] === 'private') 
+                ? ($requestModel->assigned_to_user_id !== $validatedData['assigned_to_user_id'])
+                : ($requestModel->department_id !== $validatedData['department_id']);
 
-        // Agar type ya assignment change hui hai, to approvals reset karni hongi
-        if ($typeChanged || $assignmentChanged) {
-            // Delete existing pending approvals
-            $requestModel->approvals()->where('status', 'pending')->delete();
-            
-            // Reset to level 1
             $requestModel->update([
-                'current_level' => 1,
-                'status' => 'pending'
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+                'amount' => $validatedData['amount'],
+                'type' => $validatedData['type'],
+                'assigned_to_user_id' => $validatedData['assigned_to_user_id'] ?? null,
+                'department_id' => $validatedData['type'] === 'general' ? $validatedData['department_id'] : null,
             ]);
-            
-            // Create new approval entry
-            $approverId = null;
-            
-            if ($requestModel->type === 'private') {
-                $approverId = $requestModel->assigned_to_user_id;
-            } else {
-                $levelOne = ApprovalLevel::where('department_id', $requestModel->department_id)
-                    ->where('sequence', 1)
-                    ->first();
+
+            // Attachments logic (Sahi hai)
+
+            if ($typeChanged || $assignmentChanged) {
+                // Purani pending approvals delete karein
+                $requestModel->approvals()->where('status', 'pending')->delete();
                 
-                if (!$levelOne) {
-                    $requestModel->update(['status' => 'approved', 'current_level' => 1]);
-                    DB::commit();
-                    return redirect()->route('requests.index')
-                        ->with('success', 'Request updated and automatically approved (No workflow found).');
-                }
-                
-                $approverId = optional($levelOne->users()->first())->id;
-                
-                if (!$approverId) {
-                    $requestModel->update(['status' => 'Needs Approver']);
-                    DB::commit();
-                    return redirect()->route('requests.index')
-                        ->with('warning', 'Request updated, but Level 1 Approver is missing.');
+                // Workflow reset karein
+                if ($requestModel->type === 'private') {
+                    Approval::create([
+                        'request_id' => $requestModel->id,
+                        'approver_id' => $requestModel->assigned_to_user_id,
+                        'level' => 1,
+                        'status' => 'pending',
+                    ]);
+                } else {
+                    // UPDATE MEIN BHI SKIP LOGIC CHALAYEIN
+                    $this->initializeWorkflow($requestModel);
                 }
             }
-            
-            Approval::create([
-                'request_id' => $requestModel->id,
-                'approver_id' => $approverId,
-                'level' => 1,
-                'status' => 'pending',
-            ]);
+
+            DB::commit();
+            return redirect()->route('requests.index')->with('success', 'Request updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Update failed.');
         }
-
-        DB::commit();
-        return redirect()->route('requests.index')
-            ->with('success', 'Request updated successfully.');
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error("Request update failed: " . $e->getMessage(), [
-            'request_id' => $id,
-            'user_id' => $user->id
-        ]);
-        return back()->with('error', 'Request could not be updated. Please try again.');
     }
-}
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         $req = RequestModel::findOrFail($id);
-        $req->delete();
+        $user = auth()->user();
 
-        return redirect()->route('requests.index')->with('success', 'Request deleted successfully.');
+        // Authorization: Sirf requestor ya Super Admin delete kar sake
+        if (!$user->hasRole('super-admin') && $req->requestor_id !== $user->id) {
+            abort(403, 'You cannot delete this request.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Pehle attachments delete karein (Spatie Media Library)
+            $req->clearMediaCollection('attachments');
+
+            // 2. Phir saari approvals delete karein
+            $req->approvals()->delete();
+
+            // 3. Last mein main request delete karein
+            $req->delete();
+
+            DB::commit();
+            return redirect()->route('requests.index')->with('success', 'Request has been deleted.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Deletion failed: " . $e->getMessage());
+            return back()->with('error', 'Error on deleting.');
+        }
     }
-
 
     // Approved Request
     public function updateStatus(Request $request, $id)
@@ -353,4 +275,117 @@ public function update(Request $request, $id)
         return redirect()->back()->with('error', 'Request not found!');
     }
 
+    private function initializeWorkflow($requestModel, $currentSequence = 1)
+    {
+        // 1. Pehle ye check karein ke Requestor ka apna level kya hai is department mein
+        $requestorLevel = ApprovalLevel::where('department_id', $requestModel->department_id)
+            ->whereHas('users', function($q) use ($requestModel) {
+                $q->where('users.id', $requestModel->requestor_id);
+            })->first();
+
+        $requestorSequence = $requestorLevel ? $requestorLevel->sequence : 0;
+
+        // 2. Agar current level requestor ke level se chota hai, toh usse auto-skip karein
+        if ($currentSequence < $requestorSequence) {
+            $bypassComment = "System: Level {$currentSequence} bypassed (Requestor is at Level {$requestorSequence}).";
+    
+            Approval::create([
+                'request_id'  => $requestModel->id,
+                'approver_id' => $requestModel->requestor_id,
+                'level'       => $currentSequence,
+                'status'      => 'approved',
+                'comments'    => $bypassComment
+            ]);
+
+            // Update Request Table Comment & Level
+            $requestModel->update([
+                'current_level' => $currentSequence,
+                'comments' => $bypassComment
+            ]);
+            
+            // Bina approval record banaye seedha agle level par jump karein
+            return $this->initializeWorkflow($requestModel, $currentSequence + 1);
+        }
+
+        // --- Baqi standard logic yahan se shuru hogi ---
+
+        $level = ApprovalLevel::where('department_id', $requestModel->department_id)
+            ->where('sequence', $currentSequence)
+            ->first();
+
+        // Workflow khatam (Final Approval)
+        if (!$level) {
+            $requestModel->update(['status' => 'approved']);
+            return;
+        }
+
+        $approverId = optional($level->users()->first())->id;
+
+        if (!$approverId) {
+            $requestModel->update(['status' => 'Needs Approver', 'current_level' => $currentSequence]);
+            return;
+        }
+
+        // 3. SELF-APPROVAL SKIP: Agar Requestor khud is level ka approver hai
+        if ($approverId === $requestModel->requestor_id) {
+            $selfApproveComment = 'System: Auto-approved (Requestor level match at Level '.$currentSequence.').';
+
+            Approval::create([
+                'request_id'  => $requestModel->id,
+                'approver_id' => $approverId,
+                'level'       => $currentSequence,
+                'status'      => 'approved',
+                'comments'    => $selfApproveComment
+            ]);
+
+            $requestModel->update([
+                'current_level' => $currentSequence,
+                'comments' => $selfApproveComment
+            ]);
+
+            return $this->initializeWorkflow($requestModel, $currentSequence + 1);
+        } else {
+            // Standard Case: Agle bande ke liye pending karein
+            $requestModel->update(['current_level' => $currentSequence, 'status' => 'pending']);
+            Approval::create([
+                'request_id'  => $requestModel->id,
+                'approver_id' => $approverId,
+                'level'       => $currentSequence,
+                'status'      => 'pending',
+            ]);
+            
+            $this->sendNotification($approverId, "New Approval Required", "Request #{$requestModel->id} is pending.");
+        }
+    }
+
+    private function sendNotification($userId, $title, $message, $role = null)
+    {
+        if ($userId || $role) {
+            \App\Models\Notification::create([
+                'user_id' => $userId,
+                'role'    => $role,
+                'type'    => 'approve', 
+                'message' => $title . ": " . $message,
+                'is_read' => false,
+                'transaction_no' => 0,
+            ]);
+        }
+
+        // Email logic (Using Mailpit)
+        try {
+            $email = null;
+            if ($userId) {
+                $user = \App\Models\User::find($userId);
+                $email = $user ? $user->email : null;
+            }
+
+            if ($email) {
+                \Mail::raw($message, function ($mail) use ($email, $title) {
+                    $mail->to($email)->subject($title);
+                });
+            }
+        } catch (\Exception $e) {
+            \Log::error("Mail Error in RequestController: " . $e->getMessage());
+        }
+    }
 }

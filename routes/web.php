@@ -256,24 +256,21 @@ Route::delete('/departments/{department}', [DepartmentController::class, 'destro
 // Request Route
 Route::resource('requests', RequestController::class);
 Route::post('/requests/{id}/update-status', [RequestController::class, 'updateStatus'])->name('requests.updateStatus');
-Route::get('/requests/{id}', [RoleController::class, 'show'])->name('requests.show');
+// Route::get('/requests/{id}', [RoleController::class, 'show'])->name('requests.show');
+
 
 // ================= Approvals =================
-Route::prefix('approvals')->name('approvals.')->group(function () {
-    // Sare approvals show karna
+Route::prefix('approvals')->name('approvals.')->middleware(['auth'])->group(function () {
+    // List all approvals
     Route::get('/', [ApprovalController::class, 'index'])->name('index');
 
-    // Approval create form (agar chahiye)
+    // Create & Store (Agar use ho rahe hain)
     Route::get('/create', [ApprovalController::class, 'create'])->name('create');
-
-    // Store new approval
     Route::post('/store', [ApprovalController::class, 'store'])->name('store');
 
-    // Actions: approve / reject
-    Route::post('/{approval}/approve', [ApprovalController::class, 'approve'])->name('approve');
-    Route::post('/{approval}/reject', [ApprovalController::class, 'reject'])->name('reject');
+    // MAIN ACTION ROUTE (Isse confirm karein)
+    Route::post('/{approval}/update-status', [ApprovalController::class, 'updateStatus'])->name('updateStatus');
 });
-
 
 
 // ====== AUDIT MODULES ======
@@ -344,4 +341,4 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
 // Route::get('/approvals', [ApprovalController::class, 'create'])->name('approvals.create');
 
-Route::post('/approvals/{approval}/update-status', [ApprovalController::class, 'updateStatus'])->name('approvals.updateStatus');
+// Route::post('/approvals/{approval}/update-status', [ApprovalController::class, 'updateStatus'])->name('approvals.updateStatus');
