@@ -103,7 +103,8 @@
                 <th>Requestor</th>
                 <th>Description</th>
                 <th>Amount</th>
-                <th>Status</th>
+                <th>Current Status</th>
+                <th>Level</th>
                 <th>Attachments</th>
                 <th>Date</th>
                 <th>Action</th>
@@ -111,14 +112,30 @@
         </thead>
 
         <tbody>
-            @forelse ($requests as $key => $request)
+            @foreach ($requests as $key => $request)
             <tr class="text-center align-middle">
                 <td>{{ $key + 1 }}</td>
                 <td>{{ $request->title }}</td>
                 <td>{{ $request->requestor->name ?? 'N/A' }}</td>
                 <td>{{ $request->description }}</td>
                 <td>${{ number_format($request->amount) }}</td>
-                <td>{{ ucfirst($request->status) }}</td>
+                <td>{{-- Status Badge Logic --}}
+                @if($request->status == 'approved')
+                    <span class="badge bg-success text-white">Fully Approved</span>
+                @elseif($request->status == 'rejected')
+                    <span class="badge bg-danger text-white">Rejected</span>
+                @elseif($request->status == 'need revision')
+                    <span class="badge bg-warning text-dark">Revision Required</span>
+                @else
+                    <span class="badge bg-info text-white">Pending</span>
+                @endif</td>
+
+                <td>{{-- Level Indicator --}}
+                @if($request->status == 'approved')
+                    <span class="text-muted">Completed</span>
+                @else
+                    <span class="fw-bold">Level {{ $request->current_level }}</span>
+                @endif</td>
 
                 {{-- Attachments Column --}}
                 <td>
@@ -131,19 +148,18 @@
                 <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
 
                 <td>
-                    
-          
-            <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn">
-            <i class="bi bi-check-circle"></i> View
-            </a>
+                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn">
+                    <i class="fas fa-eye"></i> View
+                </a>
 
-                    @can('update-request')
+                {{-- Edit Button: Sirf tab dikhayen jab revision ki zaroorat ho aur user requestor ho --}}
+                @if($request->status == 'need revision' && $request->requestor_id == Auth::id())
                     <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
-                        <i class="bi bi-pencil-square"></i> Edit
+                        <i class="fas fa-edit"></i> Edit & Resubmit
                     </a>
-                    @endif
+                @endif
 
-                    @if(auth()->id() === $request->requestor_id && $request->status !== 'approved')
+                @if(auth()->id() === $request->requestor_id && $request->status !== 'approved')
                     <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline-block"
                         onsubmit="return confirm('Are you sure you want to delete this request?');">
                         @csrf
@@ -152,14 +168,10 @@
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>
-                    @endif
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="9" class="text-center">No requests found.</td>
-            </tr>
-            @endforelse
+                @endif
+            </td>
+        </tr>
+        @endforeach
 
     </table>
     <!-- Pagination -->

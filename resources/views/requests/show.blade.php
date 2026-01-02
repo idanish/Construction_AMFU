@@ -175,8 +175,8 @@
             <i class="fas fa-thumbs-up"></i> Fully Approved
         @elseif ($request->status == 'rejected')
             <i class="fas fa-ban"></i> Rejected
-        @elseif ($request->status == 'Needs Revision')
-            <i class="fas fa-edit"></i> Needs Revision
+        @elseif ($request->status == 'need revision')
+            <i class="fas fa-edit"></i> Need Revision
         @elseif ($request->status == 'pending')
             <i class="fas fa-hourglass-half"></i> Pending at Level {{ $request->current_level }}
         @else

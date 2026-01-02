@@ -56,38 +56,54 @@ class ApprovalController extends Controller
 
             // === CASE 1: REJECTED / SEND BACK ===
             if ($req->status === 'rejected') {
-                if ($currentSequence > 1) {
-                    $previousLevel = $currentSequence - 1;
-                    
-                    $request->update([
-                        // Migration ke mutabiq 'need revision' likhna hai
-                        'status' => 'need revision', 
-                        'current_level' => $previousLevel,
-                        'comments' => "Sent back from Level {$currentSequence}: " . $req->comments
-                    ]);
+        if ($currentSequence > 1) {
+            $previousLevel = $currentSequence - 1;
+            
+            $request->update([
+                'status' => 'need revision', 
+                'current_level' => $previousLevel,
+                'comments' => "Sent back from Level {$currentSequence}: " . $req->comments
+            ]);
 
-                    // Pichlay level ki approval entry ko dobara 'pending' kar dein 
-                    // taake wo user dobara action le sakay
-                    Approval::where('request_id', $request->id)
-                            ->where('level', $previousLevel)
-                            ->update(['status' => 'pending']);
+            // Pichlay level ki approval entry dhoondein
+            $prevApproval = Approval::where('request_id', $request->id)
+                                    ->where('level', $previousLevel)
+                                    ->first();
 
-                    DB::commit();
-                    return back()->with('success', "Request sent back to Level {$previousLevel}.");
-                } 
-                else {
-                    // Level 1 rejection (Back to Requestor)
-                    $request->update([
-                        'status' => 'rejected',
-                        'comments' => "Rejected at Level 1: " . $req->comments
-                    ]);
+            if ($prevApproval) {
+                // 1. Notification to the Previous Approver (User B)
+                $this->sendNotification(
+                    $prevApproval->approver_id, 
+                    "Request Sent Back for Revision", 
+                    "Request #{$request->id} has been sent back to you from Level {$currentSequence}."
+                );
 
-                    $this->sendNotification($request->requestor_id, "Request Rejected", "Your request was rejected.");
-                    
-                    DB::commit();
-                    return back()->with('success', 'Request has been rejected.');
-                }
+                // 2. Notification to the Original Requestor (User A)
+                $this->sendNotification(
+                    $request->requestor_id, 
+                    "Your Request Needs Revision", 
+                    "Your request #{$request->id} has been sent back to Level {$previousLevel} for changes."
+                );
+
+                $prevApproval->update(['status' => 'pending']);
             }
+
+            DB::commit();
+            return back()->with('success', "Request sent back to Level {$previousLevel}. Notifications sent.");
+            } 
+            else {
+                // Level 1 rejection (Back to Requestor)
+                $request->update([
+                    'status' => 'rejected',
+                    'comments' => "Rejected at Level 1: " . $req->comments
+                ]);
+
+                $this->sendNotification($request->requestor_id, "Request Rejected", "Your request #{$request->id} was rejected at Level 1.");
+                
+                DB::commit();
+                return back()->with('success', 'Request has been rejected.');
+            }
+        }
 
             // === CASE 2: APPROVED ===
             $response = $this->moveToNextLevel($request, $currentSequence);

@@ -59,7 +59,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'profile-settings',
             
             //Attachments
-            'view attachment'
+            'view attachment',
+
+            //Approval-Level
+            'read-approval', 'create-approval-level'
         ];
 
         foreach ($permissions as $permission) {

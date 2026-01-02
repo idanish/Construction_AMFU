@@ -11,49 +11,36 @@ use App\Models\Procurement;
 class DashboardController extends Controller
 {
     public function index()
-    {
-        // Top Cards
-        $totalBudgets = Budget::sum('amount');
-        $totalInvoices = Invoice::count();
-        $monthlyPayments = Payment::whereMonth('payment_date', now()->month)->sum('amount'); // rename
-        $totalProcurements = Procurement::count(); // rename
+{
+    $user = auth()->user();
 
-        // Latest Payments with pagination
-        $latestPayments = Payment::latest()->paginate(10);
+    // Top Cards
+    $totalBudgets = Budget::sum('amount');
+    $totalInvoices = Invoice::count();
+    $monthlyPayments = Payment::whereMonth('payment_date', now()->month)->sum('amount');
+    $totalProcurements = Procurement::count();
+    
+    // Pending Budgets
+    $pendingBudget = Budget::with('department')->where('status', 'pending')->latest()->take(5)->get();
 
-        // Procurement Snapshot
-        $procurements = Procurement::with('department')->latest()->take(5)->get();
+    // Unpaid/Pending Invoices
+    $pendingInvoices = Invoice::where('status', 'unpaid')->latest()->take(5)->get();
 
-        // Alerts
-        $unpaidInvoices = Invoice::where('status', 'unpaid')->whereDate('due_date', '<=', now()->addDays(7))->get();
+    // Pending Requests
+    $user = auth()->user();
 
-        $pendingProcurements = Procurement::where('status', 'pending')->take(5)->get();
+$pendingRequest = RequestModel::where('status', 'pending')
+    ->when(!$user->hasRole('super-admin'), function($q) use ($user) {
+        return $q->where('current_level', optional($user->approvalLevel)->sequence)
+                 ->where('department_id', $user->department_id);
+    })
+    ->latest()
+    ->take(5)
+    ->get();
 
-        $unpaidPayments = Payment::where('status', 'unpaid')
-            ->whereDate('payment_date', '<=', now()->addDays(7))
-            ->get();
-
-        // 🔹 Chart Data
-        $monthlyRevenues = Payment::selectRaw('MONTH(payment_date) as month, SUM(amount) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
-
-        $monthlyExpenses = Invoice::selectRaw('MONTH(created_at) as month, SUM(amount) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
-
-        return view('dashboard', compact(
-            'totalBudgets',
-            'totalInvoices',
-            'monthlyPayments',
-            'totalProcurements',
-            'latestPayments',
-            'procurements',
-            'unpaidInvoices',
-            'pendingProcurements',
-            'unpaidPayments',
-            'monthlyRevenues',
-            'monthlyExpenses'
-        ));
-    }
+    return view('dashboard', compact(
+        'totalBudgets', 'totalInvoices', 'monthlyPayments', 'totalProcurements',
+        'pendingBudget', 'pendingInvoices', 'pendingRequest'
+    ));
+}
 }

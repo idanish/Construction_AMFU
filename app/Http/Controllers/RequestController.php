@@ -31,26 +31,28 @@ class RequestController extends Controller
         }
 
         $user = auth()->user();
-
         $requestsQuery = RequestModel::with(['requestor', 'department'])->latest();
 
-
+        // 1. Permissions Logic (Grouping zaroori hai)
         if (!$user->hasRole('super-admin')) {
-            $requestsQuery->where('requestor_id', $user->id) // Jo usne banayi
-                ->orWhere('department_id', $user->department_id) // Jo uske department ki hai
-                ->orWhereHas('approvals', function ($query) use ($user) {
-                    $query->where('approver_id', $user->id) // Jo usko assign hain
-                        ->where('status', 'pending');
-                });
+            $requestsQuery->where(function ($query) use ($user) {
+                $query->where('requestor_id', $user->id) // Jo mene banayi
+                    ->orWhere('department_id', $user->department_id) // Mere department ki
+                    ->orWhereHas('approvals', function ($q) use ($user) {
+                        $q->where('approver_id', $user->id); // Jin mein mera koi role hai
+                    });
+            });
         }
 
-        // Filters
+        // 2. Filters (Ab ye sahi kaam karenge kyunke upar wala block group ho gaya hai)
         if ($r->filled('requestor_id')) {
             $requestsQuery->where('requestor_id', $r->requestor_id);
         }
+        
         if ($r->filled('status')) {
             $requestsQuery->where('status', $r->status);
         }
+
         if ($r->filled('start_date') && $r->filled('end_date')) {
             $requestsQuery->whereBetween('created_at', [
                 $r->start_date . " 00:00:00",

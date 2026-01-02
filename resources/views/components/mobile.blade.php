@@ -64,6 +64,9 @@
 
                 // Roles
                 $isRolesActive = Route::is('roles.show') || Route::is('roles.create');
+                
+                // Approval
+                $isApprovalActive = Route::is('approval.levels.index') || Route::is('approval.levels.create');
 
                 // Departments
                 $isDepartmentsActive = Route::is('departments.index') || Route::is('departments.create');
@@ -377,6 +380,35 @@
                 </li>
                 @endcanany
 
+                <!-- Approvals -->
+                @canany(['read-approval', 'create-approval-level'])
+                <li class="menu-item list-unstyled {{ $isApprovalActive ? 'active open' : '' }}">
+                    <a href="javascript:void(0);" class="menu-link menu-toggle {{ $isApprovalActive ? 'text-warning' : '' }}">
+                        <i class="menu-icon tf-icons bx bx-box"></i>
+                        <div data-i18n="Approvals">Approvals</div>
+                    </a>
+                    <ul class="menu-sub">
+                        @can('read-approval')
+                        <li class="menu-item  {{ Route::is('approval.levels.index') ? 'active' : '' }}">
+                            <a href="{{ route('approval.levels.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-file-person"></i>
+                                <div data-i18n="All-approval">Approvals</div>
+                            </a>
+                        </li>
+                        @endcan
+
+                        @can('create-approval-level')
+                        <li class="menu-item  {{ Route::is('approval.levels.create') ? 'active' : '' }}">
+                            <a href="{{ route('approval.levels.create') }}" class="menu-link">
+                                <i class="menu-icon tf-icons bi bi-person-badge-fill"></i>
+                                <div data-i18n="Approval-create">Create Level</div>
+                            </a>
+                        </li>
+                        @endcan
+                    </ul>
+                </li>
+                @endcanany
+
                 <!-- Departments -->
                 @canany(['read-department', 'create-department'])
                 <li class="menu-item list-unstyled {{ $isDepartmentsActive ? 'active open' : '' }}">
@@ -439,12 +471,12 @@
                         @endcan
 
                         @can('backup')
-                        <li class="menu-item {{ Route::is('settings.backup&restore') ? 'active' : '' }}">
+                        <!-- <li class="menu-item {{ Route::is('settings.backup&restore') ? 'active' : '' }}">
                             <a href="{{ route('settings.backup&restore') }}" class="menu-link">
                                 <i class="menu-icon tf-icons bi bi-cloud-arrow-up me-2"></i>
                                 <div data-i18n="backup">Backup</div>
                             </a>
-                        </li>
+                        </li> -->
                         @endcan
                     </ul>
                 </li>
