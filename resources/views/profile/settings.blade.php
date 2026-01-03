@@ -61,9 +61,9 @@
 
                 {{-- Name --}}
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Name <span class="text-danger">*</span></label>
+                    <label class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
                     <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                        value="{{ old('name', Auth::user()->name) }}" required>
+                        value="{{ Auth::user()->name}}" required>
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -73,7 +73,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                        value="{{ old('email', Auth::user()->email) }}" required>
+                        value="{{ Auth::user()->email }}" required>
                     @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -82,7 +82,7 @@
                 {{-- Password Change --}}
                 <div class="mb-3">
                     <label class="form-label fw-bold">New Password</label>
-                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
+                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" style="font-family: 'PasswordFont', monospace; letter-spacing: 2px;">
                     @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -90,7 +90,7 @@
 
                 <div class="mb-4">
                     <label class="form-label fw-bold">Confirm New Password</label>
-                    <input type="password" name="password_confirmation" class="form-control">
+                    <input type="password" name="password_confirmation" class="form-control" style="font-family: 'PasswordFont', monospace; letter-spacing: 2px;">
                 </div>
 
                 {{-- Buttons --}}

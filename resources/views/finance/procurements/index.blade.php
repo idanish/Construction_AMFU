@@ -120,24 +120,15 @@
                 </td>
                 <td>{{ ucfirst($procurement->status) }}</td>
                 <td>
-                    <a href="{{ route('finance.procurements.show', $procurement->id) }}" class="btn  btn-info vip-btn">
-                    <i class="bi bi-eye"></i> View</a>
-
-                    <!-- Status Change Buttons -->
-
-                    @can('update-procurement')
-                    <a href="{{ route('finance.procurements.edit', $procurement->id) }}"
-                        class="btn btn-sm btn-download vip-btn">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a>
-                    @endcan
+                    <a href="{{ route('finance.procurements.show', $procurement->id) }}" class="btn btn-success vip-btn mb-1">
+                    <i class="fas fa-eye"></i> View</a>
 
                     @can('delete-procurement')
                     <form action="{{ route('finance.procurements.destroy', $procurement->id) }}" method="POST"
                         style="display:inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger vip-btn"
+                        <button type="submit" class="btn btn-danger vip-btn mb-1"
                             onclick="return confirm('Are you sure you want to delete this procurement?')">
                             <i class="bi bi-trash"></i> Delete
                         </button>

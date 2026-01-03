@@ -139,8 +139,10 @@
                         <!-- Name & Role -->
                         <li>
                             <a class="dropdown-item" href="{{ route('profile.settings') }}">
-                                <i class="bx bx-user me-2"></i>
-                                <span class="fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
+                                <i class="bx bx-user me-2">
+                                    <span class="fw-bold">{{ Auth::user()->name ?? 'Guest' }}</span>
+                                </i><br>
+                                <i class="small">{{ Auth::user()->username ?? 'Guest' }}</i>
                             </a>
                         </li>
 
@@ -150,14 +152,12 @@
 
 
                         <!-- Profile Settings -->
-                        @can('profile-settings')
                         <li>
                             <a class="dropdown-item" href="{{ route('profile.settings') }}">
                                 <i class="bx bx-cog me-2"></i>
                                 <span class="align-middle">Profile Settings</span>
                             </a>
                         </li>
-                        @endcan
 
                         <li>
                             <hr class="dropdown-divider">

@@ -119,9 +119,10 @@
                 <td>{{ $request->requestor->name ?? 'N/A' }}</td>
                 <td>{{ $request->description }}</td>
                 <td>${{ number_format($request->amount) }}</td>
-                <td>{{-- Status Badge Logic --}}
+                <td>
+                {{-- Status Badge Logic --}}
                 @if($request->status == 'approved')
-                    <span class="badge bg-success text-white">Fully Approved</span>
+                    <span class="badge bg-success text-white">Approved</span>
                 @elseif($request->status == 'rejected')
                     <span class="badge bg-danger text-white">Rejected</span>
                 @elseif($request->status == 'need revision')
@@ -130,12 +131,18 @@
                     <span class="badge bg-info text-white">Pending</span>
                 @endif</td>
 
-                <td>{{-- Level Indicator --}}
-                @if($request->status == 'approved')
-                    <span class="text-muted">Completed</span>
+                <td>
+                {{-- Level Indicator --}}
+                @if($request->type == 'general')
+                    @if($request->status == 'approved')
+                        <span class="text-muted">Completed</span>
+                    @else
+                        <span class="fw-bold">Level {{ $request->current_level }}</span>
+                    @endif
                 @else
-                    <span class="fw-bold">Level {{ $request->current_level }}</span>
-                @endif</td>
+                    <span class="fw-bold">Private</span>
+                @endif
+                </td>
 
                 {{-- Attachments Column --}}
                 <td>
@@ -148,13 +155,13 @@
                 <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
 
                 <td>
-                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn">
+                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn mb-1">
                     <i class="fas fa-eye"></i> View
                 </a>
 
                 {{-- Edit Button: Sirf tab dikhayen jab revision ki zaroorat ho aur user requestor ho --}}
                 @if($request->status == 'need revision' && $request->requestor_id == Auth::id())
-                    <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn">
+                    <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn mb-1">
                         <i class="fas fa-edit"></i> Edit & Resubmit
                     </a>
                 @endif
@@ -164,7 +171,7 @@
                         onsubmit="return confirm('Are you sure you want to delete this request?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger vip-btn">
+                        <button type="submit" class="btn btn-sm btn-danger vip-btn mb-1">
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>

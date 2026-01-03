@@ -117,8 +117,8 @@
                 </td>
                 <td>
                     @can('update-payment')
-                    <a href="{{ route('finance.payments.edit', $payment->id) }}" class="btn btn-sm btn-download vip-btn">
-                        <i class="bi bi-pencil-square"></i> Edit
+                    <a href="{{ route('finance.payments.edit', $payment->id) }}" class="btn btn-sm btn-download vip-btn mb-1">
+                        <i class="fas fa-edit"></i> Edit
                     </a>
                     @endcan
                     @can('delete-payment')
@@ -126,7 +126,7 @@
                         style="display:inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger vip-btn"
+                        <button type="submit" class="btn btn-sm btn-danger vip-btn mb-1"
                             onclick="return confirm('Are you sure you want to delete this payment?')">
                             <i class="bi bi-trash"></i> Delete
                         </button>

@@ -66,7 +66,7 @@
                             </span>
                         </td>
                         <td>{{ $user->department?->name ?? '-' }}</td>
-                        <td>{{ $user->approval_level_id }}</td>
+                        <td>{{ $user->approvalLevel?->sequence }}</td>
 
 
                         <td>

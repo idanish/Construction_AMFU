@@ -176,43 +176,4 @@ public function exportRequestPDF()
     return $pdf->download('request_report.pdf');
 }
 
-
-
-
-
-
-// // WORKFLOW REPORT SECTION
-
-// public function workflowReport(Request $request)
-// {
-//     $query = \App\Models\Workflow::with(['createdBy', 'department']);
-
-//     // Filters
-//     if ($request->filled('status')) {
-//         $query->where('status', $request->status);
-//     }
-//     if ($request->filled('department_id')) {
-//         $query->where('department_id', $request->department_id);
-//     }
-//     if ($request->filled('date_from') && $request->filled('date_to')) {
-//         $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
-//     }
-
-//     $workflows = $query->paginate($request->get('per_page', 10));
-
-//     return view('reports.workflow-report', compact('workflows'));
-// }
-
-// public function exportWorkflowExcel()
-// {
-//     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\WorkflowReportExport, 'workflow_report.xlsx');
-// }
-
-// public function exportWorkflowPDF()
-// {
-//     $workflows = \App\Models\Workflow::with(['createdBy', 'department'])->get();
-//     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.exports.workflow-pdf', compact('workflows'));
-//     return $pdf->download('workflow_report.pdf');
-// }
-
 }

@@ -105,25 +105,16 @@
                 <td>{{ ucfirst($invoice->status) }}</td>
                 <td>
                     @can('view attachment')
-                    <!-- @if ($invoice->attachment)
-                    <a href="{{ asset('storage/' . $invoice->attachment) }}" target="_blank"
-                        class="btn btn-sm btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-                    @else
-                    N/A
-                    @endif -->
                     @foreach($invoice->getMedia('attachments') as $media)
-            <a href="{{ $media->getUrl() }}"  target="_blank" title="{{ $media->file_name }}">
-                <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
-        @endforeach
+                    <a href="{{ $media->getUrl() }}" target="_blank" title="{{ $media->file_name }}">
+                        <i class="bi bi-paperclip"></i> {{ $media->file_name }}</a><br>
+                    @endforeach
                     @endcan
                 </td>
                 <td>
-
-                    @can('update-invoice')
-                    <a href="{{ route('finance.invoices.edit', $invoice->id) }}" class="btn btn-warning vip-btn mb-1">
-                        <i class="bi bi-pencil-square"></i> Edit
+                    @can('view-invoice')
+                    <a href="{{ route('finance.invoices.show', $invoice->id) }}" class="btn btn-success vip-btn mb-1">
+                        <i class="fas fa-eye"></i> View
                     </a>
                     @endcan
 
@@ -138,17 +129,7 @@
                         </button>
                     </form>
                     @endcan
-                    <a href="{{ route('finance.invoices.show', $invoice->id) }}" class="btn btn-info vip-btn mb-1">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-@can('view-invoice')
-                    <a href="{{ route('finance.invoices.download', $invoice->id) }}"
-                        class="btn btn-secondary vip-btn mb-1">
-                        <i class="bi bi-download"></i> Download
-                    </a>
-                    @endcan
                 </td>
-
             </tr>
             @empty
             <tr>

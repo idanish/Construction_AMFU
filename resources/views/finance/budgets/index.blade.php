@@ -134,15 +134,8 @@
                     @endcan
                 </td>
                 <td>
-                    <a href="{{ route('finance.budgets.show', $budget->id) }}" class="btn  btn-info vip-btn">
-                        <i class="bi bi-eye"></i> View</a>
-
-                    <!-- Status Change Buttons -->
-                    @can('update-budget')
-                    <a href="{{ route('finance.budgets.edit', $budget->id) }}" class="btn  btn-warning vip-btn">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a>
-                    @endcan
+                    <a href="{{ route('finance.budgets.show', $budget->id) }}" class="btn btn-success vip-btn mb-1">
+                        <i class="fas fa-eye"></i> View</a>
 
                     @can('delete-budget')
                     <form action="{{ route('finance.budgets.destroy', $budget->id) }}" method="POST"
@@ -150,7 +143,7 @@
                         onsubmit="return confirm('Are you sure you want to delete this budget?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger vip-btn">
+                        <button type="submit" class="btn btn-danger vip-btn mb-1">
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>

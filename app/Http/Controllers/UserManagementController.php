@@ -15,7 +15,7 @@ class UserManagementController extends Controller
     // Show all users
     public function index()
     {
-        $users = User::with(['roles', 'department'])->get();
+        $users = User::with(['roles', 'department', 'approvalLevel'])->get();
         return view('admin.user-management', compact('users'));
     }
 
