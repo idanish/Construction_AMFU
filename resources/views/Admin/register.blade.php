@@ -94,17 +94,18 @@
             {{-- Department --}}
             <div class="mb-3">
                 <label class="form-label">Assign Department</label>
-                <select name="department_id" class="form-select @error('department_id') is-invalid @enderror">
-                    <option value="" disabled selected>-- Select Department --</option>
+                <select name="departments[]" class="form-select @error('departments') is-invalid @enderror" multiple>
                     @foreach ($departments as $dept)
-                    <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                    <option value="{{ $dept->id }}" 
+                        {{ (collect(old('departments'))->contains($dept->id)) ? 'selected' : '' }}>
                         {{ $dept->name }}
                     </option>
                     @endforeach
                 </select>
-                @error('department_id')
+                @error('departments')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+                <small class="form-text text-muted">Hold Ctrl (Windows) / Command (Mac) to select multiple departments.</small>
             </div>
 
             {{-- Role --}}

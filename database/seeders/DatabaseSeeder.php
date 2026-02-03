@@ -14,9 +14,12 @@ class DatabaseSeeder extends Seeder
         // Call roles and permissions seeder
         $this->call(RolesAndPermissionsSeeder::class);
         
-        $adminDepartment = Department::updateOrCreate(['name' => 'Admin Department'],);
+        // Create Admin Department
+        $adminDepartment = Department::updateOrCreate(
+            ['name' => 'Admin Department']
+        );
 
-        // Default Admin
+        // Default Admin User
         $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
@@ -24,20 +27,19 @@ class DatabaseSeeder extends Seeder
                 'username' => 'admin',
                 'password' => Hash::make('12345678'),
                 'status' => '1',
-                'department_id' => $adminDepartment->id,
             ]
         );
+
+        // Assign Role
         $admin->assignRole('Admin');
 
+        // Assign Department
+        $admin->departments()->sync([$adminDepartment->id]);
 
-        //  Default Department
+        // Other Departments
         Department::updateOrCreate(['name' => 'HR Department']);
         Department::updateOrCreate(['name' => 'Project Management Department']);
         Department::updateOrCreate(['name' => 'Finance & Commercial Department']);
         Department::updateOrCreate(['name' => 'Security & Administration Department']);
-
-
-        
-
     }
 }

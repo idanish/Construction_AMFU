@@ -78,20 +78,21 @@
 
             {{-- Department --}}
             <div class="mb-3">
-                <label class="form-label">Assign Department</label>
-                <select name="department_id" class="form-select @error('department_id') is-invalid @enderror">
-                    <option value="">-- Select Department --</option>
-                    @foreach ($departments as $dept)
-                    <option value="{{ $dept->id }}" 
-                        {{ old('department_id', $user->department_id) == $dept->id ? 'selected' : '' }}>
-                        {{ $dept->name }}
-                    </option>
+                <label class="form-label">Assign Departments</label>
+                <div class="@error('departments') is-invalid @enderror">
+                    @foreach($departments as $dept)
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="departments[]" value="{{ $dept->id }}"
+                                {{ (collect(old('departments'))->contains($dept->id) || $user->departments->contains($dept->id)) ? 'checked' : '' }}>
+                            <label class="form-check-label">{{ $dept->name }}</label>
+                        </div>
                     @endforeach
-                </select>
-                @error('department_id')
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                    @error('departments')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
+
 
             {{-- Role --}}
             <div class="mb-3">

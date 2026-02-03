@@ -1,48 +1,36 @@
 <?php
 
 namespace App\Models;
-use App\Models\BaseModel;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use App\Models\ApprovalLevel;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-// Activity Logs
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Models\Department;
+use App\Models\ApprovalLevel;
 
-
-class User extends Authenticatable   
+class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles, LogsActivity, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = ['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'approval_level_id', 'transaction_no'];
+    protected $fillable = [
+        'name',
+        'username',
+        'email',
+        'password',
+        'status',
+        'approval_level_id',
+        'transaction_no'
+    ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -50,15 +38,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function role()
-    {
-    return $this->belongsTo(Role::class);
-    }
 
-
-        public function department()
+    // Multiple Departments Relationship
+    public function departments()
     {
-    return $this->belongsTo(\App\Models\Department::class, 'department_id');
+        return $this->belongsToMany(Department::class);
     }
 
     public function approvalLevel()
@@ -66,13 +50,12 @@ class User extends Authenticatable
         return $this->belongsTo(ApprovalLevel::class, 'approval_level_id');
     }
 
-    // Activity Log Start Here
-
+    // Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->useLogName('User')
-            ->logOnly(['name', 'username', 'email', 'password', 'department_id', 'department_name', 'status', 'approval_level_id', 'transaction_no'])
+            ->logOnly(['name', 'username', 'email', 'status', 'approval_level_id', 'transaction_no'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
@@ -81,7 +64,4 @@ class User extends Authenticatable
     {
         return "User record has been {$eventName}";
     }
-
-    // Activity Log End Here
-
 }

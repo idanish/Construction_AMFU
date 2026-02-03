@@ -65,7 +65,14 @@
                                 {{ $user->roles->pluck('name')->implode(', ') ?: 'No Role' }}
                             </span>
                         </td>
-                        <td>{{ $user->department?->name ?? '-' }}</td>
+                        <td>
+                            @forelse($user->departments as $dept)
+                                <span class="badge bg-primary">{{ $dept->name }}</span>
+                            @empty
+                                <span>-</span>
+                            @endforelse
+                        </td>
+
                         <td>{{ $user->approvalLevel?->sequence }}</td>
 
 

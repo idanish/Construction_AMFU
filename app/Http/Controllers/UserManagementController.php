@@ -15,7 +15,7 @@ class UserManagementController extends Controller
     // Show all users
     public function index()
     {
-        $users = User::with(['roles', 'department', 'approvalLevel'])->get();
+        $users = User::with(['roles', 'departments', 'approvalLevel'])->get();
         return view('admin.user-management', compact('users'));
     }
 
@@ -43,7 +43,9 @@ class UserManagementController extends Controller
             'password'          => 'required|string|min:8|confirmed',
             'role_id'           => 'required|exists:roles,id',
             'approval_level_id' => 'nullable|exists:approval_levels,id',
-            'department_id'     => 'nullable|exists:departments,id',
+            'departments' => 'nullable|array',
+            'departments.*' => 'exists:departments,id',
+
         ]);
 
         // 1. User Create karna
@@ -52,9 +54,12 @@ class UserManagementController extends Controller
             'username'          => $request->username,
             'email'             => $request->email,
             'password'          => Hash::make($request->password),
-            'department_id'     => $request->department_id,
             'approval_level_id' => $request->approval_level_id,
         ]);
+
+        if ($request->has('departments')) {
+            $user->departments()->sync($request->departments);
+        }
 
         // 2. Role assign karna - Role ID se name nikalo
         $role = Role::findById($request->role_id);
@@ -94,7 +99,8 @@ class UserManagementController extends Controller
             'email'             => 'required|email|unique:users,email,' . $user->id,
             'role_id'           => 'required|exists:roles,id',
             'approval_level_id' => 'nullable|exists:approval_levels,id',
-            'department_id'     => 'nullable|exists:departments,id',
+            'departments' => 'nullable|array',
+            'departments.*' => 'exists:departments,id',
             'status'            => 'required|boolean',
             'password'          => 'nullable|string|min:8|confirmed',
         ]);
@@ -104,10 +110,13 @@ class UserManagementController extends Controller
             'name'              => $request->name,
             'username'          => $request->username,
             'email'             => $request->email,
-            'department_id'     => $request->department_id,
             'approval_level_id' => $request->approval_level_id,
             'status'            => $request->status,
         ];
+
+        if ($request->has('departments')) {
+            $user->departments()->sync($request->departments);
+        }
 
         // Only update password if provided
         if ($request->filled('password')) {
@@ -147,7 +156,7 @@ class UserManagementController extends Controller
 
     public function deletedUsers()
     {
-        $users = User::onlyTrashed()->with('department')->get();
+        $users = User::onlyTrashed()->with('departments')->get();
         return view('admin.users-deleted', compact('users')); 
     }
 
