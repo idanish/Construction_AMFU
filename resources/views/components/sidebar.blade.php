@@ -1,18 +1,15 @@
-<!-- Sidebar Menu -->
+<!-- Menu -->
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
         <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
-                @if (isset($setting) && $setting->logo)
-                <img src="{{ asset('storage/' . $setting->logo) }}" alt="Logo" width="120">
-                @endif
             </span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">
-                <!-- {{ Auth::check() ? Auth::user()->roles->pluck('name')->first() : 'Construction' }} -->
-                <img src="https://amfu.net/wp-content/uploads/2024/07/cropped-amfu-for-web-new.png" alt="Logo"
+                <img src="{{asset('assets/img/logo/logo.png')}}" alt="Logo"
                     width="160px">
             </span>
         </a>
+
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
         </a>
@@ -20,11 +17,10 @@
 
     <div class="menu-inner-shadow"></div>
 
-    <ul class="menu-inner py-1 border-top">
+    <ul class="menu-inner py-1">
         <!-- Dashboard -->
         <li class="mt-2 menu-item @if(Route::is('admin.dashboard')) active @endif">
-            <a href="{{ route('admin.dashboard') }}"
-                class="menu-link @if(Route::is('admin.dashboard')) text-warning @endif">
+            <a href="{{ route('admin.dashboard') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Dashboard</div>
             </a>
@@ -70,21 +66,33 @@
 
         @endphp
 
-        @canany(['read-request', 'create-request', 'pending-request', 'reject-request'])
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Requests</span></li>
         <!-- Requests -->
-        <li class="menu-item  list-unstyled {{ $isRequestsActive ? 'active open' : '' }}">
+        @canany(['read-request', 'create-request', 'pending-request', 'reject-request'])
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Requests</span>
+        </li>
+        <!-- Requests -->
+        <li class="menu-item list-unstyled {{ $isRequestsActive ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle {{ $isRequestsActive ? 'text-warning' : '' }}">
                 <i class="menu-icon tf-icons bx bx-receipt"></i>
                 <div data-i18n="Requests">Request</div>
             </a>
             <ul class="menu-sub">
 
+                <!-- @can('read-request')
+                <li class="menu-item {{ Route::is('requests.index') ? 'active' : '' }}">
+                    <a href="{{ route('requests.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bi bi-copy"></i>
+                        <div data-i18n="All-Request">All Requests</div>
+                    </a>
+                </li>
+                @endcan -->
+
                 @can('read-request')
                 <li class="menu-item {{ Route::is('requests.index') ? 'active' : '' }}">
                     <a href="{{ route('requests.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bi bi-files"></i>
-                        <div data-i18n="Request">Request</div>
+                        <div data-i18n="Request">Requests</div>
                     </a>
                 </li>
                 @endcan
@@ -116,7 +124,6 @@
                 </li>
                 @endcan
             </ul>
-        </li>
         </li>
         @endcanany
 
@@ -438,10 +445,20 @@
                 <div data-i18n="Settings">Settings</div>
             </a>
             <ul class="menu-sub">
+                <!-- Site Settings -->
+                <!-- @can('profile-settings')
+                <li class="menu-item {{ Route::is('profile.settings') ? 'active' : '' }}">
+                    <a href="{{ route('profile.settings') }}" class="menu-link">
+                        <i class="menu-icon tf-icons bi bi-gear-fill"></i>
+                        <div data-i18n="Settings">Settings</div>
+                    </a>
+                </li>
+                @endcan -->
+
                 @can('profile-settings')
                 <li class="menu-item {{ Route::is('profile.settings') ? 'active' : '' }}">
                     <a href="{{ route('profile.settings') }}" class="menu-link">
-                        <i class="menu-icon tf-icons bi bi-person-circle me-2"></i>
+                        <i class="menu-icon tf-icons bi bi-person-circle "></i>
                         <div data-i18n="profile-Settings">Profile Settings</div>
                     </a>
                 </li>
@@ -480,8 +497,5 @@
         </form>
     </div>
 
-
-
-
 </aside>
-<!-- / Sidebar Menu -->
+<!-- / Menu -->

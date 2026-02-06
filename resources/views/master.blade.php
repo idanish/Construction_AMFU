@@ -1,26 +1,25 @@
+<x-header />
 
-   <x-header/>
+<!-- Layout wrapper -->
+<div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
 
-    <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar">
-        <div class="layout-container">
+        <x-sidebar />
 
-    <x-mobile/>
-    <x-sidebar/>
+        <x-navbar />
+        <x-main />
 
-    <x-main/>
-    
-            <!-- Overlay -->
-            <div class="layout-overlay layout-menu-toggle"></div>
-        </div>
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
     </div>
+</div>
 
-   <x-scripts/>
+<x-scripts />
 
-   <script>
-    window.setTimeout(function() {
-      $(".alert").fadeTo(500, 0).slideUp(500, function(){
-          $(this).remove(); 
-      });
-  }, 600);
-   </script>
+<script>
+window.setTimeout(function() {
+    $(".alert").fadeTo(500, 0).slideUp(500, function() {
+        $(this).remove();
+    });
+}, 600);
+</script>

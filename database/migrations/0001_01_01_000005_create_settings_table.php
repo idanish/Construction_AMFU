@@ -12,12 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('settings', function (Blueprint $table) {
-             $table->id();
-             $table->string('site_name')->nullable();
-             $table->string('logo')->nullable();
-             $table->unsignedBigInteger('transaction_no')->default(0);
-             $table->timestamps();
-             $table->softDeletes();
+            $table->id();
+            $table->string('type')->nullable();
+            $table->string('value')->nullable();
+            $table->unsignedBigInteger('transaction_no')->default(0);
+            $table->timestamps();
         });
     }
 

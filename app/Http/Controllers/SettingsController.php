@@ -66,9 +66,9 @@ public function restoreBackup(Request $request)
         // Queries ko run karo
         DB::unprepared($sql);
 
-        return back()->with('success', '✅ Database restored successfully!');
+        return back()->with('success', 'Database restored successfully!');
     } catch (\Exception $e) {
-        return back()->with('error', '❌ Restore failed: ' . $e->getMessage());
+        return back()->with('error', 'Restore failed: ' . $e->getMessage());
     }
 }
 
@@ -98,6 +98,6 @@ public function restoreBackup(Request $request)
         $setting->logo = $path;
         $setting->save();
 
-        return back()->with('success', '✅ Logo updated successfully!');
+        return back()->with('success', 'Logo updated successfully!');
     }
 }

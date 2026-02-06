@@ -5,14 +5,14 @@
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="icon" type="image/x-icon" href="https://amfu.net/wp-content/uploads/2024/04/cropped-amfu-FAV-32x32.png" />
+    <link rel="icon" type="image/x-icon" href="{{asset('assets/img/favicon/favicon.png')}}" />
 <style>
 body {
     background-color: #f8f9fa;
 }
 
 .image-column {
-    background: url("https://amfu.net/wp-content/uploads/2024/04/construction-silhouette-1.jpg") no-repeat center center fixed;
+    background: url("{{asset('assets/img/backgrounds/background-login.jpg')}}") no-repeat center center fixed;
     background-size: cover;
     height: 100vh;
     padding: 0;
@@ -92,7 +92,7 @@ body {
             <div class="card login-form-card px-4">
                 <div class="card-body">
 
-                    <img src="https://amfu.net/wp-content/uploads/2024/07/cropped-amfu-for-web-new.png" alt="Logo"
+                    <img src="{{asset('assets/img/logo/logo.png')}}" alt="Logo"
                         class="card-image text-center mb-5" width="160px">
 
                     <h2 class="card-title text-center mb-5" style="color: #ffab00;">Login to your Account</h2>
