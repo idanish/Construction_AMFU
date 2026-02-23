@@ -49,7 +49,8 @@
         </div>
 
         <!-- Table -->
-        <table class="table table-bordered">
+<div class="table-responsive">
+        <table class="table datatable table-bordered table-striped table-sm w-100">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -75,6 +76,7 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
 
         <!-- Pagination -->
         <div>

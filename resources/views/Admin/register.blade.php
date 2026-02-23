@@ -1,7 +1,5 @@
 @extends('master')
-
 @section('title', 'Add New User')
-
 @section('content')
 <div class="app-page-title">
     <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -96,7 +94,7 @@
                 <label class="form-label">Assign Department</label>
                 <select name="departments[]" class="form-select @error('departments') is-invalid @enderror" multiple>
                     @foreach ($departments as $dept)
-                    <option value="{{ $dept->id }}" 
+                    <option value="{{ $dept->id }}"
                         {{ (collect(old('departments'))->contains($dept->id)) ? 'selected' : '' }}>
                         {{ $dept->name }}
                     </option>
@@ -105,21 +103,25 @@
                 @error('departments')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
-                <small class="form-text text-muted">Hold Ctrl (Windows) / Command (Mac) to select multiple departments.</small>
+                <small class="form-text text-muted">Hold Ctrl (Windows) / Command (Mac) to select multiple
+                    departments.</small>
             </div>
 
             {{-- Role --}}
             <div class="mb-3">
-                <label class="form-label">Assign Role</label>
-                <select name="role_id" class="form-select @error('role_id') is-invalid @enderror" required>
-                    <option value="" disabled selected>-- Select Role --</option>
+                <label class="form-label">Assign Roles</label>
+                <select name="roles[]" multiple class="form-select @error('roles') is-invalid @enderror" required>
+
                     @foreach ($roles as $role)
-                    <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                    <option value="{{ $role->name }}"
+                        {{ collect(old('roles'))->contains($role->name) ? 'selected' : '' }}>
                         {{ $role->name }}
                     </option>
                     @endforeach
+
                 </select>
-                @error('role_id')
+
+                @error('roles')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -147,4 +149,25 @@
         </form>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    // Departments
+    $('select[name="departments[]"]').select2({
+        placeholder: "Select Departments",
+        allowClear: true,
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+
+    // Roles
+    $('select[name="roles[]"]').select2({
+        placeholder: "Select Roles",
+        allowClear: true,
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+});
+</script>
+
 @endsection

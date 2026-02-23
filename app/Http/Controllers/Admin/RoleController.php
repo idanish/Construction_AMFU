@@ -10,20 +10,17 @@ use Spatie\Permission\Models\Role;
 class RoleController extends Controller
 {
 
-    public function index()
-    {
+    public function index() {
         $roles = Role::with('permissions')->get();
         return view('admin.roles.index', compact('roles'));
     }
 
-    public function create()
-    {
+    public function create() {
         $permissions = Permission::all();
-        return view('admin.roles-create', compact('permissions'));
+        return view('admin.roles.create', compact('permissions'));
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
             'name' => 'required|unique:roles,name',
             'permissions' => 'array', 
@@ -36,27 +33,36 @@ class RoleController extends Controller
 
         return redirect()->route('roles.show')->with('success', 'Role created successfully!'); 
     }
-        public function show($id)
-    {
+
+    public function show($id) {
         $role = Role::findOrFail($id);
         return view('admin.roles.show', compact('role'));
     }
 
-    public function edit($id)
-    {
+    // public function edit($id) {
+    //     $role = Role::findOrFail($id);
+
+    //     $permissions = Permission::all()->groupBy(function ($permission) {
+    //         return explode('-', $permission->name)[0]; 
+    //     });
+
+    //     $rolePermissions = $role->permissions->pluck('name')->toArray();
+
+    //     return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+    // }
+
+    public function edit($id) {
         $role = Role::findOrFail($id);
 
-        $permissions = Permission::all()->groupBy(function ($permission) {
-            return explode('-', $permission->name)[0]; 
-        });
+        // sirf all permissions bhejein
+        $permissions = Permission::all();
 
-        $rolePermissions = $role->permissions->pluck('id')->toArray();
+        $rolePermissions = $role->permissions->pluck('name')->toArray();
 
         return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }
 
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name,' . $id,
         ]);
@@ -70,8 +76,7 @@ class RoleController extends Controller
         return redirect()->route('roles.show')->with('success', 'Role updated successfully!');
     }
 
-    public function destroy($id)
-    {
+    public function destroy($id) {
         $role = Role::findOrFail($id);
         $role->delete();
 

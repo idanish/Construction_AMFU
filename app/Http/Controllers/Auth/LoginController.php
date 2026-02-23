@@ -17,7 +17,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        // ✅ Check agar admin ne user ko inactive kiya hai to login block ho
+        //  Check agar admin ne user ko inactive kiya hai to login block ho
         if (!$user->status) {
             Auth::logout();
             return redirect()->route('login')->withErrors([
@@ -25,7 +25,7 @@ class LoginController extends Controller
             ]);
         }
 
-        // ✅ Notification save karo
+        //  Notification save karo
         Notification::create([
             'user_id' => $user->id,
             'role'    => $user->roles->pluck('name')->first(), 

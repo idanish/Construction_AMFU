@@ -66,6 +66,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $superAdmin = Role::findOrCreate('Super Admin');
         $admin = Role::findOrCreate('Admin');
+        $Operationrole = Role::findOrCreate('Operation Manager');
+        $Procurementrole = Role::findOrCreate('Procurement Finance Manager');
+        $Monitorrole = Role::findOrCreate('Monitor Manager');
         $pm = Role::findOrCreate('PM'); // (Project Manager)
         $fco = Role::findOrCreate('FCO'); // (Finance & Commercial Officer)
         $pmo = Role::findOrCreate('PMO'); // (Project Management Officer)
@@ -77,5 +80,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $fco->givePermissionTo(['create-request', 'read-request']);
         $pmo->givePermissionTo(['create-request', 'read-request']);
         $cso->givePermissionTo(['create-request', 'read-request']);
+        $Operationrole->givePermissionTo(['create-request', 'read-request']);
+        $Procurementrole->givePermissionTo(['create-request', 'read-request']);
+        $Monitorrole->givePermissionTo(['create-request', 'read-request']);
     }
 }

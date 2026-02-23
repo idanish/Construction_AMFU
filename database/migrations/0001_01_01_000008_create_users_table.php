@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('name');
             $table->string('email')->unique();
-            // $table->unsignedBigInteger('department_id')->nullable();
-            // $table->foreign('department_id')->references('id')->on('departments');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('profile_picture')->nullable();
@@ -32,10 +30,10 @@ return new class extends Migration
 
         Schema::create('department_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('department_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            $table->unique(['user_id', 'department_id']);
         });
-
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

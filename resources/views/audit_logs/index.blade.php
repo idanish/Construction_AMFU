@@ -53,7 +53,8 @@
         </div>
 
         <!-- Table -->
-        <table class="table table-bordered table-striped">
+<div class="table-responsive">
+    <table class="table datatable table-bordered table-striped table-sm w-100">
             <thead>
                 <tr>
                     <th>Sr. No</th>
@@ -79,8 +80,9 @@
                 @endforelse
             </tbody>
         </table>
+</div>
 
         <!-- Pagination -->
-        {{ $logs->links() }}
+        <!-- {{ $logs->links() }} -->
     </div>
 @endsection

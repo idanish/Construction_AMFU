@@ -94,8 +94,8 @@
     </div>
 </div>
 
-<div class="table-responsive-lg ">
-    <table id="budgetsTable" class="table table-bordered table-striped">
+<div class="table-responsive">
+    <table id="budgetsTable" class="table datatable table-bordered table-striped table-sm w-100">
         <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
             <tr class="text-center align-middle fw-bold ">
                 <th>No</th>
@@ -152,11 +152,6 @@
             </tr>
             @endforeach
 
-            @if ($budgets->count() == 0)
-            <tr>
-                <td colspan="10" class="text-center">No budgets found.</td>
-            </tr>
-            @endif
         </tbody>
     </table>
     <div class="d-flex justify-content-center">

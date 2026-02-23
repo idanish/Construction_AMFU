@@ -78,8 +78,8 @@
 </div>
 
 
-<div class="table-responsive-lg">
-    <table class="table table-bordered table-striped">
+<div class="table-responsive mt-3">
+    <table class="table datatable table-bordered table-striped table-sm w-100">
         <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
             <tr>
                 <th>No</th>
@@ -132,19 +132,17 @@
                 </td>
             </tr>
             @empty
-            <tr>
-                <td colspan="11" class="text-center">No invoices found.</td>
-            </tr>
+            
             @endforelse
         </tbody>
     </table>
-    <div class="d-flex justify-content-between align-items-center mt-3">
+    <!-- <div class="d-flex justify-content-between align-items-center mt-3">
         <div>
             Showing {{ $invoices->firstItem() }} to {{ $invoices->lastItem() }} of {{ $invoices->total() }} entries
         </div>
         <div>
             {{ $invoices->appends(request()->query())->links('pagination::bootstrap-5') }}
         </div>
-    </div>
+    </div> -->
 </div>
 @endsection

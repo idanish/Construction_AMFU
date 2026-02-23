@@ -1,7 +1,5 @@
 @extends('master')
-
 @section('title', 'Edit User')
-
 @section('content')
 <div class="app-page-title">
     <div class="page-title-wrapper d-flex justify-content-between align-items-center">
@@ -81,11 +79,11 @@
                 <label class="form-label">Assign Departments</label>
                 <div class="@error('departments') is-invalid @enderror">
                     @foreach($departments as $dept)
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" name="departments[]" value="{{ $dept->id }}"
-                                {{ (collect(old('departments'))->contains($dept->id) || $user->departments->contains($dept->id)) ? 'checked' : '' }}>
-                            <label class="form-check-label">{{ $dept->name }}</label>
-                        </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="departments[]" value="{{ $dept->id }}"
+                            {{ (collect(old('departments'))->contains($dept->id) || $user->departments->contains($dept->id)) ? 'checked' : '' }}>
+                        <label class="form-check-label">{{ $dept->name }}</label>
+                    </div>
                     @endforeach
                     @error('departments')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -96,17 +94,19 @@
 
             {{-- Role --}}
             <div class="mb-3">
-                <label class="form-label">Assign Role</label>
-                <select name="role_id" class="form-select @error('role_id') is-invalid @enderror" required>
-                    <option value="" disabled>-- Select Role --</option>
+                <label class="form-label">Assign Roles</label>
+                <select name="roles[]" multiple class="form-select @error('roles') is-invalid @enderror" required>
+
                     @foreach ($roles as $role)
-                    <option value="{{ $role->id }}" 
-                        {{ old('role_id', $user->roles->first()->id ?? '') == $role->id ? 'selected' : '' }}>
+                    <option value="{{ $role->name }}"
+                        {{ collect(old('roles', $user->roles->pluck('name')))->contains($role->name) ? 'selected' : '' }}>
                         {{ $role->name }}
                     </option>
                     @endforeach
+
                 </select>
-                @error('role_id')
+
+                @error('roles')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -118,7 +118,7 @@
                     class="form-select @error('approval_level_id') is-invalid @enderror">
                     <option value="">-- Select Approval Level --</option>
                     @foreach ($approvalLevels as $level)
-                    <option value="{{ $level->id }}" 
+                    <option value="{{ $level->id }}"
                         {{ old('approval_level_id', $user->approval_level_id) == $level->id ? 'selected' : '' }}>
                         ({{ $level->department->name ?? 'N/A' }}) Level {{ $level->sequence }}: {{ $level->name }}
                     </option>
@@ -147,4 +147,24 @@
         </form>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    // Departments
+    $('select[name="departments[]"]').select2({
+        placeholder: "Select Departments",
+        allowClear: true,
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+
+    // Roles
+    $('select[name="roles[]"]').select2({
+        placeholder: "Select Roles",
+        allowClear: true,
+        theme: 'bootstrap4',
+        width: '100%'
+    });
+});
+</script>
 @endsection

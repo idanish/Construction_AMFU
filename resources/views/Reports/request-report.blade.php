@@ -42,14 +42,14 @@
 
         </a>
         <a href="{{ route('reports.requests.export.pdf') }}" class="btn btn-danger vip-btn btn-pdf">
-            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
 
         </a>
     </div>
 
     <!-- Table -->
-    <div class="table-responsive-lg">
-        <table class="table table-bordered table-striped">
+<div class="table-responsive">
+        <table class="table datatable table-bordered table-striped table-sm w-100">
             <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
                     <th>S.No</th>
@@ -74,7 +74,7 @@
     </div>
     <!-- Pagination -->
     <div>
-        {{ $requests->appends(request()->query())->links() }}
+        <!-- {{ $requests->appends(request()->query())->links() }} -->
     </div>
 </div>
 @endsection

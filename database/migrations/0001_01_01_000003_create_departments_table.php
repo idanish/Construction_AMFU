@@ -9,13 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
-            $table->id(); // auto increment primary key
+            $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('departments')->nullOnDelete();
             $table->boolean('is_active')->default(true);
-            $table->timestamps(); // created_at and updated_at
+            $table->timestamps();
             $table->unsignedBigInteger('transaction_no')->default(0);
-            $table->softDeletes(); // merged here
+            $table->softDeletes();
         });
     }
 

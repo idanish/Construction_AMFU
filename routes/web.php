@@ -10,7 +10,6 @@ use App\Http\Controllers\Finance\BudgetController;
 use App\Http\Controllers\Finance\InvoiceController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ProcurementController;
-// use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\DepartmentController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\RoleController;
@@ -25,6 +24,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\RequestApproval;
+use App\Http\Controllers\ApprovalLevelController;
 
 
 Route::get('/clear-cache', function () {
@@ -324,7 +324,6 @@ Route::post('/settings/restore', [BackupController::class, 'restore'])->name('se
 // approvals
 Route::post('/procurement/{id}/update-status', [ProcurementController::class, 'updateStatus'])->name('procurement.updateStatus');
 
-use App\Http\Controllers\ApprovalLevelController;
 
 Route::middleware(['auth'])->group(function () {
 
@@ -342,3 +341,8 @@ Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.
 // Route::get('/approvals', [ApprovalController::class, 'create'])->name('approvals.create');
 
 // Route::post('/approvals/{approval}/update-status', [ApprovalController::class, 'updateStatus'])->name('approvals.updateStatus');
+
+Route::get('/settings', [SettingsController::class, 'showSettings'])->name('settings.show');
+Route::post('/update-settings', [SettingsController::class, 'updateSettings'])->name('settings.update');
+
+// require __DIR__.'/demo.php';

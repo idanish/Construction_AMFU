@@ -36,7 +36,6 @@
 </div>
 @endif
 
-
 {{-- filter --}}
 <div class="mb-2">
     <div class="card-body">
@@ -93,9 +92,8 @@
     </div>
 </div>
 
-
-<div class="table-responsive-lg">
-    <table class="table table-bordered table-striped">
+<div class="table-responsive">
+        <table class="table datatable table-bordered table-striped table-sm w-100">
         <thead>
             <tr>
                 <th>S.No</th>
@@ -120,28 +118,29 @@
                 <td>{{ $request->description }}</td>
                 <td>${{ number_format($request->amount) }}</td>
                 <td>
-                {{-- Status Badge Logic --}}
-                @if($request->status == 'approved')
+                    {{-- Status Badge Logic --}}
+                    @if($request->status == 'approved')
                     <span class="badge bg-success text-white">Approved</span>
-                @elseif($request->status == 'rejected')
+                    @elseif($request->status == 'rejected')
                     <span class="badge bg-danger text-white">Rejected</span>
-                @elseif($request->status == 'need revision')
+                    @elseif($request->status == 'need revision')
                     <span class="badge bg-warning text-dark">Revision Required</span>
-                @else
+                    @else
                     <span class="badge bg-info text-white">Pending</span>
-                @endif</td>
+                    @endif
+                </td>
 
                 <td>
-                {{-- Level Indicator --}}
-                @if($request->type == 'general')
+                    {{-- Level Indicator --}}
+                    @if($request->type == 'general')
                     @if($request->status == 'approved')
-                        <span class="text-muted">Completed</span>
+                    <span class="text-muted">Completed</span>
                     @else
-                        <span class="fw-bold">Level {{ $request->current_level }}</span>
+                    <span class="fw-bold">Level {{ $request->current_level }}</span>
                     @endif
-                @else
+                    @else
                     <span class="fw-bold">Private</span>
-                @endif
+                    @endif
                 </td>
 
                 {{-- Attachments Column --}}
@@ -155,30 +154,40 @@
                 <td>{{ $request->created_at->format('d-M-Y h:i A') }}</td>
 
                 <td>
-                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn mb-1">
-                    <i class="fas fa-eye"></i> View
-                </a>
+                    <a href="{{ route('requests.show', $request->id) }}" class="btn btn-success vip-btn mb-1">
+                        <i class="fas fa-eye"></i> View
+                    </a>
 
-                {{-- Edit Button: Sirf tab dikhayen jab revision ki zaroorat ho aur user requestor ho --}}
-                @if($request->status == 'need revision' && $request->requestor_id == Auth::id())
+                    @php
+                    // Check karein ke kya current logged-in user is level ka approver hai?
+                    $isApproverAtThisLevel = $request->approvals()
+                    ->where('level', $request->current_level)
+                    ->where('approver_id', Auth::id())
+                    ->exists();
+                    @endphp
+
+                    {{-- Edit Button: Requestor ko bhi dikhe aur Current Level ke Approver ko bhi --}}
+                    @if($request->status == 'need revision' && (Auth::id() == $request->requestor_id ||
+                    $isApproverAtThisLevel))
                     <a href="{{ route('requests.edit', $request->id) }}" class="btn btn-sm btn-download vip-btn mb-1">
                         <i class="fas fa-edit"></i> Edit & Resubmit
                     </a>
-                @endif
+                    @endif
 
-                @if(auth()->id() === $request->requestor_id && $request->status !== 'approved')
+                    {{-- Delete Button (Sirf Requestor ke liye) --}}
+                    @if(auth()->id() === $request->requestor_id && !in_array($request->status, ['approved',
+                    'rejected']))
                     <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-inline-block"
                         onsubmit="return confirm('Are you sure you want to delete this request?');">
-                        @csrf
-                        @method('DELETE')
+                        @csrf @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-danger vip-btn mb-1">
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </form>
-                @endif
-            </td>
-        </tr>
-        @endforeach
+                    @endif
+                </td>
+            </tr>
+            @endforeach
 
     </table>
     <!-- Pagination -->

@@ -8,7 +8,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Setting extends Model
 {
-    Protected $fillable = ['tyle', 'value'];
+    Protected $fillable = ['type', 'value'];
 
 
     // Activity Log
@@ -16,7 +16,7 @@ class Setting extends Model
     {
         return LogOptions::defaults()
             ->useLogName('Settings')
-            ->logOnly(['tyle', 'value'])
+            ->logOnly(['type', 'value'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

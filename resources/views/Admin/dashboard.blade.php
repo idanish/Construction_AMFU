@@ -17,7 +17,7 @@
         <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="p-4 bg-white rounded shadow-sm border-bottom border-5 border-warning">
                 <p class="text-muted mb-1">Total Budgets</p>
-                <h3 class="fw-bold text-warning">${{ number_format($totalBudgets ?? 0, 2) }}</h3>
+                <h3 class="fw-bold text-warning">{{ $appSettings['currency_symbol'] ?? '$' }}{{ number_format($totalBudgets ?? 0, 2) }}</h3>
             </div>
         </div>
         @endcan
@@ -26,7 +26,7 @@
         <div class="col-md-6 col-lg-3 col-sm-12 ">
             <div class="p-4 bg-white rounded shadow-sm border-bottom border-5 border-success">
                 <p class="text-muted mb-1">Payments</p>
-                <h3 class="fw-bold text-success">${{ number_format($monthlyPayments ?? 0, 2) }}</h3>
+                <h3 class="fw-bold text-success">{{ $appSettings['currency_symbol'] ?? '$' }}{{ number_format($monthlyPayments ?? 0, 2) }}</h3>
             </div>
         </div>
         @endcan

@@ -30,7 +30,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="sequence" class="form-label">Sequence (1,2,3...)</label>
+                <label for="sequence" class="form-label">Order (1,2,3...)</label>
                 <input type="number" name="sequence" class="form-control">
             </div>
 

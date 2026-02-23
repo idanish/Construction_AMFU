@@ -83,8 +83,8 @@
     </div>
 </div>
 
-<div class="table-responsive-lg">
-    <table class="table table-bordered table-striped">
+<div class="table-responsive mt-3">
+    <table class="table datatable table-bordered table-striped table-sm w-100">
         <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark">
             <tr>
                 <th>No</th>
@@ -140,8 +140,8 @@
         </tbody>
     </table>
     <!-- Pagination Links -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
+    <!-- <div class="d-flex justify-content-between align-items-center mt-3">
         {{ $procurements->links() }}
-    </div>
+    </div> -->
 </div>
 @endsection

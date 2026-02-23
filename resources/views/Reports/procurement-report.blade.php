@@ -50,8 +50,8 @@
     </div>
 
     <!-- Table -->
-    <div class="table-responsive-lg">
-        <table class="table table-bordered table-striped">
+<div class="table-responsive">
+        <table class="table datatable table-bordered table-striped table-sm w-100">
             <thead class="thead-dark text-center align-middle fw-bold bg-light text-dark">
                 <tr>
                     <th>S.No</th>
@@ -66,7 +66,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($procurements as $key => $procurement)
+                @foreach ($procurements as $key => $procurement)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $procurement->item_name }}</td>
@@ -80,17 +80,15 @@
                     <td>{{ $procurement->justification ?? '-' }}</td>
                     <td>{{ $procurement->created_at->format('d-M-Y h:i A') }}</td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="6">No procurement records found</td>
-                </tr>
-                @endforelse
+                
+                 
+                @endforeach
             </tbody>
         </table>
     </div>
     <!-- Pagination -->
     <div>
-        {{ $procurements->links() }}
+        <!-- {{ $procurements->links() }} -->
     </div>
 </div>
 @endsection

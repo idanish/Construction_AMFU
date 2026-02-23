@@ -10,8 +10,28 @@ use Illuminate\Support\Facades\DB;
 class SettingsController extends Controller
 {
    public function index() {
-        return view('settings.backup&restore');
+        return view('settings.site_settings');
     }
+
+    public function showSettings() {
+        $settings = \App\Models\Setting::pluck('value', 'type')->all();
+        return view('settings.site_settings', compact('settings'));
+    }
+
+    public function updateSettings(Request $request) {
+
+        $settings = $request->except('_token');
+
+        foreach ($settings as $key => $value) {
+            Setting::updateOrCreate(
+                ['type' => $key],
+                ['value' => $value]
+            );
+        }
+
+        return back()->with('success', 'Settings updated successfully!');
+    }
+
 
     public function security()
     {

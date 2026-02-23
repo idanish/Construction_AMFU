@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ApprovalController extends Controller
 {
-    public function index()
-    {
+    public function index() {
         $pendingApprovals = Approval::with('request.requestor')
             ->where('approver_id', Auth::id())
             ->where('status', 'pending')
@@ -24,169 +23,111 @@ class ApprovalController extends Controller
         return view('approvals.index', compact('pendingApprovals'));
     }
 
-    public function updateStatus(Request $req, $approvalId)
-    {
-        // 1. Validation
+    public function updateStatus(Request $req, $approvalId) {
+        $user = Auth::user();
+        
+        // 1. Query with Admin Bypass
+        $query = Approval::where('id', $approvalId)->where('status', 'pending');
+        
+        // Yahan ek choti si galti thi aapke logic mein (|| operator ki wajah se)
+        // Ise aise likhein: Agar user admin nahi hai, tabhi approver_id check karein
+        if (!$user->hasRole('super-admin') && !$user->hasRole('Admin')) {
+            $query->where('approver_id', $user->id);
+        }
+
+        $approval = $query->first();
+        if (!$approval) {
+            return back()->with('error', 'Unauthorized or already processed.');
+        }
+
+        $request = $approval->request;
+        $currentSequence = $approval->level;
+
         $req->validate([
             'status' => 'required|in:approved,rejected',
             'comments' => 'nullable|string|max:500',
         ]);
 
-        // 2. Approval aur Request ko dhoondein (Pehle inhein define karna zaroori hai)
-        $approval = Approval::where('id', $approvalId)
-                            ->where('approver_id', Auth::id())
-                            ->where('status', 'pending')
-                            ->firstOrFail();
-
-        $request = $approval->request; // Ab $request define ho gaya
-        $currentSequence = $approval->level;
-
         DB::beginTransaction();
         try {
-            // 3. Comments ko sync karein (Dono tables mein)
             $approval->update([
                 'status'   => $req->status,
                 'comments' => $req->comments,
+                'approver_id' => $user->id,
             ]);
 
-            // Main Request table ke comments update karein
-            $request->update([
-                'comments' => $req->comments
-            ]);
+            $request->update(['comments' => $req->comments]);
 
-            // === CASE 1: REJECTED / SEND BACK ===
+            // --- REJECTION LOGIC ---
             if ($req->status === 'rejected') {
-        if ($currentSequence > 1) {
-            $previousLevel = $currentSequence - 1;
-            
-            $request->update([
-                'status' => 'need revision', 
-                'current_level' => $previousLevel,
-                'comments' => "Sent back from Level {$currentSequence}: " . $req->comments
-            ]);
+                if ($currentSequence > 1) {
+                    $previousLevel = $currentSequence - 1;
+                    $request->update(['status' => 'need revision', 'current_level' => $previousLevel]);
+                    
+                    Approval::where('request_id', $request->id)->where('level', $previousLevel)
+                        ->update([
+                            'status' => 'pending',
+                            'comments' => 'Returned for revision by ' . $user->name . ': ' . $req->comments
+                        ]);
 
-            // Pichlay level ki approval entry dhoondein
-            $prevApproval = Approval::where('request_id', $request->id)
-                                    ->where('level', $previousLevel)
-                                    ->first();
-
-            if ($prevApproval) {
-                // 1. Notification to the Previous Approver (User B)
-                $this->sendNotification(
-                    $prevApproval->approver_id, 
-                    "Request Sent Back for Revision", 
-                    "Request #{$request->id} has been sent back to you from Level {$currentSequence}."
-                );
-
-                // 2. Notification to the Original Requestor (User A)
-                $this->sendNotification(
-                    $request->requestor_id, 
-                    "Your Request Needs Revision", 
-                    "Your request #{$request->id} has been sent back to Level {$previousLevel} for changes."
-                );
-
-                $prevApproval->update(['status' => 'pending']);
+                    DB::commit();
+                    return back()->with('success', "Sent back to Level $previousLevel.");
+                } else {
+                    $request->update(['status' => 'rejected']);
+                    DB::commit();
+                    return back()->with('success', 'Request fully rejected.');
+                }
             }
 
-            DB::commit();
-            return back()->with('success', "Request sent back to Level {$previousLevel}. Notifications sent.");
-            } 
-            else {
-                // Level 1 rejection (Back to Requestor)
-                $request->update([
-                    'status' => 'rejected',
-                    'comments' => "Rejected at Level 1: " . $req->comments
-                ]);
-
-                $this->sendNotification($request->requestor_id, "Request Rejected", "Your request #{$request->id} was rejected at Level 1.");
-                
+            // --- APPROVAL LOGIC (Admin Bypass) ---
+            if ($user->hasRole('super-admin') || $user->hasRole('Admin')) {
+                // Agar Admin approve kare, toh workflow khatam!
+                $request->update(['status' => 'approved']);
                 DB::commit();
-                return back()->with('success', 'Request has been rejected.');
+                return back()->with('success', 'Request fully approved by Admin (Workflow Bypassed).');
+            } else {
+                // Agar normal user approve kare, toh agle level par bhejein
+                $response = $this->moveToNextLevel($request, $currentSequence);
+                DB::commit();
+                return $response;
             }
-        }
-
-            // === CASE 2: APPROVED ===
-            $response = $this->moveToNextLevel($request, $currentSequence);
-            
-            DB::commit();
-            return $response;
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Approval Error: " . $e->getMessage());
-            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    private function moveToNextLevel($request, $currentSequence)
-    {
-        // Private Request logic
-        if ($request->type === 'private') {
-            $request->update(['status' => 'approved']);
-
-            // Notification for Private Approval
-            $this->sendNotification(
-                $request->requestor_id, 
-                "Request Approved", 
-                "Your private request '{$request->title}' has been fully APPROVED."
-            );
-
-            return back()->with('success', "Private request fully approved!");
-        }
-
+    private function moveToNextLevel($request, $currentSequence) {
         $nextSequence = $currentSequence + 1;
-        $nextLevel = ApprovalLevel::where('department_id', $request->department_id)
-            ->where('sequence', $nextSequence)
-            ->first();
+        $nextLevel = ApprovalLevel::where('sequence', $nextSequence)->first();
 
-        // 1. Agar agla level nahi hai (Final Approval)
         if (!$nextLevel) {
-            $request->update(['status' => 'approved', 'current_level' => $currentSequence]);
-            
-            // Notify Requestor
-            $this->sendNotification(
-                $request->requestor_id, 
-                "Request Approved", 
-                "Your request '{$request->title}' has been fully APPROVED."
-            );
-            
+            $request->update(['status' => 'approved']);
             return back()->with('success', "Request fully approved!");
         }
 
         $nextApprover = $nextLevel->users()->first();
 
-        // 2. Agar level hai magar user nahi hai (Needs Admin Attention)
         if (!$nextApprover) {
             $request->update(['status' => 'Needs Approver', 'current_level' => $nextSequence]);
-            
-            // Notification for Admin or Role (Agar aapka system role support karta hai)
-            $this->sendNotification(
-                null, 
-                "Approver Missing", 
-                "Level {$nextSequence} has no assigned user for request: '{$request->title}'.",
-                "super-admin" // Aapka role system
-            );
-
-            return back()->with('warning', "Approved, but Level {$nextSequence} has no assigned user. Admin notified.");
+            return back()->with('warning', "Level $nextSequence has no user assigned.");
         }
 
-        // --- SELF-APPROVAL SKIP LOGIC ---
+        // SKIP LOGIC if next approver is the requestor
         if ($nextApprover->id === $request->requestor_id) {
             Approval::create([
                 'request_id'  => $request->id,
                 'approver_id' => $nextApprover->id,
                 'level'       => $nextSequence,
                 'status'      => 'approved',
-                'comments'    => 'System: Auto-approved (Requestor is the Approver at Level '.$nextSequence.').'
+                'comments'    => 'System: Auto-approved (Requestor match).'
             ]);
-
-            // Note: Skip hone par notification ki zaroorat nahi kyunke ye foran agle level par ja raha hai
             return $this->moveToNextLevel($request, $nextSequence);
         }
 
-        // 3. Standard Next Step (Move to Next Person)
+        // Standard Move
         $request->update(['status' => 'pending', 'current_level' => $nextSequence]);
-        
         Approval::create([
             'request_id'  => $request->id,
             'approver_id' => $nextApprover->id,
@@ -194,18 +135,11 @@ class ApprovalController extends Controller
             'status'      => 'pending',
         ]);
 
-        // Notify Next Approver
-        $this->sendNotification(
-            $nextApprover->id, 
-            "New Approval Required", 
-            "You have a new pending request: '{$request->title}' at Level {$nextSequence}."
-        );
-
-        return back()->with('success', "Approved and moved to Level {$nextSequence}.");
+        $this->sendNotification($nextApprover->id, "New Approval", "Request #$request->id is at your level.");
+        return back()->with('success', "Moved to Level $nextSequence.");
     }
 
-    private function sendNotification($userId, $title, $message, $role = null)
-    {
+    private function sendNotification($userId, $title, $message, $role = null) {
         if ($userId || $role) {
             \App\Models\Notification::create([
                 'user_id' => $userId,

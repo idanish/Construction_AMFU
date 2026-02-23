@@ -4,10 +4,12 @@
 <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
 
-        <x-sidebar />
+    <x-sidebar />
 
-        <x-navbar />
+            <x-navbar />
+
         <x-main />
+
 
         <!-- Overlay -->
         <div class="layout-overlay layout-menu-toggle"></div>

@@ -1,15 +1,24 @@
 @extends('master')
 @section('title', 'Roles')
 @section('content')
-<div class="container-xxl flex-grow-1 container-p-y">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0">Roles</h4>
-        @can('create-role')
-        <a href="{{ route('roles.create') }}" class="btn btn-download vip-btn">
-            <i class="bi bi-plus-circle"></i> Create New Role
-        </a>
-        @endcan
+<div class="app-page-title">
+    <div class="page-title-wrapper d-flex justify-content-between align-items-center">
+        <div class="page-title-heading m-0">
+            <div class="page-title-icon">
+                <i class="pe-7s-cash icon-gradient bg-tempting-azure"></i>
+            </div>
+            <div class="h4 m-0">Roles</div>
+        </div>
+        <div class="page-title-actions">
+            @can('create-role')
+            <a href="{{ route('roles.create') }}" class="btn btn-download mb-3 vip-btn">
+                <i class="bi bi-plus-circle"></i> Create New Role
+            </a>
+            @endcan
+        </div>
     </div>
+</div>
+
 
     {{-- Success Message --}}
     @if (session('success'))
@@ -32,11 +41,11 @@
     <p class="text-center text-muted">No roles found.</p>
     @else
 
-    <div class="table-responsive-lg ">
-        <table id="procurementTable" class="table table-bordered table-striped">
+<div class="table-responsive">
+    <table class="table datatable table-bordered table-striped table-sm w-100">
             <thead class="table thead-dark text-center align-middle fw-bold bg-light text-dark ">
                 <tr>
-                    <th>No</th>
+                    <th>S.No</th>
                     <th>Role Name</th>
                     <th class="text-center">Actions</th>
                 </tr>

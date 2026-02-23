@@ -1,28 +1,4 @@
-@extends('master')
-@section('title', 'Settings')
-@section('content')
-
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">⚙️ General Settings</h5>
-        </div>
-        <div class="card-body">
-
-            {{-- Success/Error Messages --}}
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>- {{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form action="{{ route('settings.updateLogo') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('settings.updateLogo') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <!-- Site Name -->
@@ -66,7 +42,3 @@
                     <i class="bi bi-check-lg"></i> Submit
                 </button>
             </form>
-        </div>
-    </div>
-
-@endsection

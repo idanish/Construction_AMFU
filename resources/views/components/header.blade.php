@@ -10,15 +10,12 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <!-- <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" /> -->
-    <!-- <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" /> -->
-    <link rel="icon" type="image/x-icon" href="https://amfu.net/wp-content/uploads/2024/04/cropped-amfu-FAV-32x32.png" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.png') }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- Icons -->
     <link rel="stylesheet" href="{{ asset('assets/vendor/fonts/boxicons.css') }}" />
@@ -45,11 +42,16 @@
         crossorigin="anonymous" />
 
 
-    {{-- DataTables CSS --}}
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" />
 
     <!-- SweetAlert2 CSS + JS -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+
+    <!-- Select 2 for selection  -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Optional: Bootstrap 5 theme -->
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
 
     <!-- Icons (Bootstrap Icons CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">

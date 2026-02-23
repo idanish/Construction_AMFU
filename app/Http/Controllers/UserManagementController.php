@@ -12,15 +12,12 @@ use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
-    // Show all users
-    public function index()
-    {
+    public function index() {
         $users = User::with(['roles', 'departments', 'approvalLevel'])->get();
         return view('admin.user-management', compact('users'));
     }
 
-    public function create()
-    {
+    public function create() {
         $departments = Department::orderBy('name')->get();
         
         // Fetch all approval levels with their department to show context in the dropdown
@@ -34,21 +31,21 @@ class UserManagementController extends Controller
         return view('admin.register', compact('departments', 'roles', 'approvalLevels'));
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
             'name'              => 'required|string|max:255',
             'username'          => 'required|string|unique:users,username',
             'email'             => 'required|email|unique:users,email',
             'password'          => 'required|string|min:8|confirmed',
-            'role_id'           => 'required|exists:roles,id',
+            'roles' => 'required|array',
+            'roles.*' => 'exists:roles,name',
             'approval_level_id' => 'nullable|exists:approval_levels,id',
             'departments' => 'nullable|array',
             'departments.*' => 'exists:departments,id',
 
         ]);
 
-        // 1. User Create karna
+        // 1. User Create
         $user = User::create([
             'name'              => $request->name,
             'username'          => $request->username,
@@ -57,25 +54,20 @@ class UserManagementController extends Controller
             'approval_level_id' => $request->approval_level_id,
         ]);
 
+        // 2. Multiple Department Assign
         if ($request->has('departments')) {
             $user->departments()->sync($request->departments);
         }
 
-        // 2. Role assign karna - Role ID se name nikalo
-        $role = Role::findById($request->role_id);
-        if ($role) {
-            $user->assignRole($role->name);
-        }
+        // 3. Multiple Roles Assign
+        $user->syncRoles($request->roles);
         
         createNotification('Admin', "New user {$user->name} created by ".auth()->user()->name);
     
         return redirect()->route('admin.user-management')->with('success', 'User created successfully and role assigned.');
     }
 
-    
-    // Show edit form for a user
-    public function edit(User $user)
-    {
+    public function edit(User $user) {
         $roles = Role::all();
         $departments = Department::orderBy('name')->get();
         
@@ -88,16 +80,15 @@ class UserManagementController extends Controller
         return view('admin.users-edit', compact('user', 'roles', 'departments', 'approvalLevels'));
     }
 
-    // Update user info + role
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $user = User::findOrFail($id);
 
         $request->validate([
             'name'              => 'required|string|max:255',
             'username'          => 'required|string|max:255',
             'email'             => 'required|email|unique:users,email,' . $user->id,
-            'role_id'           => 'required|exists:roles,id',
+            'roles'             => 'required|array',
+            'roles.*'           => 'exists:roles,name',
             'approval_level_id' => 'nullable|exists:approval_levels,id',
             'departments' => 'nullable|array',
             'departments.*' => 'exists:departments,id',
@@ -125,18 +116,13 @@ class UserManagementController extends Controller
 
         $user->update($userData);
 
-        // Role Update - Role ID se name nikalo aur sync karo
-        $role = Role::findById($request->role_id);
-        if ($role) {
-            $user->syncRoles([$role->name]);
-        }
+        // Role Update
+        $user->syncRoles($request->roles);
 
         return redirect()->route('admin.user-management')->with('success', 'User updated successfully!');
     }
 
-    //  Update status (Active / Inactive)
-    public function updateStatus(Request $request, User $user)
-    {
+    public function updateStatus(Request $request, User $user) {
         $request->validate([
             'status' => 'required|boolean',
         ]);
@@ -147,29 +133,25 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'User status updated successfully!');
     }
 
-    public function destroy(User $user) 
-    {
+    public function destroy(User $user)  {
         $user->delete(); 
 
         return redirect()->route('admin.user-management')->with('success', 'User deleted successfully!');
     }
 
-    public function deletedUsers()
-    {
+    public function deletedUsers() {
         $users = User::onlyTrashed()->with('departments')->get();
         return view('admin.users-deleted', compact('users')); 
     }
 
-    public function restore($id)
-    {
+    public function restore($id) {
         $user = User::withTrashed()->findOrFail($id); 
         $user->restore();
 
         return redirect()->route('admin.deleted-users')->with('success', 'User restored successfully!');
     }
 
-    public function forceDelete($id)
-    {
+    public function forceDelete($id) {
         $user = User::withTrashed()->findOrFail($id); 
         $user->forceDelete(); 
 

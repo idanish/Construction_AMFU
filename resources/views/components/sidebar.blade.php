@@ -79,15 +79,6 @@
             </a>
             <ul class="menu-sub">
 
-                <!-- @can('read-request')
-                <li class="menu-item {{ Route::is('requests.index') ? 'active' : '' }}">
-                    <a href="{{ route('requests.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons bi bi-copy"></i>
-                        <div data-i18n="All-Request">All Requests</div>
-                    </a>
-                </li>
-                @endcan -->
-
                 @can('read-request')
                 <li class="menu-item {{ Route::is('requests.index') ? 'active' : '' }}">
                     <a href="{{ route('requests.index') }}" class="menu-link">

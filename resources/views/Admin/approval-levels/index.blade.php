@@ -34,20 +34,22 @@
 </div>
 @endif
 
-<div class="table-responsive-lg">
-    <table class="table table-bordered table-striped">
+<div class="table-responsive">
+    <table class="table datatable table-bordered table-striped table-sm w-100">
         <thead>
             <tr>
+                <th>S.No</th>
                 <th>Department</th>
                 <th>Level Name</th>
-                <th>Sequence</th>
+                <th>Order</th>
                 <th>Action</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach($levels as $l)
+            @foreach($levels as $key => $l)
             <tr class="text-center align-middle">
+                <td>{{ $key + 1 }}</td>
                 <td>{{ $l->department->name }}</td>
                 <td>{{ $l->name }}</td>
                 <td>{{ $l->sequence }}</td>
